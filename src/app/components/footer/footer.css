@@ -1,0 +1,9 @@
+/* Footer responsive tweaks (complements Tailwind) */
+footer .container { padding-left: 1rem; padding-right: 1rem; }
+
+@media (max-width: 640px) {
+	footer .grid { grid-template-columns: 1fr !important; }
+	footer .text-2xl { font-size: 1.125rem; }
+	footer .pt-16 { padding-top: 2rem; }
+}
+

@@ -1,0 +1,4 @@
+/* Component styles are mostly utility-based, but we can add specific animations or overrides here */
+:host {
+    display: block;
+}

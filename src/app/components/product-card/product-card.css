@@ -1,0 +1,25 @@
+/* Product card responsive helpers (works with Tailwind classes in template) */
+.product-card-root {
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+}
+
+.product-card-root .media {
+	width: 100%;
+	aspect-ratio: 1 / 1;
+	overflow: hidden;
+}
+
+/* Ensure text truncation and wrapping behave on small screens */
+.product-card-root .truncate {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+@media (max-width: 640px) {
+	.product-card-root h3 { font-size: 1rem; }
+	.product-card-root .price { font-size: 1rem; }
+}
+

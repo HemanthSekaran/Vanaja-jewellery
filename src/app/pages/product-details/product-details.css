@@ -1,0 +1,7 @@
+/* Product details responsive tweaks */
+.product-gallery img { border-radius: 6px; }
+
+@media (max-width: 640px) {
+	.product-gallery img { height: auto; }
+}
+

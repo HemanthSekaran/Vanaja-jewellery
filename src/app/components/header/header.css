@@ -1,0 +1,28 @@
+/* Header responsive tweaks — complements Tailwind utilities */
+header .container {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+}
+
+/* Ensure clickable icons stay visible on very small screens */
+header .container .flex.items-center>* {
+	min-width: 36px;
+}
+
+/* Mobile menu (keeps padding consistent) */
+header>div+div {
+	padding-left: 1rem;
+	padding-right: 1rem;
+}
+
+@media (max-width: 640px) {
+	header .container {
+		padding-left: 0.5rem;
+		padding-right: 0.5rem;
+	}
+
+	header .container .text-2xl {
+		font-size: 1.125rem;
+	}
+}

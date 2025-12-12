@@ -1,0 +1,148 @@
+@if (product) {
+<div class="container mx-auto px-4 py-8">
+	<div class="grid md:grid-cols-2 gap-8 lg:gap-12">
+		<!-- Image Gallery -->
+		<div class="space-y-4">
+			<div class="aspect-square bg-muted rounded-lg overflow-hidden">
+				<img [src]="selectedImage" [alt]="product.name" class="w-full h-full object-cover">
+			</div>
+			<div class="grid grid-cols-4 gap-4">
+				@for (image of product.images; track image) {
+				<button (click)="selectedImage = image"
+					class="aspect-square bg-muted rounded-md overflow-hidden border-2 transition-colors"
+					[class.border-primary]="selectedImage === image"
+					[class.border-transparent]="selectedImage !== image">
+					<img [src]="image" [alt]="product.name" class="w-full h-full object-cover">
+				</button>
+				}
+			</div>
+		</div>
+
+		<!-- Product Info -->
+		<div class="space-y-6">
+			<div>
+				<h1 class="text-3xl font-bold font-serif text-primary">{{ product.name }}</h1>
+				<div class="flex items-center gap-2 mt-2">
+					<div class="flex text-secondary">
+						@for (star of [1,2,3,4,5]; track star) {
+						<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+							[attr.fill]="star <= product.rating ? 'currentColor' : 'none'" stroke="currentColor"
+							stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-star">
+							<polygon
+								points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+						</svg>
+						}
+					</div>
+					<span class="text-sm text-muted-foreground">({{ product.reviewCount }} reviews)</span>
+				</div>
+				<p class="text-2xl font-bold mt-4 text-secondary">{{ selectedVariant?.price || product.price | currency
+					}}</p>
+			</div>
+
+			<p class="text-muted-foreground leading-relaxed">
+				{{ product.description }}
+			</p>
+
+			<!-- Price Breakdown -->
+			@if (priceDetails) {
+			<div class="mt-4 border rounded-lg p-4 bg-slate-50">
+				<h3 class="font-bold text-lg mb-3">Price Breakdown</h3>
+				<div class="space-y-2 text-sm">
+					<div class="flex justify-between">
+						<span>Metal Rate ({{product.purity}})</span>
+						<span>{{priceDetails.metalRate | currency:'INR'}} per g</span>
+					</div>
+					<div class="flex justify-between">
+						<span>Metal Value ({{product.weight}}g)</span>
+						<span>{{priceDetails.metalValue | currency:'INR'}}</span>
+					</div>
+					<div class="flex justify-between">
+						<span>Wastage / VA ({{product.wastagePercentage | percent}})</span>
+						<span>{{priceDetails.wastageAmount | currency:'INR'}}</span>
+					</div>
+					<div class="flex justify-between">
+						<span>Making Charges</span>
+						<span>{{priceDetails.makingCharges | currency:'INR'}}</span>
+					</div>
+					@if (priceDetails.stoneCharges) {
+					<div class="flex justify-between">
+						<span>Stone Charges</span>
+						<span>{{priceDetails.stoneCharges | currency:'INR'}}</span>
+					</div>
+					}
+					<div class="flex justify-between font-medium border-t pt-2 mt-2">
+						<span>Taxable Amount</span>
+						<span>{{priceDetails.taxableValue | currency:'INR'}}</span>
+					</div>
+					<div class="flex justify-between">
+						<span>GST (3%)</span>
+						<span>{{priceDetails.gstAmount | currency:'INR'}}</span>
+					</div>
+					<div class="flex justify-between font-bold text-lg border-t pt-2 mt-2 text-primary">
+						<span>Grand Total</span>
+						<span>{{priceDetails.finalPrice | currency:'INR'}}</span>
+					</div>
+				</div>
+			</div>
+			}
+
+			<!-- Variants Selection -->
+			@if (product.variants.length > 0) {
+			<div class="space-y-4">
+				@if (hasSizes) {
+				<div class="space-y-2">
+					<label class="text-sm font-medium text-foreground">Size</label>
+					<div class="flex flex-wrap gap-2">
+						@for (variant of sizeVariants; track variant.id) {
+						<button (click)="selectVariant(variant)"
+							class="px-4 py-2 border rounded-md text-sm transition-colors"
+							[class.bg-primary]="selectedVariant?.id === variant.id"
+							[class.text-primary-foreground]="selectedVariant?.id === variant.id"
+							[class.hover:bg-muted]="selectedVariant?.id !== variant.id">
+							{{ variant.size }}
+						</button>
+						}
+					</div>
+				</div>
+				}
+
+				@if (hasMaterials) {
+				<div class="space-y-2">
+					<label class="text-sm font-medium text-foreground">Material</label>
+					<div class="flex flex-wrap gap-2">
+						@for (material of product.materials; track material) {
+						<div class="px-3 py-1 bg-muted rounded-full text-xs capitalize text-muted-foreground">
+							{{ material }}
+						</div>
+						}
+					</div>
+				</div>
+				}
+			</div>
+			}
+
+			<!-- Actions -->
+			<div class="flex gap-4 pt-6 border-t border-border mt-auto">
+				<button (click)="toggleCart()"
+					class="flex-1 inline-flex items-center justify-center rounded-md text-sm font-bold h-12 px-8 uppercase tracking-wider transition-colors focus-visible:outline-none disabled:opacity-50 disabled:pointer-events-none text-white"
+					[class.bg-[#8B0000]]="!isInCart" [class.hover:bg-[#600000]]="!isInCart"
+					[class.bg-green-600]="isInCart" [class.hover:bg-green-700]="isInCart">
+
+					{{ isInCart ? 'Added to Cart' : 'Add to Cart' }}
+				</button>
+				<button (click)="toggleWishlist()"
+					class="inline-flex items-center justify-center rounded-md text-sm font-medium h-12 w-12 border border-input bg-white hover:bg-gray-100 transition-colors"
+					[class.text-red-500]="isInWishlist" [class.border-red-500]="isInWishlist"
+					[class.bg-red-50]="isInWishlist">
+					<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+						[attr.fill]="isInWishlist ? 'currentColor' : 'none'" stroke="currentColor" stroke-width="2"
+						stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-heart">
+						<path
+							d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5 4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" />
+					</svg>
+				</button>
+			</div>
+		</div>
+	</div>
+</div>
+}

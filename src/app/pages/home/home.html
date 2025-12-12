@@ -1,0 +1,25 @@
+<app-hero-section></app-hero-section>
+
+<app-collection-carousel [collections]="featuredCollections"></app-collection-carousel>
+
+<section class="py-16 px-4 sm:px-6 lg:px-8">
+    <div class="container mx-auto">
+        <div class="text-center mb-12">
+            <h2 class="text-3xl sm:text-4xl font-bold mb-4">Best Selling Products</h2>
+            <p class="text-lg text-muted-foreground max-w-2xl mx-auto">
+                Discover our most loved pieces, cherished by customers worldwide for their exceptional beauty and
+                craftsmanship
+            </p>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            @for (product of bestSellers; track product.id) {
+            <app-product-card [product]="product"></app-product-card>
+            }
+        </div>
+    </div>
+</section>
+
+<app-brand-story></app-brand-story>
+<app-newsletter-section></app-newsletter-section>
+<app-instagram-feed></app-instagram-feed>

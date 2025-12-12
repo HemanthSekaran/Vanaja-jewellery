@@ -1,0 +1,126 @@
+<header
+    class="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <div class="container relative flex h-24 items-center px-4">
+        <!-- Left Section: Mobile Menu & Logo -->
+        <div class="flex items-center flex-1 md:flex-none">
+            <!-- Mobile Menu Toggle -->
+            <button (click)="toggleMenu()" class="md:hidden p-2 mr-2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="4" x2="20" y1="12" y2="12" />
+                    <line x1="4" x2="20" y1="6" y2="6" />
+                    <line x1="4" x2="20" y1="18" y2="18" />
+                </svg>
+            </button>
+
+            <!-- Logo (Desktop: Static Left, Mobile: Absolute Center) -->
+            <a routerLink="/"
+                class="absolute left-1/2 -translate-x-1/2 md:static md:translate-x-0 md:mr-8 flex items-center">
+                <img src="images/logo.png" alt="Sri Vanaja Jewellery Logo"
+                    class="h-16 md:h-20 w-auto object-contain p-1" style="width: 90px; height: 90px;">
+            </a>
+        </div>
+
+        <!-- Center Section: Desktop Nav -->
+        <nav
+            class="hidden md:flex flex-1 items-center justify-center space-x-8 text-sm font-medium uppercase tracking-wider">
+            <a routerLink="/" routerLinkActive="text-primary" [routerLinkActiveOptions]="{exact: true}"
+                class="transition-colors hover:text-primary">Home</a>
+            <a routerLink="/products" routerLinkActive="text-primary"
+                class="transition-colors hover:text-primary">Products</a>
+            <a routerLink="/about" routerLinkActive="text-primary"
+                class="transition-colors hover:text-primary">About</a>
+            <a routerLink="/contact" routerLinkActive="text-primary"
+                class="transition-colors hover:text-primary">Contact</a>
+            <a routerLink="/customization" routerLinkActive="text-primary"
+                class="transition-colors hover:text-primary">customization</a>
+        </nav>
+
+        <!-- Right Section: Icons -->
+        <div class="flex items-center space-x-4 justify-end flex-1 md:flex-none">
+            <!-- Search -->
+            <a routerLink="/products" class="p-2 hover:text-primary transition-colors" title="Search Products">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="8" />
+                    <path d="m21 21-4.3-4.3" />
+                </svg>
+            </a>
+
+            <!-- Wishlist -->
+            <a routerLink="/wishlist" class="p-2 hover:text-primary transition-colors relative" title="Wishlist">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path
+                        d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5 4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" />
+                </svg>
+            </a>
+
+            <!-- Cart -->
+            <a routerLink="/cart" class="p-2 hover:text-primary transition-colors relative" title="Cart">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="8" cy="21" r="1" />
+                    <circle cx="19" cy="21" r="1" />
+                    <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12" />
+                </svg>
+                @if (cartService.count() > 0) {
+                <span
+                    class="absolute -top-1 -right-1 bg-primary text-primary-foreground text-[10px] font-bold h-4 w-4 flex items-center justify-center rounded-full">
+                    {{ cartService.count() }}
+                </span>
+                }
+            </a>
+
+            <!-- Profile -->
+            <!-- Profile Logic -->
+            <!-- Profile Logic -->
+            <div class="relative">
+                @if (authService.currentUser()) {
+                <button (click)="toggleUserMenu()" class="p-2 hover:text-primary transition-colors focus:outline-none"
+                    title="Account">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
+                        <circle cx="12" cy="7" r="4" />
+                    </svg>
+                </button>
+                } @else {
+                <a routerLink="/login" class="p-2 hover:text-primary transition-colors focus:outline-none"
+                    title="Login">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
+                        <circle cx="12" cy="7" r="4" />
+                    </svg>
+                </a>
+                }
+
+                @if (isUserMenuOpen) {
+                <div
+                    class="absolute right-0 mt-2 w-48 bg-card rounded-md shadow-lg py-1 ring-1 ring-black ring-opacity-5 z-50">
+                    @if (authService.currentUser()) {
+                    <div class="px-4 py-2 border-b">
+                        <p class="text-sm font-medium truncate">{{ authService.currentUser()?.name }}</p>
+                        <p class="text-xs text-muted-foreground truncate">{{ authService.currentUser()?.email }}</p>
+                    </div>
+                    <a routerLink="/profile" class="block px-4 py-2 text-sm text-foreground hover:bg-muted"
+                        (click)="isUserMenuOpen = false">Profile</a>
+                    <a routerLink="/edit-profile" class="block px-4 py-2 text-sm text-foreground hover:bg-muted"
+                        (click)="isUserMenuOpen = false">Edit Profile</a>
+                    @if (authService.currentUser()?.role === 'owner') {
+                    <a routerLink="/admin/product/new" class="block px-4 py-2 text-sm text-foreground hover:bg-muted"
+                        (click)="isUserMenuOpen = false">
+                        Add Product
+                    </a>
+                    }
+                    <button (click)="logout()"
+                        class="block w-full text-left px-4 py-2 text-sm text-destructive hover:bg-muted">Logout</button>
+                    }
+                </div>
+                }
+            </div>
+        </div>
+    </div>
+    <!-- Mobile Menu -->
+</header>

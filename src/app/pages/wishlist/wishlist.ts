@@ -1,0 +1,39 @@
+import { Component, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { WishlistService } from '../../services/wishlist.service';
+import { ProductCard } from '../../components/product-card/product-card';
+import { RouterLink } from '@angular/router';
+
+@Component({
+  selector: 'app-wishlist',
+  imports: [CommonModule, ProductCard, RouterLink],
+  template: `
+    <div class="container mx-auto px-4 py-16">
+      <h1 class="text-3xl font-bold mb-8">My Wishlist</h1>
+
+      @if (wishlistService.count() === 0) {
+        <div class="text-center py-16 bg-muted/30 rounded-lg">
+          <h2 class="text-xl font-semibold mb-2">Your wishlist is empty</h2>
+          <p class="text-muted-foreground mb-6">Start adding your favorite pieces to create your dream collection.</p>
+          <a routerLink="/products" class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2">
+            Browse Products
+          </a>
+        </div>
+      } @else {
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          @for (item of wishlistService.items(); track item.product.id) {
+            <div class="relative group">
+              <app-product-card [product]="item.product"></app-product-card>
+              <button (click)="wishlistService.removeFromWishlist(item.product.id)" class="absolute top-2 right-2 bg-white/80 hover:bg-red-50 text-gray-600 hover:text-red-600 p-2 rounded-full shadow-sm transition-colors z-10" title="Remove from wishlist">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trash-2"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
+              </button>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  `
+})
+export class Wishlist {
+  wishlistService = inject(WishlistService);
+}

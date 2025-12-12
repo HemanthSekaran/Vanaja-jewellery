@@ -1,0 +1,56 @@
+<div class="container min-h-[600px] flex items-center justify-center py-10">
+    <div class="w-full max-w-lg space-y-8 bg-card p-8 rounded-lg border shadow-sm">
+        <div class="text-center space-y-2">
+            <h1 class="text-3xl font-serif font-bold tracking-tight">Create an Account</h1>
+            <p class="text-muted-foreground">Enter your details to create your account</p>
+        </div>
+
+        <form (ngSubmit)="onSubmit()" class="space-y-4">
+            <div class="space-y-2">
+                <label for="name" class="text-sm font-medium leading-none">Full Name</label>
+                <input type="text" id="name" [(ngModel)]="name" name="name" required
+                    class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                    placeholder="John Doe">
+            </div>
+
+            <div class="space-y-2">
+                <label for="email" class="text-sm font-medium leading-none">Email</label>
+                <input type="email" id="email" [(ngModel)]="email" name="email" required
+                    class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                    placeholder="name@example.com">
+            </div>
+
+            <div class="space-y-2">
+                <label for="password" class="text-sm font-medium leading-none">Password</label>
+                <input type="password" id="password" [(ngModel)]="password" name="password" required
+                    class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
+            </div>
+
+            <div class="space-y-2">
+                <label for="phone" class="text-sm font-medium leading-none">Phone Number</label>
+                <input type="tel" id="phone" [(ngModel)]="phone" name="phone"
+                    class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                    placeholder="+1 (555) 000-0000">
+            </div>
+
+            <div class="space-y-2">
+                <label for="address" class="text-sm font-medium leading-none">Address</label>
+                <textarea id="address" [(ngModel)]="address" name="address" rows="3"
+                    class="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                    placeholder="123 Main St, City, Country"></textarea>
+            </div>
+
+            <button type="submit"
+                class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 w-full mt-4">
+                Create Account
+            </button>
+        </form>
+
+        <div class="text-center text-sm">
+            <span class="text-muted-foreground">Already have an account? </span>
+            <a routerLink="/login" class="font-medium underline underline-offset-4 hover:text-primary">
+                Sign in
+            </a>
+        </div>
+    </div>
+</div>
