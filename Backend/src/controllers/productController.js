@@ -70,11 +70,6 @@ const getAllProducts = async (req, res, next) => {
     }
 };
 
-/**
- * @desc    Get single product
- * @route   GET /api/products/:id
- * @access  Public
- */
 const getProduct = async (req, res, next) => {
     try {
         const productId = req.params.id;
@@ -95,11 +90,6 @@ const getProduct = async (req, res, next) => {
     }
 };
 
-/**
- * @desc    Create product
- * @route   POST /api/products
- * @access  Private (Admin)
- */
 const createProduct = async (req, res, next) => {
     try {
         const { name, grams, wastage, category, description, availability } = req.body;

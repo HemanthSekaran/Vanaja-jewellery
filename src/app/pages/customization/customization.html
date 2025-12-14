@@ -12,10 +12,11 @@
                 <!-- Design Name / Type -->
                 <div class="space-y-2">
                     <label for="designName" class="text-sm font-medium text-primary">Design Name / Type</label>
-                    <input type="text" id="designName" formControlName="designName"
+                    <input type="text" id="designName" formControlName="design_name"
                         class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                         placeholder="e.g. Antique Temple Necklace">
-                    @if (customizationForm.get('designName')?.invalid && customizationForm.get('designName')?.touched) {
+                    @if (customizationForm.get('design_name')?.invalid && customizationForm.get('design_name')?.touched)
+                    {
                     <p class="text-sm text-destructive">Design name is required.</p>
                     }
                 </div>
@@ -23,7 +24,7 @@
                 <!-- Material -->
                 <div class="space-y-2">
                     <label for="material" class="text-sm font-medium text-primary">Material Preference</label>
-                    <select id="material" formControlName="material"
+                    <select id="material" formControlName="material_preference"
                         class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50">
                         <option value="">Select Material</option>
                         <option value="Gold 22k">Gold 22k</option>
@@ -32,7 +33,8 @@
                         <option value="Platinum">Platinum</option>
                         <option value="Rose Gold">Rose Gold</option>
                     </select>
-                    @if (customizationForm.get('material')?.invalid && customizationForm.get('material')?.touched) {
+                    @if (customizationForm.get('material_preference')?.invalid &&
+                    customizationForm.get('material_preference')?.touched) {
                     <p class="text-sm text-destructive">Please select a material.</p>
                     }
                 </div>
@@ -40,10 +42,11 @@
                 <!-- Weightage -->
                 <div class="space-y-2">
                     <label for="weightage" class="text-sm font-medium text-primary">Approximate Weight (grams)</label>
-                    <input type="number" id="weightage" formControlName="weightage"
+                    <input type="number" id="weightage" formControlName="approximate_weight"
                         class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                         placeholder="e.g. 15">
-                    @if (customizationForm.get('weightage')?.invalid && customizationForm.get('weightage')?.touched) {
+                    @if (customizationForm.get('approximate_weight')?.invalid &&
+                    customizationForm.get('approximate_weight')?.touched) {
                     <p class="text-sm text-destructive">Please enter a valid weight.</p>
                     }
                 </div>
@@ -55,10 +58,10 @@
                     <textarea id="description" formControlName="description" rows="5"
                         class="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                         placeholder="Describe your design in detail..."></textarea>
-                    @if (customizationForm.get('description')?.invalid && customizationForm.get('description')?.touched)
-                    {
+                @if (customizationForm.get('description')?.invalid && customizationForm.get('description')?.touched)
+                {
                     <p class="text-sm text-destructive">Description is required.</p>
-                    }
+                }
                 </div>
 
                 <!-- Image Upload -->

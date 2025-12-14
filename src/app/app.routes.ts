@@ -16,7 +16,7 @@ export const routes: Routes = [
     { path: 'wishlist', component: Wishlist },
     { path: 'wishlist', component: Wishlist },
     { path: 'cart', component: Cart },
-    { path: 'customization', loadComponent: () => import('./pages/customization/customization').then(m => m.customization) },
+    { path: 'customization', loadComponent: () => import('./pages/customization/customization').then(m => m.CustomizationComponent) },
     { path: 'login', loadComponent: () => import('./pages/login/login').then(m => m.Login) },
     { path: 'signup', loadComponent: () => import('./pages/signup/signup').then(m => m.Signup) },
     { path: 'admin/product/new', loadComponent: () => import('./pages/admin-product/admin-product').then(m => m.AdminProduct) },

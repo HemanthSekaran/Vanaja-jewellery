@@ -1,6 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ApiService } from '../../services/api.service';
 
 @Component({
     selector: 'app-customization',
@@ -9,85 +10,111 @@ import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angula
     templateUrl: './customization.html',
     styleUrls: ['./customization.css']
 })
-export class customization {
+export class CustomizationComponent {
+
     customizationForm: FormGroup;
     isSubmitting = false;
 
-    constructor(private fb: FormBuilder) {
+    imageDetails: {
+        file: File;
+        name: string;
+        size: string;
+        preview: string;
+    }[] = [];
+
+    constructor(
+        private fb: FormBuilder,
+        private cd: ChangeDetectorRef,
+        private api: ApiService
+    ) {
         this.customizationForm = this.fb.group({
-            designName: ['', Validators.required],
-            material: ['', Validators.required],
-            weightage: ['', [Validators.required, Validators.min(0.1)]],
-            description: ['', Validators.required],
-            image: [null]
+            design_name: ['', Validators.required],
+            material_preference: ['', Validators.required],
+            approximate_weight: ['', [Validators.required, Validators.min(0.1)]],
+            description: ['', Validators.required]
         });
     }
 
-    imageDetails: { name: string, size: string, preview: string }[] = [];
+    // ---------- FILE HANDLING ----------
 
     onDragOver(event: DragEvent) {
         event.preventDefault();
-        event.stopPropagation();
     }
 
     onDrop(event: DragEvent) {
         event.preventDefault();
-        event.stopPropagation();
-        const files = event.dataTransfer?.files;
-        if (files) {
-            this.handleFiles(files);
+        if (event.dataTransfer?.files) {
+            this.handleFiles(event.dataTransfer.files);
         }
     }
 
     onFileSelected(event: any) {
-        const files = event.target.files;
-        if (files) {
-            this.handleFiles(files);
+        if (event.target.files) {
+            this.handleFiles(event.target.files);
         }
     }
 
     handleFiles(files: FileList) {
-        for (let i = 0; i < files.length; i++) {
-            const file = files[i];
+        Array.from(files).forEach(file => {
             const reader = new FileReader();
             reader.onload = (e: any) => {
                 this.imageDetails.push({
+                    file,
                     name: file.name,
                     size: this.formatFileSize(file.size),
                     preview: e.target.result
                 });
+                this.cd.detectChanges();
             };
             reader.readAsDataURL(file);
-        }
-    }
-
-    formatFileSize(bytes: number): string {
-        if (bytes === 0) return '0 Bytes';
-        const k = 1024;
-        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-        const i = Math.floor(Math.log(bytes) / Math.log(k));
-        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        });
     }
 
     removeImage(index: number) {
         this.imageDetails.splice(index, 1);
     }
 
-    onSubmit(): void {
-        if (this.customizationForm.valid) {
-            this.isSubmitting = true;
-            console.log('Form Submitted', this.customizationForm.value);
-            console.log('Form Submitted', this.customizationForm.value);
+    formatFileSize(bytes: number): string {
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return (bytes / Math.pow(k, i)).toFixed(2) + ' ' + sizes[i];
+    }
 
-            // Simulate API call
-            setTimeout(() => {
-                alert('Your customization request has been submitted successfully! We will contact you shortly.');
-                this.isSubmitting = false;
+    // ---------- SUBMIT ----------
+
+    onSubmit(): void {
+        if (this.customizationForm.invalid) {
+            this.customizationForm.markAllAsTouched();
+            return;
+        }
+
+        this.isSubmitting = true;
+
+        const formData = new FormData();
+
+        formData.append('design_name', this.customizationForm.value.design_name);
+        formData.append('material_preference', this.customizationForm.value.material_preference);
+        formData.append('approximate_weight', this.customizationForm.value.approximate_weight);
+        formData.append('description', this.customizationForm.value.description);
+
+        // Backend supports SINGLE image → take first image
+        if (this.imageDetails.length > 0) {
+            formData.append('reference_image', this.imageDetails[0].file);
+        }
+
+        this.api.submitCustomization(formData)
+            .then(() => {
+                alert('Design request submitted successfully!');
                 this.customizationForm.reset();
                 this.imageDetails = [];
-            }, 1500);
-        } else {
-            this.customizationForm.markAllAsTouched();
-        }
+            })
+            .catch(err => {
+                console.error(err);
+                alert('Failed to submit design request');
+            })
+            .finally(() => {
+                this.isSubmitting = false;
+            });
     }
 }
