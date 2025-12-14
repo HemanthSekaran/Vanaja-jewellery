@@ -17,8 +17,6 @@ const { use } = require('react');
  * @access  Public
  */
 const register = async (req, res, next) => {
-    console.log("hit register");
-    
     try {
         const { name, email, phone, address, password } = req.body;
         console.log(req.body);
@@ -112,9 +110,7 @@ const login = async (req, res, next) => {
     }
 };
 
-const getMe = async (req, res, next) => {
-    console.log("hit");
-    
+const getMe = async (req, res, next) => {    
     try {
         sendSuccess(res, { user: sanitizeUser(req.user) }, 'User retrieved successfully');
     } catch (error) {
