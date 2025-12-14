@@ -5,14 +5,14 @@ const morgan = require('morgan');
 const rateLimit = require('express-rate-limit');
 require('dotenv').config();
 
-const { testConnection } = require('./config/database');
-const { errorHandler, notFound } = require('./middleware/errorHandler');
-const logger = require('./utils/logger');
+const { testConnection } = require('./src/config/database');
+const { errorHandler, notFound } = require('./src/middleware/errorHandler');
+const logger = require('./src/utils/logger');
 
 
-const authRoutes = require('./routes/authRoutes');
-const designRoutes = require('./routes/designRoutes');
-const productRoutes = require('./routes/productRoutes');
+const authRoutes = require('./src/routes/authRoutes');
+const designRoutes = require('./src/routes/designRoutes');
+const productRoutes = require('./src/routes/productRoutes');
 
 const app = express();
 

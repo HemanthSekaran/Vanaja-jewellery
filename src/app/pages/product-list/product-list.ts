@@ -25,8 +25,8 @@ export class ProductList implements OnInit {
   filteredProducts: Product[] = [];
   isMobileFilterOpen = false;
 
-  get isOwner(): boolean {
-    return this.authService.currentUser()?.role === 'owner';
+  get isAdmin(): boolean {
+    return this.authService.currentUser()?.role === 'admin';
   }
 
   navigateToAddProduct() {

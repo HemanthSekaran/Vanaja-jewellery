@@ -26,9 +26,9 @@ export class ProductCard {
 
   isAdded = false;
 
-  get isOwner(): boolean {
+  get isAdmin(): boolean {
     const user = this.authService.currentUser();
-    return user?.role === 'owner';
+    return user?.role === 'admin';
   }
 
   deleteProduct(event: Event) {

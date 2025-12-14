@@ -9,6 +9,7 @@ const { generateToken } = require('../middleware/auth');
 const { sendSuccess, sendError, sanitizeUser } = require('../utils/helpers');
 const { AppError } = require('../middleware/errorHandler');
 const logger = require('../utils/logger');
+const { use } = require('react');
 
 /**
  * @desc    Register new user
@@ -16,9 +17,11 @@ const logger = require('../utils/logger');
  * @access  Public
  */
 const register = async (req, res, next) => {
+    console.log("hit register");
+    
     try {
-        const { name, email, phone, password } = req.body;
-
+        const { name, email, phone, address, password } = req.body;
+        console.log(req.body);
         // Check if user already exists
         const existingUsers = await query(
             'SELECT id FROM users WHERE email = ?',
@@ -48,7 +51,7 @@ const register = async (req, res, next) => {
         const user = users[0];
 
         // Generate token
-        const token = generateToken(user.id);
+        const token = generateToken(user.id, user.name, user.email, user.phone, user.role);
 
         logger.info(`New user registered: ${email}`);
 
@@ -67,11 +70,6 @@ const register = async (req, res, next) => {
     }
 };
 
-/**
- * @desc    Login user
- * @route   POST /api/auth/login
- * @access  Public
- */
 const login = async (req, res, next) => {
     try {
         const { email, password } = req.body;
@@ -91,12 +89,12 @@ const login = async (req, res, next) => {
         // Check password
         const isPasswordValid = await bcrypt.compare(password, user.password);
 
-        if (!isPasswordValid) {
+        if (!isPasswordValid) {            
             return next(new AppError('Invalid credentials', 401));
         }
 
         // Generate token
-        const token = generateToken(user.id);
+        const token = generateToken(user.id, user.name, user.email, user.phone, user.role);
 
         logger.info(`User logged in: ${email}`);
 
@@ -114,12 +112,9 @@ const login = async (req, res, next) => {
     }
 };
 
-/**
- * @desc    Get current logged in user
- * @route   GET /api/auth/me
- * @access  Private
- */
 const getMe = async (req, res, next) => {
+    console.log("hit");
+    
     try {
         sendSuccess(res, { user: sanitizeUser(req.user) }, 'User retrieved successfully');
     } catch (error) {

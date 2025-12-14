@@ -108,7 +108,7 @@
                         (click)="isUserMenuOpen = false">Profile</a>
                     <a routerLink="/edit-profile" class="block px-4 py-2 text-sm text-foreground hover:bg-muted"
                         (click)="isUserMenuOpen = false">Edit Profile</a>
-                    @if (authService.currentUser()?.role === 'owner') {
+                    @if (authService.currentUser()?.role === 'admin') {
                     <a routerLink="/admin/product/new" class="block px-4 py-2 text-sm text-foreground hover:bg-muted"
                         (click)="isUserMenuOpen = false">
                         Add Product

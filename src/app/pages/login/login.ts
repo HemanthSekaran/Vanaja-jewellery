@@ -15,9 +15,10 @@ export class Login {
     authService = inject(AuthService);
     router = inject(Router);
 
-    onSubmit() {
+    async onSubmit() {
         if (this.email && this.password) {
-            if (this.authService.login(this.email, this.password)) {
+            const success = await this.authService.login(this.email, this.password);
+            if (success) {
                 this.router.navigate(['/']);
             } else {
                 alert('Invalid credentials');

@@ -70,9 +70,9 @@ const authorize = (...roles) => {
 /**
  * Generate JWT token
  */
-const generateToken = (id) => {
-    return jwt.sign({ id }, process.env.JWT_SECRET, {
-        expiresIn: process.env.JWT_EXPIRE || '7d'
+const generateToken = (id, name, email, phone, role) => {
+    return jwt.sign({ id, name, email, phone, role }, process.env.JWT_SECRET, {
+        expiresIn: process.env.JWT_EXPIRE 
     });
 };
 

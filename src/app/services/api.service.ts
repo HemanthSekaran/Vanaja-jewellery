@@ -34,29 +34,25 @@ export class ApiService {
     // Auth
     login = (data: { email: string, password: string }) => axios.post("/auth/login", data);
     register = (data: any) => axios.post("/auth/register", data);
-    getProfile = () => axios.get("/auth/profile");
-    updateProfile = (data: any) => axios.put("/auth/profile", data);
+    getProfile = () => axios.get("/auth/me");
+    updateProfile = (data: any) => axios.put("/auth/profile", data); // Keeping as placeholder if needed, or remove if not in list
 
     // Products
     getProducts = (params?: any) => axios.get("/products", { params });
+    getCategories = () => axios.get("/products/categories/list");
     getProductById = (id: string) => axios.get(`/products/${id}`);
-    getFeaturedProducts = () => axios.get("/products/featured");
-
-    // Cart
-    getCart = () => axios.get("/cart");
-    addToCart = (data: { productId: string, variantId: string, quantity: number }) => axios.post("/cart", data);
-    updateCartItem = (itemId: string, quantity: number) => axios.put(`/cart/${itemId}`, { quantity });
-    removeFromCart = (itemId: string) => axios.delete(`/cart/${itemId}`);
-    clearCart = () => axios.delete("/cart");
-
-    // Wishlist
-    getWishlist = () => axios.get("/wishlist");
-    addToWishlist = (productId: string) => axios.post("/wishlist", { productId });
-    removeFromWishlist = (productId: string) => axios.delete(`/wishlist/${productId}`);
+    createProduct = (data: any) => axios.post("/products", data);
+    updateProduct = (id: string, data: any) => axios.put(`/products/${id}`, data);
+    deleteProduct = (id: string) => axios.delete(`/products/${id}`);
 
     // Customization
-    submitCustomization = (data: any) => axios.post("/customization", data);
-    getCustomizationRequests = () => axios.get("/customization");
+    submitCustomization = (data: any) => axios.post("/designs", data);
+    getUserDesigns = () => axios.get("/designs");
+    getDesign = (id: string) => axios.get(`/designs/${id}`);
+
+    // Admin Customization
+    getAllDesigns = () => axios.get("/designs/admin/all");
+    updateDesignStatus = (id: string, status: string) => axios.put(`/designs/${id}/status`, { status });
 
     // Contact
     sendMessage = (data: any) => axios.post("/contact", data);

@@ -7,7 +7,7 @@
       "script": "start",
       "isBackground": true,
       "problemMatcher": {
-        "owner": "typescript",
+        "admin": "typescript",
         "pattern": "$tsc",
         "background": {
           "activeOnStart": true,
@@ -25,7 +25,7 @@
       "script": "test",
       "isBackground": true,
       "problemMatcher": {
-        "owner": "typescript",
+        "admin": "typescript",
         "pattern": "$tsc",
         "background": {
           "activeOnStart": true,
