@@ -73,8 +73,6 @@
             </a>
 
             <!-- Profile -->
-            <!-- Profile Logic -->
-            <!-- Profile Logic -->
             <div class="relative">
                 @if (authService.currentUser()) {
                 <button (click)="toggleUserMenu()" class="p-2 hover:text-primary transition-colors focus:outline-none"
@@ -101,13 +99,13 @@
                     class="absolute right-0 mt-3 w-80 bg-card rounded-xl shadow-2xl border border-border/40 py-2 ring-1 ring-black/5 z-50 origin-top-right transition-all">
 
                     @if (authService.currentUser()) {
-
-                    @if (!isEditing) {
                     <div class="px-5 py-4 border-b border-border/40 bg-muted/20">
-                        <p class="text-sm font-semibold text-foreground truncate max-w-[240px]">{{
-                            authService.currentUser()?.name }}</p>
-                        <p class="text-xs text-muted-foreground truncate mt-0.5 max-w-[240px]">{{
-                            authService.currentUser()?.email }}</p>
+                        <p class="text-sm font-semibold text-foreground truncate max-w-[240px]">
+                            {{ userName }}
+                        </p>
+                        <p class="text-xs text-muted-foreground truncate mt-0.5 max-w-[240px]">
+                            {{ userEmail }}
+                        </p>
                     </div>
 
                     <div class="py-2">
@@ -115,8 +113,8 @@
                         <a routerLink="/admin/product/new"
                             class="flex items-center px-5 py-3 text-sm font-medium text-foreground/80 hover:text-primary hover:bg-primary/5 transition-colors group"
                             (click)="isUserMenuOpen = false">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
-                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
                                 stroke-linejoin="round"
                                 class="mr-3 text-muted-foreground group-hover:text-primary transition-colors">
                                 <circle cx="12" cy="12" r="10" />
@@ -127,21 +125,22 @@
                         </a>
                         }
 
-                        <button (click)="startEditing()"
-                            class="flex w-full items-center px-5 py-3 text-sm font-medium text-foreground/80 hover:text-primary hover:bg-primary/5 transition-colors group">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
-                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        <a routerLink="/profile"
+                            class="flex items-center px-5 py-3 text-sm font-medium text-foreground/80 hover:text-primary hover:bg-primary/5 transition-colors group"
+                            (click)="isUserMenuOpen = false">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
                                 stroke-linejoin="round"
                                 class="mr-3 text-muted-foreground group-hover:text-primary transition-colors">
                                 <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z" />
                             </svg>
                             Edit Profile
-                        </button>
+                        </a>
 
                         <button (click)="logout()"
                             class="flex w-full items-center px-5 py-3 text-sm font-medium text-destructive/90 hover:text-destructive hover:bg-destructive/10 transition-colors group">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
-                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
                                 stroke-linejoin="round" class="mr-3 group-hover:text-destructive transition-colors">
                                 <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
                                 <polyline points="16 17 21 12 16 7" />
@@ -150,50 +149,6 @@
                             Logout
                         </button>
                     </div>
-                    } @else {
-                    <form [formGroup]="editProfileForm" (ngSubmit)="saveProfile()" class="px-5 py-4 space-y-4">
-                        <div class="flex items-center justify-between mb-2">
-                            <h3 class="text-base font-semibold">Edit Profile</h3>
-                            <button type="button" (click)="cancelEditing()"
-                                class="text-muted-foreground hover:text-foreground">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
-                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                    stroke-linejoin="round">
-                                    <line x1="18" y1="6" x2="6" y2="18"></line>
-                                    <line x1="6" y1="6" x2="18" y2="18"></line>
-                                </svg>
-                            </button>
-                        </div>
-
-                        <div class="space-y-1.5">
-                            <label class="text-xs font-medium text-foreground/70">Name</label>
-                            <input type="text" formControlName="name"
-                                class="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50">
-                        </div>
-                        <div class="space-y-1.5">
-                            <label class="text-xs font-medium text-foreground/70">Email</label>
-                            <input type="email" formControlName="email"
-                                class="flex h-9 w-full rounded-md border border-input bg-muted/50 px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50">
-                        </div>
-                        <div class="space-y-1.5">
-                            <label class="text-xs font-medium text-foreground/70">Phone</label>
-                            <input type="tel" formControlName="phone"
-                                class="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50">
-                        </div>
-                        <div class="space-y-1.5">
-                            <label class="text-xs font-medium text-foreground/70">Address</label>
-                            <textarea formControlName="address" rows="2"
-                                class="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 resize-none"></textarea>
-                        </div>
-
-                        <div class="flex gap-3 pt-2">
-                            <button type="submit" [disabled]="editProfileForm.invalid"
-                                class="flex-1 bg-primary text-primary-foreground h-9 rounded-md text-sm font-medium hover:bg-primary/90 transition-colors disabled:opacity-50">Save</button>
-                            <button type="button" (click)="cancelEditing()"
-                                class="flex-1 bg-muted text-secondary-foreground h-9 rounded-md text-sm font-medium hover:bg-muted/80 transition-colors">Cancel</button>
-                        </div>
-                    </form>
-                    }
                     }
                 </div>
                 }

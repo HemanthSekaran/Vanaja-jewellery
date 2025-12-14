@@ -19,6 +19,7 @@ export const routes: Routes = [
     { path: 'customization', loadComponent: () => import('./pages/customization/customization').then(m => m.CustomizationComponent) },
     { path: 'login', loadComponent: () => import('./pages/login/login').then(m => m.Login) },
     { path: 'signup', loadComponent: () => import('./pages/signup/signup').then(m => m.Signup) },
+    { path: 'profile', loadComponent: () => import('./pages/profile/profile').then(m => m.Profile) },
     { path: 'admin/product/new', loadComponent: () => import('./pages/admin-product/admin-product').then(m => m.AdminProduct) },
     { path: 'admin/product/edit/:id', loadComponent: () => import('./pages/admin-product/admin-product').then(m => m.AdminProduct) },
     { path: '**', redirectTo: '' }

@@ -32,7 +32,11 @@ export class AuthService {
                 // Determine if we have a stored user first for immediate UI
                 const storedUser = sessionStorage.getItem('user');
                 if (storedUser) {
-                    this.currentUser.set(JSON.parse(storedUser));
+                    let parsedData = JSON.parse(storedUser);
+                    if (parsedData && parsedData.user) {
+                        parsedData = parsedData.user;
+                    }
+                    this.currentUser.set(parsedData);
                 }
 
                 // Fetch fresh profile
