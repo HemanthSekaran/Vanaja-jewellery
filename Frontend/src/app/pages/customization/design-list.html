@@ -1,0 +1,90 @@
+<div class="container mx-auto px-4 py-12">
+    <div class="flex justify-between items-center mb-8">
+        <h1 class="text-3xl font-serif font-bold text-secondary">My Designs</h1>
+        <button (click)="createNew()"
+            class="bg-primary text-primary-foreground px-6 py-2 rounded-md font-medium hover:bg-primary/90 transition-colors">
+            Create New Design
+        </button>
+    </div>
+
+    @if (errorMessage) {
+    <div class="bg-destructive/15 text-destructive p-4 rounded-md mb-6 border border-destructive/20">
+        <p class="font-medium">Error Occurred</p>
+        <p class="text-sm">{{ errorMessage }}</p>
+        <button (click)="fetchDesigns()" class="mt-2 text-sm underline hover:text-destructive/80 font-medium">Try
+            Again</button>
+    </div>
+    }
+
+    @if (loading) {
+    <div class="flex justify-center py-20">
+        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+    </div>
+    } @else if (designs.length === 0) {
+    <div class="text-center py-20 bg-muted/30 rounded-lg border border-dashed border-muted-foreground/30">
+        <p class="text-muted-foreground mb-4">You haven't created any designs yet.</p>
+        <button (click)="createNew()" class="text-primary hover:underline font-medium">Start Designing</button>
+    </div>
+    } @else {
+    <div class="rounded-md border border-border bg-card overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm text-left">
+                <thead class="bg-muted/50 text-muted-foreground font-medium border-b border-border">
+                    <tr>
+                        <th class="px-4 py-3">Image</th>
+                        <th class="px-4 py-3">Design Name</th>
+                        <th class="px-4 py-3">Description</th>
+                        <th class="px-4 py-3">Material</th>
+                        <th class="px-4 py-3">Weight (g)</th>
+                        <th class="px-4 py-3">Status</th>
+                        <th class="px-4 py-3 text-right">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-border">
+                    @for (design of designs; track design._id) {
+                    <tr class="hover:bg-muted/30 transition-colors">
+                        <td class="px-4 py-3 max-w-[150px]">
+                            @if (design.reference_images && design.reference_images.length > 0) {
+                            <a [href]="getImageUrl(design.reference_images[0])" target="_blank"
+                                class="text-primary hover:underline text-xs truncate block font-medium"
+                                [title]="design.reference_images[0]">
+                                {{ design.reference_images[0] }}
+                            </a>
+                            } @else {
+                            <span class="text-muted-foreground text-xs italic">No Image</span>
+                            }
+                        </td>
+                        <td class="px-4 py-3 font-medium text-foreground">{{ design.design_name }}</td>
+                        <td class="px-4 py-3 max-w-[200px] truncate" [title]="design.description || ''">
+                            {{ design.description || '-' }}
+                        </td>
+                        <td class="px-4 py-3">{{ design.material_preference }}</td>
+                        <td class="px-4 py-3">{{ design.approximate_weight }}</td>
+                        <td class="px-4 py-3">
+                            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium 
+                                {{ design.status === 'completed' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 
+                                   design.status === 'rejected' ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' : 
+                                   'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400' }}">
+                                {{ design.status || 'Pending' }}
+                            </span>
+                        </td>
+                        <td class="px-4 py-3 text-right">
+                            <button (click)="editDesign(design._id)"
+                                class="inline-flex items-center justify-center h-8 w-8 rounded-md text-muted-foreground hover:text-primary hover:bg-muted transition-colors"
+                                title="Edit Design">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round">
+                                    <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
+                                    <path d="m15 5 4 4" />
+                                </svg>
+                            </button>
+                        </td>
+                    </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+    }
+</div>

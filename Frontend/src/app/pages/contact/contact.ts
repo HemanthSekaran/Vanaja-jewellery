@@ -22,7 +22,7 @@ import { FormsModule } from '@angular/forms';
               </div>
               <div>
                 <h3 class="font-semibold">Visit Us</h3>
-                <p class="text-muted-foreground">123 Jewelry Lane<br>New York, NY 10001</p>
+                <p class="text-muted-foreground">131 ,Subbarya Chetty street<br>Thirupapuliyur Cuddalore Tamil Nadu 607002</p>
               </div>
             </div>
 
@@ -32,7 +32,7 @@ import { FormsModule } from '@angular/forms';
               </div>
               <div>
                 <h3 class="font-semibold">Email Us</h3>
-                <p class="text-muted-foreground">hello@jewellary.com</p>
+                <p class="text-muted-foreground">srivanajajewellery@gmail.com</p>
               </div>
             </div>
 
@@ -42,7 +42,7 @@ import { FormsModule } from '@angular/forms';
               </div>
               <div>
                 <h3 class="font-semibold">Call Us</h3>
-                <p class="text-muted-foreground">+1 (555) 123-4567</p>
+                <p class="text-muted-foreground">8220822776 / 8220374776</p>
               </div>
             </div>
           </div>

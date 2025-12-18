@@ -47,6 +47,7 @@ export class ApiService {
 
     // Customization
     submitCustomization = (data: any) => axios.post("/designs", data);
+    updateDesign = (id: string, data: any) => axios.put(`/designs/${id}`, data);
     getUserDesigns = () => axios.get("/designs");
     getDesign = (id: string) => axios.get(`/designs/${id}`);
 
@@ -61,4 +62,14 @@ export class ApiService {
     createOrder = (data: any) => axios.post("/orders", data);
     getOrders = () => axios.get("/orders");
     getOrderById = (id: string) => axios.get(`/orders/${id}`);
+    // Helper for images
+    getDesignImageUrl(filename: string): string {
+        if (!filename) return '';
+        if (filename.startsWith('http')) return filename;
+        // Construct URL assuming uploads are at the root level relative to API base
+        // e.g. baseUrl='http://localhost:5000/api' -> uploads='http://localhost:5000/uploads'
+        const baseUrl = environment.baseUrl;
+        const rootUrl = baseUrl.endsWith('/api') ? baseUrl.slice(0, -4) : baseUrl;
+        return `${rootUrl}/uploads/${filename}`;
+    }
 }

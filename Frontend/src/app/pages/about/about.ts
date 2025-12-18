@@ -36,6 +36,21 @@ import { Component } from '@angular/core';
             <span class="text-muted-foreground">Sourcing Image</span>
           </div>
         </div>
+        
+        <div class="bg-primary/5 p-8 rounded-lg mt-12 text-center">
+            <h2 class="text-2xl font-bold mb-4">Visit Our Store</h2>
+            <div class="space-y-4">
+                <div>
+                    <h3 class="font-semibold text-lg">Address</h3>
+                    <p class="text-muted-foreground">131 ,Subbarya Chetty street<br>Thirupapuliyur Cuddalore Tamil Nadu 607002</p>
+                </div>
+                <div>
+                    <h3 class="font-semibold text-lg">Contact</h3>
+                     <p class="text-muted-foreground">Email: srivanajajewellery@gmail.com</p>
+                    <p class="text-muted-foreground">Ph: 8220822776 / 8220374776</p>
+                </div>
+            </div>
+        </div>
       </div>
     </div>
   `
