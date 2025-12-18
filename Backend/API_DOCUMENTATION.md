@@ -289,6 +289,50 @@ Authorization: Bearer <token>
 
 ---
 
+### Acknowledge Design (Admin)
+
+**PUT** `/designs/:id/acknowledge`
+
+**Access**: Private (Admin only)
+
+**Description**: Marks a custom design as acknowledged by the admin. This updates the `is_acknowledge_or_not` field to true/1.
+
+**URL Parameters**:
+- `id` (integer): Design ID
+
+**Success Response** (200):
+```json
+{
+  "success": true,
+  "message": "Design acknowledged successfully",
+  "data": {
+    "design": {
+      "id": 1,
+      "user_id": 2,
+      "design_name": "Custom Ring",
+      "material_preference": "Gold",
+      "approximate_weight": 15.5,
+      "description": "Beautiful custom ring design",
+      "reference_images": [...],
+      "status": "pending",
+      "is_acknowledge_or_not": 1,
+      "created_at": "2024-01-01T00:00:00.000Z",
+      "updated_at": "2024-01-01T03:30:00.000Z"
+    }
+  }
+}
+```
+
+**Error Response** (400):
+```json
+{
+  "success": false,
+  "message": "Design has already been acknowledged"
+}
+```
+
+---
+
 ## Product Endpoints
 
 ### Get All Products
@@ -475,6 +519,46 @@ Authorization: Bearer <token>
   "data": null
 }
 ```
+
+---
+
+## Email Notifications
+
+The system automatically sends email notifications for custom design events:
+
+### Design Creation Notification
+- **Recipient**: harishcsengineer@gmail.com
+- **Trigger**: When a user creates a new custom design
+- **Content**: Design details and customer information
+
+### Unacknowledged Design Alert
+- **Recipient**: sekaranhemanth7@gmail.com
+- **Trigger**: Designs not acknowledged within 3 hours of creation
+- **Frequency**: Checked every hour via scheduled job
+- **Content**: List of all unacknowledged designs with time elapsed
+
+### Email Configuration
+
+Add the following environment variables to your `.env` file:
+
+```env
+# Email Configuration (SMTP)
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_SECURE=false
+SMTP_USER=your-email@gmail.com
+SMTP_PASSWORD=your-app-password
+SMTP_FROM=noreply@vanajajewellery.com
+```
+
+**For Gmail**:
+1. Enable 2-factor authentication on your Google account
+2. Generate an App Password: https://myaccount.google.com/apppasswords
+3. Use the generated app password in `SMTP_PASSWORD`
+
+**For other SMTP providers**:
+- Update `SMTP_HOST` and `SMTP_PORT` accordingly
+- Set `SMTP_SECURE=true` if using port 465
 
 ---
 

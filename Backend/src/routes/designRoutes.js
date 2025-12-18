@@ -25,3 +25,4 @@ router.get('/admin/all', protect, authorize('admin'), getAllDesigns);
 router.put('/:id/status', protect, authorize('admin'), validateId, updateDesignStatus);
 
 module.exports = router;
+

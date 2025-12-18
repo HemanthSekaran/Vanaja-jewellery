@@ -7,6 +7,7 @@ const { query } = require('../config/database');
 const { sendSuccess, sendError } = require('../utils/helpers');
 const { AppError } = require('../middleware/errorHandler');
 const logger = require('../utils/logger');
+const { sendDesignCreatedNotification } = require('../utils/emailService');
 
 /**
  * @desc    Create custom design request
@@ -42,6 +43,12 @@ const createDesign = async (req, res, next) => {
         }
 
         logger.info(`Custom design created by user ${userId}: ${design_name} with ${reference_images.length} images`);
+
+        // Send email notification to admin
+        const users = await query('SELECT * FROM users WHERE id = ?', [userId]);
+        if (users.length > 0) {
+            await sendDesignCreatedNotification(design, users[0]);
+        }
 
         sendSuccess(
             res,
@@ -161,15 +168,23 @@ const updateDesignStatus = async (req, res, next) => {
         const { status } = req.body;
 
         // Validate status
-        const validStatuses = ['pending', 'completed', 'rejected'];
+        const validStatuses = ['pending', 'completed', 'rejected', 'acknowledge'];
         if (!validStatuses.includes(status)) {
             return next(new AppError('Invalid status value', 400));
         }
 
-        await query(
-            'UPDATE custom_designs SET status = ? WHERE id = ?',
-            [status, designId]
-        );
+        // If status is being set to 'acknowledge', reset the alert_sent flag
+        if (status === 'acknowledge') {
+            await query(
+                'UPDATE custom_designs SET status = ?, alert_sent = FALSE WHERE id = ?',
+                [status, designId]
+            );
+        } else {
+            await query(
+                'UPDATE custom_designs SET status = ? WHERE id = ?',
+                [status, designId]
+            );
+        }
 
         const designs = await query(
             'SELECT * FROM custom_designs WHERE id = ?',
@@ -189,6 +204,7 @@ const updateDesignStatus = async (req, res, next) => {
     }
 };
 
+
 module.exports = {
     createDesign,
     getUserDesigns,
@@ -196,3 +212,4 @@ module.exports = {
     getAllDesigns,
     updateDesignStatus
 };
+

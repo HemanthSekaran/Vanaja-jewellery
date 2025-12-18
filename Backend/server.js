@@ -8,6 +8,7 @@ require('dotenv').config();
 const { testConnection } = require('./src/config/database');
 const { errorHandler, notFound } = require('./src/middleware/errorHandler');
 const logger = require('./src/utils/logger');
+const { initScheduledJobs } = require('./src/services/scheduledJobs');
 
 
 const authRoutes = require('./src/routes/authRoutes');
@@ -80,6 +81,9 @@ const startServer = async () => {
             logger.info(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`);
             console.log(`\n🚀 Server is running on http://localhost:${PORT}`);
             console.log(`📚 API Documentation: http://localhost:${PORT}/health\n`);
+
+            // Initialize scheduled jobs
+            initScheduledJobs();
         });
     } catch (error) {
         logger.error('Failed to start server:', error);
