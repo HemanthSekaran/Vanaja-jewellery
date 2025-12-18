@@ -18,15 +18,15 @@ const createDesign = async (req, res, next) => {
         const { design_name, material_preference, approximate_weight, description } = req.body;
         const userId = req.user.id;
 
-        // Get uploaded file name if exists
-        const reference_image = req.file ? req.file.filename : null;
+        // Get uploaded file names if exists (multiple images)
+        const reference_images = req.files ? req.files.map(f => f.filename) : [];
 
         // Insert design request
         const result = await query(
             `INSERT INTO custom_designs 
-            (user_id, design_name, material_preference, approximate_weight, description, reference_image, status) 
+            (user_id, design_name, material_preference, approximate_weight, description, reference_images, status) 
             VALUES (?, ?, ?, ?, ?, ?, ?)`,
-            [userId, design_name, material_preference, approximate_weight, description || null, reference_image, 'pending']
+            [userId, design_name, material_preference, approximate_weight, description || null, JSON.stringify(reference_images), 'pending']
         );
 
         // Get created design
@@ -35,11 +35,17 @@ const createDesign = async (req, res, next) => {
             [result.insertId]
         );
 
-        logger.info(`Custom design created by user ${userId}: ${design_name}`);
+        // Parse JSON for response
+        const design = designs[0];
+        if (design.reference_images) {
+            design.reference_images = JSON.parse(design.reference_images);
+        }
+
+        logger.info(`Custom design created by user ${userId}: ${design_name} with ${reference_images.length} images`);
 
         sendSuccess(
             res,
-            { design: designs[0] },
+            { design },
             'Custom design request submitted successfully',
             201
         );
@@ -62,6 +68,13 @@ const getUserDesigns = async (req, res, next) => {
             'SELECT * FROM custom_designs WHERE user_id = ? ORDER BY created_at DESC',
             [userId]
         );
+
+        // Parse JSON fields
+        designs.forEach(design => {
+            if (design.reference_images) {
+                design.reference_images = JSON.parse(design.reference_images);
+            }
+        });
 
         sendSuccess(res, { designs, count: designs.length }, 'Designs retrieved successfully');
     } catch (error) {
@@ -97,6 +110,11 @@ const getDesign = async (req, res, next) => {
             return next(new AppError('Not authorized to access this design', 403));
         }
 
+        // Parse JSON fields
+        if (design.reference_images) {
+            design.reference_images = JSON.parse(design.reference_images);
+        }
+
         sendSuccess(res, { design }, 'Design retrieved successfully');
     } catch (error) {
         logger.error('Get design error:', error);
@@ -118,6 +136,13 @@ const getAllDesigns = async (req, res, next) => {
             ORDER BY cd.created_at DESC`
         );
 
+        // Parse JSON fields
+        designs.forEach(design => {
+            if (design.reference_images) {
+                design.reference_images = JSON.parse(design.reference_images);
+            }
+        });
+
         sendSuccess(res, { designs, count: designs.length }, 'All designs retrieved successfully');
     } catch (error) {
         logger.error('Get all designs error:', error);
@@ -136,7 +161,7 @@ const updateDesignStatus = async (req, res, next) => {
         const { status } = req.body;
 
         // Validate status
-        const validStatuses = ['pending', 'in_progress', 'completed', 'rejected'];
+        const validStatuses = ['pending', 'completed', 'rejected'];
         if (!validStatuses.includes(status)) {
             return next(new AppError('Invalid status value', 400));
         }

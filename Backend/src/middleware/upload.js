@@ -83,6 +83,29 @@ const uploadSingle = (fieldName) => {
 };
 
 /**
+ * Multiple files upload middleware
+ */
+const uploadMultiple = (fieldName, maxCount = 3) => {
+    return (req, res, next) => {
+        const uploadMiddleware = upload.array(fieldName, maxCount);
+        uploadMiddleware(req, res, (err) => {
+            if (err instanceof multer.MulterError) {
+                if (err.code === 'LIMIT_FILE_SIZE') {
+                    return next(new AppError('File size too large. Maximum size is 5MB per file', 400));
+                }
+                if (err.code === 'LIMIT_UNEXPECTED_FILE') {
+                    return next(new AppError(`Too many files. Maximum ${maxCount} files allowed`, 400));
+                }
+                return next(new AppError(err.message, 400));
+            } else if (err) {
+                return next(err);
+            }
+            next();
+        });
+    };
+};
+
+/**
  * Delete file helper
  */
 const deleteFile = (filePath) => {
@@ -93,5 +116,6 @@ const deleteFile = (filePath) => {
 
 module.exports = {
     uploadSingle,
+    uploadMultiple,
     deleteFile
 };

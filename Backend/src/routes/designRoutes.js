@@ -13,10 +13,10 @@ const {
 } = require('../controllers/designController');
 const { validateCustomDesign, validateId } = require('../middleware/validators');
 const { protect, authorize } = require('../middleware/auth');
-const { uploadSingle } = require('../middleware/upload');
+const { uploadSingle, uploadMultiple } = require('../middleware/upload');
 
 // User routes (authenticated)
-router.post('/', protect, uploadSingle('reference_image'), validateCustomDesign, createDesign);
+router.post('/', protect, uploadMultiple('reference_images', 3), validateCustomDesign, createDesign);
 router.get('/', protect, getUserDesigns);
 router.get('/:id', protect, validateId, getDesign);
 

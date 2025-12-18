@@ -162,7 +162,7 @@ Authorization: Bearer <token>
 - `material_preference` (string, required): 2-255 characters
 - `approximate_weight` (float, required): Positive number
 - `description` (string, optional): Max 2000 characters
-- `reference_image` (file, optional): Image file (jpeg, jpg, png, gif, webp), max 5MB
+- `reference_images` (files, optional): Up to 3 image files (jpeg, jpg, png, gif, webp), max 5MB each
 
 **Success Response** (201):
 ```json
@@ -177,7 +177,10 @@ Authorization: Bearer <token>
       "material_preference": "Gold",
       "approximate_weight": 15.5,
       "description": "Beautiful custom ring design",
-      "reference_image": "reference_image-1234567890-123456789.jpg",
+      "reference_images": [
+        "reference_images-1234567890-123456789.jpg",
+        "reference_images-1234567890-987654321.jpg"
+      ],
       "status": "pending",
       "created_at": "2024-01-01T00:00:00.000Z"
     }
@@ -271,7 +274,7 @@ Authorization: Bearer <token>
 }
 ```
 
-**Valid Status Values**: `pending`, `in_progress`, `completed`, `rejected`
+**Valid Status Values**: `pending`, `completed`, `rejected`
 
 **Success Response** (200):
 ```json
@@ -297,10 +300,22 @@ Authorization: Bearer <token>
 **Query Parameters**:
 - `page` (integer, optional): Page number (default: 1)
 - `limit` (integer, optional): Items per page (default: 10)
-- `category` (string, optional): Filter by category
-- `availability` (string, optional): Filter by availability (YES/NO)
+- `filterType` (string, optional): Type of filter to apply (category/metal/metalPurity/weight)
+- `filterValue` (string, optional): Value to filter by (use "All" to get all products)
+- `availability` (string, optional): Filter by availability (YES/NO/All)
 
-**Example**: `/products?page=1&limit=10&category=NECKLACE&availability=YES`
+**Filter Types**:
+- `category`: Filter by product category (exact match)
+- `metal`: Filter by metal type (exact match)
+- `metalPurity`: Filter by metal purity level (exact match)
+- `weight`: Filter by weight range (e.g., "0-2" returns products with weight between 0 and 2 grams)
+
+**Examples**: 
+- `/products?page=1&limit=10&filterType=category&filterValue=NECKLACE&availability=YES`
+- `/products?page=1&limit=10&filterType=metal&filterValue=Gold`
+- `/products?page=1&limit=10&filterType=metalPurity&filterValue=22K`
+- `/products?page=1&limit=10&filterType=weight&filterValue=0-2` (weight between 0 and 2 grams)
+- `/products?page=1&limit=10&filterType=category&filterValue=All` (returns all categories)
 
 **Success Response** (200):
 ```json
@@ -315,6 +330,9 @@ Authorization: Bearer <token>
         "grams": "39/21",
         "wastage": 10,
         "category": "ANTIQUE SET",
+        "metal": "Gold",
+        "metal_purity": "22K",
+        "weight": 1.5,
         "description": "Beautiful antique maanga flower set",
         "availability": "YES",
         "image": "image-1234567890-123456789.jpg",
@@ -387,6 +405,9 @@ Authorization: Bearer <token>
 - `grams` (string, required): Max 50 characters
 - `wastage` (integer, required): Non-negative integer
 - `category` (string, required): 2-100 characters
+- `metal` (string, optional): Metal type (e.g., "Gold", "Silver")
+- `metal_purity` (string, optional): Metal purity level (e.g., "22K", "24K")
+- `weight` (number, optional): Weight in grams (e.g., 1.5, 2.3)
 - `description` (string, optional): Max 2000 characters
 - `availability` (string, optional): YES or NO (default: YES)
 - `image` (file, optional): Image file (jpeg, jpg, png, gif, webp), max 5MB
@@ -417,6 +438,9 @@ Authorization: Bearer <token>
 - `grams` (string, optional)
 - `wastage` (integer, optional)
 - `category` (string, optional)
+- `metal` (string, optional)
+- `metal_purity` (string, optional)
+- `weight` (string, optional)
 - `description` (string, optional)
 - `availability` (string, optional)
 - `image` (file, optional)
@@ -491,6 +515,10 @@ Authorization: Bearer <token>
 ### Storage Locations
 - Design images: `/uploads/designs/`
 - Product images: `/uploads/products/`
+
+### Upload Limits
+- Design images: Up to 3 images per request
+- Product images: 1 image per product
 
 ### Accessing Uploaded Files
 ```

@@ -19,21 +19,45 @@ const getAllProducts = async (req, res, next) => {
     try {
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 10;
-        const category = req.query.category;
+        const filterType = req.query.filterType;
+        const filterValue = req.query.filterValue;
         const availability = req.query.availability;
 
         const { limit: queryLimit, offset } = getPagination(page, limit);
+
+        // Map filterType to actual database column names
+        const columnMapping = {
+            'category': 'category',
+            'metal': 'metal',
+            'metalPurity': 'metal_purity',
+            'weight': 'weight'
+        };
 
         // Build query
         let sql = 'SELECT * FROM products WHERE 1=1';
         const params = [];
 
-        if (category) {
-            sql += ' AND category = ?';
-            params.push(category);
+        // Apply filter only if filterType, filterValue exist and filterValue is not 'All'
+        if (filterType && filterValue && filterValue.toUpperCase() !== 'ALL') {
+            const columnName = columnMapping[filterType];
+            if (columnName) {
+                // Special handling for weight range (e.g., "0-2" means between 0 and 2)
+                if (filterType === 'weight' && filterValue.includes('-')) {
+                    const [minWeight, maxWeight] = filterValue.split('-').map(v => parseFloat(v.trim()));
+                    if (!isNaN(minWeight) && !isNaN(maxWeight)) {
+                        sql += ` AND CAST(${columnName} AS DECIMAL(10,2)) BETWEEN ? AND ?`;
+                        params.push(minWeight, maxWeight);
+                    }
+                } else {
+                    // Exact match for other filters
+                    sql += ` AND ${columnName} = ?`;
+                    params.push(filterValue);
+                }
+            }
         }
 
-        if (availability) {
+        // Apply availability filter if provided and not 'All'
+        if (availability && availability.toUpperCase() !== 'ALL') {
             sql += ' AND availability = ?';
             params.push(availability);
         }
@@ -44,16 +68,30 @@ const getAllProducts = async (req, res, next) => {
         // Get products
         const products = await query(sql, params);
 
-        // Get total count
+        // Get total count with same filters
         let countSql = 'SELECT COUNT(*) as total FROM products WHERE 1=1';
         const countParams = [];
 
-        if (category) {
-            countSql += ' AND category = ?';
-            countParams.push(category);
+        // Apply same filters for count
+        if (filterType && filterValue && filterValue.toUpperCase() !== 'ALL') {
+            const columnName = columnMapping[filterType];
+            if (columnName) {
+                // Special handling for weight range
+                if (filterType === 'weight' && filterValue.includes('-')) {
+                    const [minWeight, maxWeight] = filterValue.split('-').map(v => parseFloat(v.trim()));
+                    if (!isNaN(minWeight) && !isNaN(maxWeight)) {
+                        countSql += ` AND CAST(${columnName} AS DECIMAL(10,2)) BETWEEN ? AND ?`;
+                        countParams.push(minWeight, maxWeight);
+                    }
+                } else {
+                    // Exact match for other filters
+                    countSql += ` AND ${columnName} = ?`;
+                    countParams.push(filterValue);
+                }
+            }
         }
 
-        if (availability) {
+        if (availability && availability.toUpperCase() !== 'ALL') {
             countSql += ' AND availability = ?';
             countParams.push(availability);
         }
@@ -92,17 +130,38 @@ const getProduct = async (req, res, next) => {
 
 const createProduct = async (req, res, next) => {
     try {
-        const { name, grams, wastage, category, description, availability } = req.body;
+        const {
+            name,
+            grams,
+            wastage,
+            category,
+            metal,
+            metal_purity,
+            weight,
+            description,
+            availability
+        } = req.body;
 
         // Get uploaded image filename
         const image = req.file ? req.file.filename : null;
 
-        // Insert product
+        // Insert product (store actual values or NULL, never 'All')
         const result = await query(
-            `INSERT INTO products 
-            (name, grams, wastage, category, description, availability, image) 
-            VALUES (?, ?, ?, ?, ?, ?, ?)`,
-            [name, grams, wastage, category, description || null, availability || 'YES', image]
+            `INSERT INTO products
+            (name, grams, wastage, category, metal, metal_purity, weight, description, availability, image)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            [
+                name,
+                grams,
+                wastage,
+                category,
+                metal || null,
+                metal_purity || null,
+                weight || null,
+                description || null,
+                availability || 'YES',
+                image
+            ]
         );
 
         // Get created product
@@ -133,7 +192,17 @@ const createProduct = async (req, res, next) => {
 const updateProduct = async (req, res, next) => {
     try {
         const productId = req.params.id;
-        const { name, grams, wastage, category, description, availability } = req.body;
+        const {
+            name,
+            grams,
+            wastage,
+            category,
+            metal,
+            metal_purity,
+            weight,
+            description,
+            availability
+        } = req.body;
 
         // Check if product exists
         const existingProducts = await query(
@@ -166,6 +235,18 @@ const updateProduct = async (req, res, next) => {
         if (category !== undefined) {
             updates.push('category = ?');
             params.push(category);
+        }
+        if (metal !== undefined) {
+            updates.push('metal = ?');
+            params.push(metal);
+        }
+        if (metal_purity !== undefined) {
+            updates.push('metal_purity = ?');
+            params.push(metal_purity);
+        }
+        if (weight !== undefined) {
+            updates.push('weight = ?');
+            params.push(weight);
         }
         if (description !== undefined) {
             updates.push('description = ?');
