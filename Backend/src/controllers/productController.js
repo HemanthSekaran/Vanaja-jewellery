@@ -9,6 +9,7 @@ const { AppError } = require('../middleware/errorHandler');
 const { deleteFile } = require('../middleware/upload');
 const logger = require('../utils/logger');
 const path = require('path');
+const { addPriceToProducts, addPriceToProduct } = require('../utils/priceCalculator');
 
 /**
  * @desc    Get all products
@@ -99,7 +100,14 @@ const getAllProducts = async (req, res, next) => {
         const countResult = await query(countSql, countParams);
         const total = countResult[0].total;
 
-        const response = formatPaginatedResponse(products, page, limit, total);
+        // Get pricing configuration from environment variables
+        const goldRatePerGram = parseFloat(process.env.GOLD_RATE_PER_GRAM) || 12000;
+        const gstPercentage = parseFloat(process.env.GST_PERCENTAGE) || 3;
+
+        // Add price calculation to all products
+        const productsWithPrice = addPriceToProducts(products, goldRatePerGram, gstPercentage);
+
+        const response = formatPaginatedResponse(productsWithPrice, page, limit, total);
 
         sendSuccess(res, response, 'Products retrieved successfully');
     } catch (error) {
@@ -121,7 +129,14 @@ const getProduct = async (req, res, next) => {
             return next(new AppError('Product not found', 404));
         }
 
-        sendSuccess(res, { product: products[0] }, 'Product retrieved successfully');
+        // Get pricing configuration from environment variables
+        const goldRatePerGram = parseFloat(process.env.GOLD_RATE_PER_GRAM) || 12000;
+        const gstPercentage = parseFloat(process.env.GST_PERCENTAGE) || 3;
+
+        // Add price calculation to product
+        const productWithPrice = addPriceToProduct(products[0], goldRatePerGram, gstPercentage);
+
+        sendSuccess(res, { product: productWithPrice }, 'Product retrieved successfully');
     } catch (error) {
         logger.error('Get product error:', error);
         next(error);
@@ -172,9 +187,16 @@ const createProduct = async (req, res, next) => {
 
         logger.info(`Product created: ${name} by admin ${req.user.email}`);
 
+        // Get pricing configuration from environment variables
+        const goldRatePerGram = parseFloat(process.env.GOLD_RATE_PER_GRAM) || 12000;
+        const gstPercentage = parseFloat(process.env.GST_PERCENTAGE) || 3;
+
+        // Add price calculation to product
+        const productWithPrice = addPriceToProduct(products[0], goldRatePerGram, gstPercentage);
+
         sendSuccess(
             res,
-            { product: products[0] },
+            { product: productWithPrice },
             'Product created successfully',
             201
         );
@@ -288,7 +310,14 @@ const updateProduct = async (req, res, next) => {
 
         logger.info(`Product ${productId} updated by admin ${req.user.email}`);
 
-        sendSuccess(res, { product: products[0] }, 'Product updated successfully');
+        // Get pricing configuration from environment variables
+        const goldRatePerGram = parseFloat(process.env.GOLD_RATE_PER_GRAM) || 12000;
+        const gstPercentage = parseFloat(process.env.GST_PERCENTAGE) || 3;
+
+        // Add price calculation to product
+        const productWithPrice = addPriceToProduct(products[0], goldRatePerGram, gstPercentage);
+
+        sendSuccess(res, { product: productWithPrice }, 'Product updated successfully');
     } catch (error) {
         logger.error('Update product error:', error);
         next(error);
