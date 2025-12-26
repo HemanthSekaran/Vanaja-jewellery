@@ -28,6 +28,13 @@ export interface Product {
   reviewCount: number;
   inStock: boolean;
   createdAt: string;
+
+  // Backend database fields
+  grams?: number;
+  wastage?: number;
+  availability?: 'YES' | 'NO';
+  metal?: string;
+  metal_purity?: number;
 }
 
 export interface CartItem {

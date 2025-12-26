@@ -1,46 +1,193 @@
-import { Injectable } from '@angular/core';
-import { Observable, of } from 'rxjs';
+import { Injectable, inject } from '@angular/core';
+import { Observable, from, map, catchError, of } from 'rxjs';
 import { Product } from '../models/product.model';
-import { mockProducts, featuredCollections } from '../data/products.data';
+import { ApiService } from './api.service';
+
+export interface PaginatedProductResponse {
+    products: Product[];
+    pagination: {
+        currentPage: number;
+        totalPages: number;
+        totalItems: number;
+        itemsPerPage: number;
+    };
+}
 
 @Injectable({
     providedIn: 'root'
 })
 export class ProductService {
-    constructor() { }
+    private apiService = inject(ApiService);
 
-    getProducts(): Observable<Product[]> {
-        return of(mockProducts);
+    getProducts(params?: {
+        page?: number;
+        limit?: number;
+        filterType?: 'category' | 'metal' | 'metalPurity' | 'weight';
+        filterValue?: string;
+        availability?: string;
+    }): Observable<PaginatedProductResponse> {
+        return from(this.apiService.getProducts(params)).pipe(
+            map((response: any) => {
+                console.log('🔍 Raw API Response:', response);
+                console.log('🔍 Response.data:', response.data);
+
+                // Backend returns: { data: { success: true, message: "...", data: { products: [...], pagination: {...} } } }
+                const outerData = response.data;
+
+                // Check if there's a nested data object
+                const innerData = outerData.data || outerData;
+                console.log('🔍 Inner data:', innerData);
+
+                // Products are in innerData.data (the array)
+                const productsArray = Array.isArray(innerData.data) ? innerData.data : (innerData.products || []);
+                const pagination = innerData.pagination;
+
+                console.log('🔍 Products array:', productsArray);
+                console.log('🔍 Products array length:', productsArray.length);
+                console.log('🔍 Pagination:', pagination);
+
+                // Map products and extract price from priceCalculation
+                const mappedProducts = productsArray.map((product: any) => ({
+                    ...product,
+                    id: product.id?.toString() || '',
+                    price: product.priceCalculation?.finalPrice || 0,
+                    images: product.images || (product.image ? [product.image] : []),
+                    rating: product.rating || 4,
+                    reviewCount: product.reviewCount || 0,
+                    bestseller: product.bestseller || false,
+                    featured: product.featured || false,
+                    inStock: product.availability === 'YES',
+                    variants: product.variants || [{
+                        id: product.id?.toString() || '1',
+                        material: product.metal || 'Gold',
+                        price: product.priceCalculation?.finalPrice || 0,
+                        stock: product.availability === 'YES' ? 10 : 0
+                    }],
+                    createdAt: product.created_at || new Date().toISOString()
+                }));
+
+                const result = {
+                    products: mappedProducts,
+                    pagination: {
+                        currentPage: pagination?.currentPage || params?.page || 1,
+                        totalPages: pagination?.totalPages || 1,
+                        totalItems: pagination?.totalItems || productsArray.length,
+                        itemsPerPage: pagination?.itemsPerPage || params?.limit || 10
+                    }
+                };
+
+                console.log('🔍 Final result:', result);
+                console.log('🔍 Mapped products count:', result.products.length);
+                return result;
+            }),
+            catchError(error => {
+                console.error('Error fetching products:', error);
+                return of({
+                    products: [],
+                    pagination: {
+                        currentPage: 1,
+                        totalPages: 0,
+                        totalItems: 0,
+                        itemsPerPage: 10
+                    }
+                });
+            })
+        );
     }
 
     getFeaturedCollections() {
-        return of(featuredCollections);
+        return of([]);
     }
 
     getProductById(id: string): Observable<Product | undefined> {
-        return of(mockProducts.find(p => p.id === id));
+        return from(this.apiService.getProductById(id)).pipe(
+            map((response: any) => {
+                const productData = response.data?.data?.product || response.data?.product;
+                if (!productData) return undefined;
+
+                // Map backend product to frontend format with price calculation
+                return {
+                    ...productData,
+                    id: productData.id?.toString() || '',
+                    price: productData.priceCalculation?.finalPrice || 0,
+                    images: productData.images || (productData.image ? [productData.image] : []),
+                    rating: productData.rating || 4,
+                    reviewCount: productData.reviewCount || 0,
+                    bestseller: productData.bestseller || false,
+                    featured: productData.featured || false,
+                    inStock: productData.availability === 'YES',
+                    variants: productData.variants || [{
+                        id: productData.id?.toString() || '1',
+                        material: productData.metal || 'Gold',
+                        price: productData.priceCalculation?.finalPrice || 0,
+                        stock: productData.availability === 'YES' ? 10 : 0
+                    }],
+                    createdAt: productData.created_at || new Date().toISOString(),
+                    // Store price calculation for display
+                    priceCalculation: productData.priceCalculation
+                };
+            }),
+            catchError(() => of(undefined))
+        );
     }
 
-    addProduct(product: Product): Observable<boolean> {
-        mockProducts.push(product);
-        return of(true);
+    addProduct(productData: any, imageFile: File | null): Observable<any> {
+        const formData = this.buildFormData(productData, imageFile);
+        return from(this.apiService.createProduct(formData)).pipe(
+            map((response: any) => response.data),
+            catchError(error => {
+                console.error('Error creating product:', error);
+                throw error;
+            })
+        );
     }
 
-    updateProduct(product: Product): Observable<boolean> {
-        const index = mockProducts.findIndex(p => p.id === product.id);
-        if (index !== -1) {
-            mockProducts[index] = product;
-            return of(true);
+    updateProduct(id: string, productData: any, imageFile: File | null): Observable<any> {
+        const formData = this.buildFormData(productData, imageFile);
+        return from(this.apiService.updateProduct(id, formData)).pipe(
+            map((response: any) => response.data),
+            catchError(error => {
+                console.error('Error updating product:', error);
+                throw error;
+            })
+        );
+    }
+
+    private buildFormData(productData: any, imageFile: File | null): FormData {
+        const formData = new FormData();
+
+        // Required fields
+        formData.append('name', productData.name || '');
+        formData.append('grams', productData.grams?.toString() || '0');
+        formData.append('wastage', productData.wastage?.toString() || '0');
+        formData.append('category', productData.category || 'RINGS');
+
+        // Optional fields
+        if (productData.metal) {
+            formData.append('metal', productData.metal);
         }
-        return of(false);
+        if (productData.metal_purity) {
+            formData.append('metal_purity', productData.metal_purity.toString());
+        }
+        if (productData.description) {
+            formData.append('description', productData.description);
+        }
+
+        // Availability
+        formData.append('availability', productData.availability || 'YES');
+
+        // Image file
+        if (imageFile) {
+            formData.append('image', imageFile);
+        }
+
+        return formData;
     }
 
     deleteProduct(id: string): Observable<boolean> {
-        const index = mockProducts.findIndex(p => p.id === id);
-        if (index !== -1) {
-            mockProducts.splice(index, 1);
-            return of(true);
-        }
-        return of(false);
+        return from(this.apiService.deleteProduct(id)).pipe(
+            map(() => true),
+            catchError(() => of(false))
+        );
     }
 }

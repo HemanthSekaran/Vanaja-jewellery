@@ -18,20 +18,71 @@ import { Product } from '../../models/product.model';
       <form (ngSubmit)="onSubmit()" class="space-y-6">
         <div class="grid grid-cols-2 gap-4">
           <div class="space-y-2">
-            <label class="text-sm font-medium">Product Name</label>
+            <label class="text-sm font-medium">Product Name *</label>
             <input type="text" [(ngModel)]="product.name" name="name" required
               class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
           </div>
           <div class="space-y-2">
-            <label class="text-sm font-medium">Category</label>
+            <label class="text-sm font-medium">Category *</label>
             <select [(ngModel)]="product.category" name="category" required
               class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
-              <option value="rings">Rings</option>
-              <option value="necklaces">Necklaces</option>
-              <option value="earrings">Earrings</option>
-              <option value="bracelets">Bracelets</option>
+              <option value="RINGS">Rings</option>
+              <option value="NECKLACE">Necklaces</option>
+              <option value="EARRINGS">Earrings</option>
+              <option value="BRACELETS">Bracelets</option>
+              <option value="ANTIQUE SET">Antique Set</option>
             </select>
           </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div class="space-y-2">
+            <label class="text-sm font-medium">Grams (Weight) *</label>
+            <input type="number" [(ngModel)]="product.grams" name="grams" required step="0.01"
+              class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
+          </div>
+          <div class="space-y-2">
+            <label class="text-sm font-medium">Wastage (%) *</label>
+            <input type="number" [(ngModel)]="product.wastage" name="wastage" required step="0.01"
+              class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div class="space-y-2">
+            <label class="text-sm font-medium">Metal *</label>
+            <select [(ngModel)]="product.metal" name="metal" required (ngModelChange)="onMetalChange()"
+              class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
+              <option value="">Select Metal</option>
+              <option value="Gold">Gold</option>
+              <option value="Silver">Silver</option>
+            </select>
+          </div>
+          <div class="space-y-2">
+            <label class="text-sm font-medium">Metal Purity *</label>
+            <select [(ngModel)]="product.metal_purity" name="metal_purity" required [disabled]="!product.metal"
+              class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed">
+              <option value="">Select Purity</option>
+              @if (product.metal === 'Gold') {
+                <option [value]="24">24K</option>
+                <option [value]="22">22K</option>
+                <option [value]="18">18K</option>
+              }
+              @if (product.metal === 'Silver') {
+                <option [value]="925">925 (Sterling Silver)</option>
+                <option [value]="999">999 (Fine Silver)</option>
+              }
+            </select>
+          </div>
+        </div>
+
+        <div class="space-y-2">
+          <label class="text-sm font-medium">Availability</label>
+          <select [(ngModel)]="product.availability" name="availability"
+            class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
+            <option value="YES">In Stock</option>
+            <option value="NO">Out of Stock</option>
+          </select>
         </div>
 
         <div class="space-y-2">
@@ -40,40 +91,27 @@ import { Product } from '../../models/product.model';
             class="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"></textarea>
         </div>
 
-        <div class="grid grid-cols-2 gap-4">
-          <div class="space-y-2">
-            <label class="text-sm font-medium">Price (INR)</label>
-            <input type="number" [(ngModel)]="product.price" name="price" required
-              class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
-          </div>
-           <div class="space-y-2">
-            <label class="text-sm font-medium">Weight (g)</label>
-            <input type="number" [(ngModel)]="product.weight" name="weight"
-              class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
-          </div>
-        </div>
-
          <div class="space-y-4">
-            <label class="text-sm font-medium">Product Images</label>
+            <label class="text-sm font-medium">Product Image</label>
             
-            <div class="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-4" *ngIf="product.images.length > 0">
-                <div *ngFor="let img of product.images; let i = index" class="relative group border rounded-lg bg-card overflow-hidden">
+            <div class="mb-4" *ngIf="product.images.length > 0">
+                <div class="relative group border rounded-lg bg-card overflow-hidden max-w-xs">
                     <div class="aspect-square relative bg-muted">
-                        <img [src]="img" class="w-full h-full object-cover">
-                        <button type="button" (click)="removeImage(i)" class="absolute top-2 right-2 p-1.5 bg-red-500 text-white rounded-full shadow-md hover:bg-red-600 transition-colors opacity-0 group-hover:opacity-100" title="Remove image">
+                        <img [src]="product.images[0]" class="w-full h-full object-cover">
+                        <button type="button" (click)="removeImage(0)" class="absolute top-2 right-2 p-1.5 bg-red-500 text-white rounded-full shadow-md hover:bg-red-600 transition-colors" title="Remove image">
                             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
                         </button>
                     </div>
                     <div class="p-3">
-                        <p class="text-sm font-medium truncate" [title]="imageDetails[i]?.name">{{ imageDetails[i]?.name || 'Image ' + (i+1) }}</p>
-                        <p class="text-xs text-muted-foreground">{{ imageDetails[i]?.size || 'Unknown size' }}</p>
+                        <p class="text-sm font-medium truncate" [title]="imageDetails[0]?.name">{{ imageDetails[0]?.name || 'Product Image' }}</p>
+                        <p class="text-xs text-muted-foreground">{{ imageDetails[0]?.size || 'Unknown size' }}</p>
                     </div>
                 </div>
             </div>
 
             <div class="border-2 border-dashed border-input rounded-xl p-10 flex flex-col items-center justify-center text-center hover:bg-muted/50 transition-colors cursor-pointer relative"
                  (dragover)="onDragOver($event)" (drop)="onDrop($event)">
-                <input type="file" multiple (change)="onFileSelected($event)" accept="image/*" class="absolute inset-0 opacity-0 cursor-pointer z-10">
+                <input type="file" (change)="onFileSelected($event)" accept="image/*" class="absolute inset-0 opacity-0 cursor-pointer z-10">
                 <div class="mb-4 text-muted-foreground/50">
                     <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"/>
@@ -82,7 +120,7 @@ import { Product } from '../../models/product.model';
                     </svg>
                 </div>
                 <h3 class="text-lg font-medium mb-1">Click to upload or drag and drop</h3>
-                <p class="text-xs text-muted-foreground">SVG, PNG, JPG or GIF (MAX. 800x400px)</p>
+                <p class="text-xs text-muted-foreground">PNG, JPG or GIF (Single image only)</p>
             </div>
           </div>
 
@@ -105,6 +143,7 @@ export class AdminProduct implements OnInit {
   isEditMode = false;
 
   imageDetails: { name: string, size: string }[] = [];
+  selectedImageFile: File | null = null;
 
   ngOnInit() {
     const id = this.route.snapshot.paramMap.get('id');
@@ -148,7 +187,11 @@ export class AdminProduct implements OnInit {
       rating: 0,
       reviewCount: 0,
       inStock: true,
-      createdAt: new Date().toISOString().split('T')[0]
+      createdAt: new Date().toISOString().split('T')[0],
+      // Backend fields
+      grams: 0,
+      wastage: 0,
+      availability: 'YES'
     };
   }
 
@@ -174,15 +217,18 @@ export class AdminProduct implements OnInit {
   }
 
   handleFiles(files: FileList) {
-    for (let i = 0; i < files.length; i++) {
-      const file = files[i];
+    // Backend only supports single image, so take the first file
+    if (files.length > 0) {
+      const file = files[0];
+      this.selectedImageFile = file;
+
       const reader = new FileReader();
       reader.onload = (e: any) => {
-        this.product.images.push(e.target.result);
-        this.imageDetails.push({
+        this.product.images = [e.target.result];
+        this.imageDetails = [{
           name: file.name,
           size: this.formatFileSize(file.size)
-        });
+        }];
       };
       reader.readAsDataURL(file);
     }
@@ -199,18 +245,27 @@ export class AdminProduct implements OnInit {
   removeImage(index: number) {
     this.product.images.splice(index, 1);
     this.imageDetails.splice(index, 1);
+    this.selectedImageFile = null;
+  }
+
+  onMetalChange() {
+    // Reset purity when metal type changes
+    this.product.metal_purity = undefined;
   }
 
   onSubmit() {
-    // Sync metadata before saving
-    this.product.imageMetadata = this.imageDetails;
-
     const action = this.isEditMode
-      ? this.productService.updateProduct(this.product)
-      : this.productService.addProduct(this.product);
+      ? this.productService.updateProduct(this.product.id, this.product, this.selectedImageFile)
+      : this.productService.addProduct(this.product, this.selectedImageFile);
 
-    action.subscribe(() => {
-      this.router.navigate(['/products']);
+    action.subscribe({
+      next: () => {
+        this.router.navigate(['/products']);
+      },
+      error: (err) => {
+        console.error('Error saving product:', err);
+        alert('Failed to save product. Please try again.');
+      }
     });
   }
 

@@ -29,8 +29,8 @@ export class Home implements OnInit {
   featuredCollections: any[] = [];
 
   ngOnInit() {
-    this.productService.getProducts().subscribe(products => {
-      this.bestSellers = products.filter(p => p.bestseller);
+    this.productService.getProducts({ limit: 100 }).subscribe(response => {
+      this.bestSellers = response.products.filter((p: Product) => p.bestseller);
     });
     this.productService.getFeaturedCollections().subscribe(collections => {
       this.featuredCollections = collections;

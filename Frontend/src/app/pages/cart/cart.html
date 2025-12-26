@@ -51,7 +51,7 @@
                             Material: {{ item.variant.material }}
                             @if (item.variant.size) { | Size: {{ item.variant.size }} }
                         </p>
-                        <p class="text-lg font-bold text-primary">{{ item.variant.price | currency }}</p>
+                        <p class="text-lg font-bold text-primary">{{ item.variant.price | currency:'INR' }}</p>
                     </div>
 
                     <div class="flex items-center mt-4">
@@ -84,7 +84,7 @@
                 <div class="space-y-4 mb-6">
                     <div class="flex justify-between text-muted-foreground">
                         <span>Subtotal ({{ cartService.count() }} items)</span>
-                        <span>{{ cartService.total() | currency }}</span>
+                        <span>{{ cartService.total() | currency:'INR' }}</span>
                     </div>
                     <div class="flex justify-between text-muted-foreground">
                         <span>Shipping</span>
@@ -92,11 +92,12 @@
                     </div>
                     <div class="flex justify-between text-muted-foreground">
                         <span>Tax (Estimated)</span>
-                        <span>{{ cartService.total() * 0.1 | currency }}</span>
+                        <span>{{ cartService.total() * 0.1 | currency:'INR' }}</span>
                     </div>
                     <div class="border-t border-border pt-4 flex justify-between items-center">
                         <span class="text-lg font-bold text-secondary">Total</span>
-                        <span class="text-2xl font-bold text-primary">{{ cartService.total() * 1.1 | currency }}</span>
+                        <span class="text-2xl font-bold text-primary">{{ cartService.total() * 1.1 | currency:'INR'
+                            }}</span>
                     </div>
                 </div>
 

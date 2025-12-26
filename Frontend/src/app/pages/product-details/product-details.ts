@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { ProductService } from '../../services/product.service';
@@ -19,23 +19,65 @@ export class ProductDetails implements OnInit {
   private cartService = inject(CartService);
   private wishlistService = inject(WishlistService);
   private priceService = inject(PriceService);
+  private cd = inject(ChangeDetectorRef);
 
   product: Product | undefined;
   selectedImage: string = '';
   selectedVariant: ProductVariant | undefined;
   priceDetails: PriceBreakdown | undefined;
+  loading: boolean = true;
 
   ngOnInit() {
     this.route.params.subscribe(params => {
       const id = params['id'];
-      this.productService.getProductById(id).subscribe(product => {
-        if (product) {
-          this.product = product;
-          this.selectedImage = product.images[0];
-          if (product.variants.length > 0) {
-            this.selectedVariant = product.variants[0];
+      console.log('🔍 Loading product with ID:', id);
+
+      this.productService.getProductById(id).subscribe({
+        next: (product) => {
+          console.log('✅ Product loaded:', product);
+
+          if (product) {
+            this.product = product;
+            this.selectedImage = product.images[0] || 'https://via.placeholder.com/400x400?text=No+Image';
+
+            if (product.variants.length > 0) {
+              this.selectedVariant = product.variants[0];
+            }
+
+            // Use backend price calculation if available
+            if ((product as any).priceCalculation) {
+              const calc = (product as any).priceCalculation;
+              console.log('💰 Using backend price calculation:', calc);
+
+              this.priceDetails = {
+                metalRate: calc.goldRatePerGram || 0,
+                metalValue: calc.basePrice || 0,
+                wastageAmount: calc.wastageWeight * calc.goldRatePerGram || 0,
+                makingCharges: 0, // Not provided by backend
+                stoneCharges: 0,
+                taxableValue: calc.basePrice || 0,
+                gstAmount: calc.gstAmount || 0,
+                finalPrice: calc.finalPrice || 0
+              };
+            } else {
+              console.log('⚠️ No backend price calculation, using frontend calculation');
+              // Fallback to frontend calculation
+              this.calculatePrice();
+            }
+
+            this.loading = false;
+            this.cd.detectChanges();
+            console.log('✅ Loading complete, change detection triggered');
+          } else {
+            console.error('❌ Product is undefined');
+            this.loading = false;
+            this.cd.detectChanges();
           }
-          this.calculatePrice();
+        },
+        error: (err) => {
+          console.error('❌ Error loading product:', err);
+          this.loading = false;
+          this.cd.detectChanges();
         }
       });
     });

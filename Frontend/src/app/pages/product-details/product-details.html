@@ -1,5 +1,11 @@
-@if (product) {
-<div class="container mx-auto px-4 py-8">
+<div *ngIf="loading" class="container mx-auto px-4 py-8">
+	<div class="text-center py-20">
+		<div class="animate-spin h-12 w-12 border-4 border-primary border-t-transparent rounded-full mx-auto"></div>
+		<p class="mt-4 text-muted-foreground">Loading product...</p>
+	</div>
+</div>
+
+<div *ngIf="!loading && product" class="container mx-auto px-4 py-8">
 	<div class="grid md:grid-cols-2 gap-8 lg:gap-12">
 		<!-- Image Gallery -->
 		<div class="space-y-4">
@@ -7,14 +13,12 @@
 				<img [src]="selectedImage" [alt]="product.name" class="w-full h-full object-cover">
 			</div>
 			<div class="grid grid-cols-4 gap-4">
-				@for (image of product.images; track image) {
-				<button (click)="selectedImage = image"
+				<button *ngFor="let image of product.images" (click)="selectedImage = image"
 					class="aspect-square bg-muted rounded-md overflow-hidden border-2 transition-colors"
 					[class.border-primary]="selectedImage === image"
 					[class.border-transparent]="selectedImage !== image">
 					<img [src]="image" [alt]="product.name" class="w-full h-full object-cover">
 				</button>
-				}
 			</div>
 		</div>
 
@@ -24,14 +28,13 @@
 				<h1 class="text-3xl font-bold font-serif text-primary">{{ product.name }}</h1>
 				<div class="flex items-center gap-2 mt-2">
 					<div class="flex text-secondary">
-						@for (star of [1,2,3,4,5]; track star) {
-						<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
-							[attr.fill]="star <= product.rating ? 'currentColor' : 'none'" stroke="currentColor"
-							stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-star">
+						<svg *ngFor="let star of [1,2,3,4,5]" xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+							viewBox="0 0 24 24" [attr.fill]="star <= product.rating ? 'currentColor' : 'none'"
+							stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+							class="lucide lucide-star">
 							<polygon
 								points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
 						</svg>
-						}
 					</div>
 					<span class="text-sm text-muted-foreground">({{ product.reviewCount }} reviews)</span>
 				</div>
@@ -44,8 +47,7 @@
 			</p>
 
 			<!-- Price Breakdown -->
-			@if (priceDetails) {
-			<div class="mt-4 border rounded-lg p-4 bg-slate-50">
+			<div *ngIf="priceDetails" class="mt-4 border rounded-lg p-4 bg-slate-50">
 				<h3 class="font-bold text-lg mb-3">Price Breakdown</h3>
 				<div class="space-y-2 text-sm">
 					<div class="flex justify-between">
@@ -64,12 +66,10 @@
 						<span>Making Charges</span>
 						<span>{{priceDetails.makingCharges | currency:'INR'}}</span>
 					</div>
-					@if (priceDetails.stoneCharges) {
-					<div class="flex justify-between">
+					<div *ngIf="priceDetails.stoneCharges" class="flex justify-between">
 						<span>Stone Charges</span>
 						<span>{{priceDetails.stoneCharges | currency:'INR'}}</span>
 					</div>
-					}
 					<div class="flex justify-between font-medium border-t pt-2 mt-2">
 						<span>Taxable Amount</span>
 						<span>{{priceDetails.taxableValue | currency:'INR'}}</span>
@@ -84,42 +84,32 @@
 					</div>
 				</div>
 			</div>
-			}
 
 			<!-- Variants Selection -->
-			@if (product.variants.length > 0) {
-			<div class="space-y-4">
-				@if (hasSizes) {
-				<div class="space-y-2">
+			<div *ngIf="product.variants.length > 0" class="space-y-4">
+				<div *ngIf="hasSizes" class="space-y-2">
 					<label class="text-sm font-medium text-foreground">Size</label>
 					<div class="flex flex-wrap gap-2">
-						@for (variant of sizeVariants; track variant.id) {
-						<button (click)="selectVariant(variant)"
+						<button *ngFor="let variant of sizeVariants" (click)="selectVariant(variant)"
 							class="px-4 py-2 border rounded-md text-sm transition-colors"
 							[class.bg-primary]="selectedVariant?.id === variant.id"
 							[class.text-primary-foreground]="selectedVariant?.id === variant.id"
 							[class.hover:bg-muted]="selectedVariant?.id !== variant.id">
 							{{ variant.size }}
 						</button>
-						}
 					</div>
 				</div>
-				}
 
-				@if (hasMaterials) {
-				<div class="space-y-2">
+				<div *ngIf="hasMaterials" class="space-y-2">
 					<label class="text-sm font-medium text-foreground">Material</label>
 					<div class="flex flex-wrap gap-2">
-						@for (material of product.materials; track material) {
-						<div class="px-3 py-1 bg-muted rounded-full text-xs capitalize text-muted-foreground">
+						<div *ngFor="let material of product.materials"
+							class="px-3 py-1 bg-muted rounded-full text-xs capitalize text-muted-foreground">
 							{{ material }}
 						</div>
-						}
 					</div>
 				</div>
-				}
 			</div>
-			}
 
 			<!-- Actions -->
 			<div class="flex gap-4 pt-6 border-t border-border mt-auto">
@@ -145,4 +135,9 @@
 		</div>
 	</div>
 </div>
-}
+
+<div *ngIf="!loading && !product" class="container mx-auto px-4 py-8">
+	<div class="text-center py-20">
+		<p class="text-muted-foreground text-lg">Product not found</p>
+	</div>
+</div>

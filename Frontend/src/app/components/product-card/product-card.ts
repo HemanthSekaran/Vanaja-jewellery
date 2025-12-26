@@ -1,4 +1,4 @@
-import { Component, Input, inject } from '@angular/core';
+import { Component, Input, inject, computed } from '@angular/core';
 import { CartService } from '../../services/cart.service';
 import { WishlistService } from '../../services/wishlist.service';
 import { PriceService } from '../../services/price.service';
@@ -26,10 +26,29 @@ export class ProductCard {
 
   isAdded = false;
 
-  get isAdmin(): boolean {
+  isAdmin = computed(() => {
+    // Primary: Read from sessionStorage for immediate availability
+    try {
+      const storedUser = sessionStorage.getItem('user');
+      if (storedUser) {
+        const parsedUser = JSON.parse(storedUser);
+        // Handle both wrapped and direct formats
+        const userData = parsedUser.user || parsedUser;
+        const role = userData?.role;
+        return role === 'admin';
+      }
+    } catch (e) {
+      // Silent fail
+    }
+
+    // Fallback: Try signal
     const user = this.authService.currentUser();
-    return user?.role === 'admin';
-  }
+    if (user) {
+      return user.role === 'admin';
+    }
+
+    return false;
+  });
 
   deleteProduct(event: Event) {
     event.stopPropagation();

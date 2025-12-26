@@ -29,7 +29,7 @@
 
     <!-- Image -->
     <div class="aspect-square overflow-hidden relative bg-muted">
-        <img [src]="product.images[0]" [alt]="product.name"
+        <img [src]="product.images[0] || 'https://via.placeholder.com/400x400?text=No+Image'" [alt]="product.name"
             class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110">
     </div>
 
@@ -55,9 +55,9 @@
         </div>
 
         <div class="mt-auto flex items-center justify-between gap-2 pointer-events-auto">
-            <span class="text-lg font-bold text-secondary">{{ product.price | currency }}</span>
+            <span class="text-lg font-bold text-secondary">{{ product.price | currency:'INR' }}</span>
 
-            @if (isAdmin) {
+            @if (isAdmin()) {
             <div class="flex gap-2">
                 <button (click)="editProduct($event)"
                     class="p-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors z-20 relative"

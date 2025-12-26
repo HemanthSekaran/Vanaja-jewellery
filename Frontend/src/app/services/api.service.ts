@@ -38,11 +38,21 @@ export class ApiService {
     updateProfile = (data: any) => axios.put("/auth/profile", data); // Keeping as placeholder if needed, or remove if not in list
 
     // Products
-    getProducts = (params?: any) => axios.get("/products", { params });
+    getProducts = (params?: {
+        page?: number;
+        limit?: number;
+        filterType?: 'category' | 'metal' | 'metalPurity' | 'weight';
+        filterValue?: string;
+        availability?: string;
+    }) => axios.get("/products", { params });
     getCategories = () => axios.get("/products/categories/list");
     getProductById = (id: string) => axios.get(`/products/${id}`);
-    createProduct = (data: any) => axios.post("/products", data);
-    updateProduct = (id: string, data: any) => axios.put(`/products/${id}`, data);
+    createProduct = (formData: FormData) => axios.post("/products", formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+    });
+    updateProduct = (id: string, formData: FormData) => axios.put(`/products/${id}`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+    });
     deleteProduct = (id: string) => axios.delete(`/products/${id}`);
 
     // Customization
