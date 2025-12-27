@@ -177,8 +177,8 @@ export class ProductService {
         );
     }
 
-    addProduct(productData: any, imageFile: File | null): Observable<any> {
-        const formData = this.buildFormData(productData, imageFile);
+    addProduct(productData: any, imageFiles: File[]): Observable<any> {
+        const formData = this.buildFormData(productData, imageFiles);
         return from(this.apiService.createProduct(formData)).pipe(
             map((response: any) => response.data),
             catchError(error => {
@@ -188,8 +188,8 @@ export class ProductService {
         );
     }
 
-    updateProduct(id: string, productData: any, imageFile: File | null): Observable<any> {
-        const formData = this.buildFormData(productData, imageFile);
+    updateProduct(id: string, productData: any, imageFiles: File[]): Observable<any> {
+        const formData = this.buildFormData(productData, imageFiles);
         return from(this.apiService.updateProduct(id, formData)).pipe(
             map((response: any) => response.data),
             catchError(error => {
@@ -199,7 +199,7 @@ export class ProductService {
         );
     }
 
-    private buildFormData(productData: any, imageFile: File | null): FormData {
+    private buildFormData(productData: any, imageFiles: File[]): FormData {
         const formData = new FormData();
 
         // Required fields
@@ -222,9 +222,11 @@ export class ProductService {
         // Availability
         formData.append('availability', productData.availability || 'YES');
 
-        // Image file
-        if (imageFile) {
-            formData.append('image', imageFile);
+        // Image files - append multiple images
+        if (imageFiles && imageFiles.length > 0) {
+            imageFiles.forEach((file, index) => {
+                formData.append('images', file);
+            });
         }
 
         return formData;

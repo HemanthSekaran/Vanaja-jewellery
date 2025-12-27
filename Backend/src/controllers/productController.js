@@ -12,6 +12,23 @@ const path = require('path');
 const { addPriceToProducts, addPriceToProduct } = require('../utils/priceCalculator');
 
 /**
+ * Helper function to parse images from JSON string
+ * @param {string} imageData - JSON string or single image filename
+ * @returns {Array} Array of image filenames
+ */
+const parseImages = (imageData) => {
+    if (!imageData) return [];
+
+    try {
+        const parsed = JSON.parse(imageData);
+        return Array.isArray(parsed) ? parsed : [parsed];
+    } catch (e) {
+        // If not JSON, treat as single image (backward compatibility)
+        return [imageData];
+    }
+};
+
+/**
  * @desc    Get all products
  * @route   GET /api/products
  * @access  Public
@@ -104,10 +121,16 @@ const getAllProducts = async (req, res, next) => {
         const goldRatePerGram = parseFloat(process.env.GOLD_RATE_PER_GRAM) || 12000;
         const gstPercentage = parseFloat(process.env.GST_PERCENTAGE) || 3;
 
-        // Add price calculation to all products
-        const productsWithPrice = addPriceToProducts(products, goldRatePerGram, gstPercentage);
+        // Parse images and add price calculation to all products
+        const productsWithImagesAndPrice = products.map(product => {
+            const productWithImages = {
+                ...product,
+                images: parseImages(product.image)
+            };
+            return addPriceToProduct(productWithImages, goldRatePerGram, gstPercentage);
+        });
 
-        const response = formatPaginatedResponse(productsWithPrice, page, limit, total);
+        const response = formatPaginatedResponse(productsWithImagesAndPrice, page, limit, total);
 
         sendSuccess(res, response, 'Products retrieved successfully');
     } catch (error) {
@@ -133,8 +156,12 @@ const getProduct = async (req, res, next) => {
         const goldRatePerGram = parseFloat(process.env.GOLD_RATE_PER_GRAM) || 12000;
         const gstPercentage = parseFloat(process.env.GST_PERCENTAGE) || 3;
 
-        // Add price calculation to product
-        const productWithPrice = addPriceToProduct(products[0], goldRatePerGram, gstPercentage);
+        // Parse images and add price calculation to product
+        const productWithImages = {
+            ...products[0],
+            images: parseImages(products[0].image)
+        };
+        const productWithPrice = addPriceToProduct(productWithImages, goldRatePerGram, gstPercentage);
 
         sendSuccess(res, { product: productWithPrice }, 'Product retrieved successfully');
     } catch (error) {
@@ -157,8 +184,9 @@ const createProduct = async (req, res, next) => {
             availability
         } = req.body;
 
-        // Get uploaded image filename
-        const image = req.file ? req.file.filename : null;
+        // Get uploaded image filenames (multiple files)
+        const images = req.files ? req.files.map(file => file.filename) : [];
+        const imageJson = JSON.stringify(images);
 
         // Insert product (store actual values or NULL, never 'All')
         const result = await query(
@@ -175,7 +203,7 @@ const createProduct = async (req, res, next) => {
                 grams || null, //stored it in weight column tesing propose it is assigned to the grams
                 description || null,
                 availability || 'YES',
-                image
+                imageJson
             ]
         );
 
@@ -280,14 +308,26 @@ const updateProduct = async (req, res, next) => {
         }
 
         // Handle image update
-        if (req.file) {
+        if (req.files && req.files.length > 0) {
+            const newImages = req.files.map(file => file.filename);
             updates.push('image = ?');
-            params.push(req.file.filename);
+            params.push(JSON.stringify(newImages));
 
-            // Delete old image if exists
+            // Delete old images if they exist
             if (existingProduct.image) {
-                const oldImagePath = path.join('./uploads/products', existingProduct.image);
-                deleteFile(oldImagePath);
+                try {
+                    const oldImages = JSON.parse(existingProduct.image);
+                    if (Array.isArray(oldImages)) {
+                        oldImages.forEach(img => {
+                            const oldImagePath = path.join('./uploads/products', img);
+                            deleteFile(oldImagePath);
+                        });
+                    }
+                } catch (e) {
+                    // If not JSON, treat as single image (backward compatibility)
+                    const oldImagePath = path.join('./uploads/products', existingProduct.image);
+                    deleteFile(oldImagePath);
+                }
             }
         }
 
@@ -345,10 +385,13 @@ const deleteProduct = async (req, res, next) => {
 
         const product = products[0];
 
-        // Delete product image if exists
+        // Delete product images if they exist
         if (product.image) {
-            const imagePath = path.join('./uploads/products', product.image);
-            deleteFile(imagePath);
+            const images = parseImages(product.image);
+            images.forEach(img => {
+                const imagePath = path.join('./uploads/products', img);
+                deleteFile(imagePath);
+            });
         }
 
         // Delete product from database

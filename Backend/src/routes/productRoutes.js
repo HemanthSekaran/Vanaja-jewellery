@@ -14,7 +14,7 @@ const {
 } = require('../controllers/productController');
 const { validateProduct, validateProductUpdate, validateId } = require('../middleware/validators');
 const { protect, authorize } = require('../middleware/auth');
-const { uploadSingle } = require('../middleware/upload');
+const { uploadMultiple } = require('../middleware/upload');
 
 // Public routes
 router.get('/', getAllProducts);
@@ -22,8 +22,8 @@ router.get('/categories/list', getCategories);
 router.get('/:id', validateId, getProduct);
 
 // Admin routes
-router.post('/', protect, authorize('admin'), uploadSingle('image'), validateProduct, createProduct);
-router.put('/:id', protect, authorize('admin'), uploadSingle('image'), validateId, validateProductUpdate, updateProduct);
+router.post('/', protect, authorize('admin'), uploadMultiple('images', 5), validateProduct, createProduct);
+router.put('/:id', protect, authorize('admin'), uploadMultiple('images', 5), validateId, validateProductUpdate, updateProduct);
 router.delete('/:id', protect, authorize('admin'), validateId, deleteProduct);
 
 module.exports = router;

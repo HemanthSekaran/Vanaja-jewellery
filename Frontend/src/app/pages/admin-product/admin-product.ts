@@ -92,26 +92,26 @@ import { Product } from '../../models/product.model';
         </div>
 
          <div class="space-y-4">
-            <label class="text-sm font-medium">Product Image</label>
+            <label class="text-sm font-medium">Product Images</label>
             
-            <div class="mb-4" *ngIf="product.images.length > 0">
-                <div class="relative group border rounded-lg bg-card overflow-hidden max-w-xs">
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-4" *ngIf="product.images.length > 0">
+                <div *ngFor="let image of product.images; let i = index" class="relative group border rounded-lg bg-card overflow-hidden">
                     <div class="aspect-square relative bg-muted">
-                        <img [src]="product.images[0]" class="w-full h-full object-cover">
-                        <button type="button" (click)="removeImage(0)" class="absolute top-2 right-2 p-1.5 bg-red-500 text-white rounded-full shadow-md hover:bg-red-600 transition-colors" title="Remove image">
+                        <img [src]="image" class="w-full h-full object-cover">
+                        <button type="button" (click)="removeImage(i)" class="absolute top-2 right-2 p-1.5 bg-red-500 text-white rounded-full shadow-md hover:bg-red-600 transition-colors" title="Remove image">
                             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
                         </button>
                     </div>
-                    <div class="p-3">
-                        <p class="text-sm font-medium truncate" [title]="imageDetails[0]?.name">{{ imageDetails[0]?.name || 'Product Image' }}</p>
-                        <p class="text-xs text-muted-foreground">{{ imageDetails[0]?.size || 'Unknown size' }}</p>
+                    <div class="p-2">
+                        <p class="text-xs font-medium truncate" [title]="imageDetails[i]?.name">{{ imageDetails[i]?.name || 'Image ' + (i + 1) }}</p>
+                        <p class="text-xs text-muted-foreground">{{ imageDetails[i]?.size || 'Unknown' }}</p>
                     </div>
                 </div>
             </div>
 
             <div class="border-2 border-dashed border-input rounded-xl p-10 flex flex-col items-center justify-center text-center hover:bg-muted/50 transition-colors cursor-pointer relative"
                  (dragover)="onDragOver($event)" (drop)="onDrop($event)">
-                <input type="file" (change)="onFileSelected($event)" accept="image/*" class="absolute inset-0 opacity-0 cursor-pointer z-10">
+                <input type="file" (change)="onFileSelected($event)" accept="image/*" multiple class="absolute inset-0 opacity-0 cursor-pointer z-10">
                 <div class="mb-4 text-muted-foreground/50">
                     <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"/>
@@ -120,7 +120,7 @@ import { Product } from '../../models/product.model';
                     </svg>
                 </div>
                 <h3 class="text-lg font-medium mb-1">Click to upload or drag and drop</h3>
-                <p class="text-xs text-muted-foreground">PNG, JPG or GIF (Single image only)</p>
+                <p class="text-xs text-muted-foreground">PNG, JPG or GIF (Multiple images supported)</p>
             </div>
           </div>
 
@@ -143,7 +143,7 @@ export class AdminProduct implements OnInit {
   isEditMode = false;
 
   imageDetails: { name: string, size: string }[] = [];
-  selectedImageFile: File | null = null;
+  selectedImageFiles: File[] = [];
 
   ngOnInit() {
     const id = this.route.snapshot.paramMap.get('id');
@@ -217,21 +217,25 @@ export class AdminProduct implements OnInit {
   }
 
   handleFiles(files: FileList) {
-    // Backend only supports single image, so take the first file
-    if (files.length > 0) {
-      const file = files[0];
-      this.selectedImageFile = file;
+    // Process all selected files
+    Array.from(files).forEach(file => {
+      // Only process image files
+      if (!file.type.startsWith('image/')) {
+        return;
+      }
+
+      this.selectedImageFiles.push(file);
 
       const reader = new FileReader();
       reader.onload = (e: any) => {
-        this.product.images = [e.target.result];
-        this.imageDetails = [{
+        this.product.images.push(e.target.result);
+        this.imageDetails.push({
           name: file.name,
           size: this.formatFileSize(file.size)
-        }];
+        });
       };
       reader.readAsDataURL(file);
-    }
+    });
   }
 
   formatFileSize(bytes: number): string {
@@ -245,7 +249,7 @@ export class AdminProduct implements OnInit {
   removeImage(index: number) {
     this.product.images.splice(index, 1);
     this.imageDetails.splice(index, 1);
-    this.selectedImageFile = null;
+    this.selectedImageFiles.splice(index, 1);
   }
 
   onMetalChange() {
@@ -255,8 +259,8 @@ export class AdminProduct implements OnInit {
 
   onSubmit() {
     const action = this.isEditMode
-      ? this.productService.updateProduct(this.product.id, this.product, this.selectedImageFile)
-      : this.productService.addProduct(this.product, this.selectedImageFile);
+      ? this.productService.updateProduct(this.product.id, this.product, this.selectedImageFiles)
+      : this.productService.addProduct(this.product, this.selectedImageFiles);
 
     action.subscribe({
       next: () => {
