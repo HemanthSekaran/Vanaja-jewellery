@@ -47,24 +47,48 @@ export class ProductService {
                 console.log('🔍 Pagination:', pagination);
 
                 // Map products and extract price from priceCalculation
-                const mappedProducts = productsArray.map((product: any) => ({
-                    ...product,
-                    id: product.id?.toString() || '',
-                    price: product.priceCalculation?.finalPrice || 0,
-                    images: product.images || (product.image ? [product.image] : []),
-                    rating: product.rating || 4,
-                    reviewCount: product.reviewCount || 0,
-                    bestseller: product.bestseller || false,
-                    featured: product.featured || false,
-                    inStock: product.availability === 'YES',
-                    variants: product.variants || [{
-                        id: product.id?.toString() || '1',
-                        material: product.metal || 'Gold',
+                const mappedProducts = productsArray.map((product: any) => {
+                    // Construct full image URLs
+                    let images: string[] = [];
+                    if (product.images && Array.isArray(product.images)) {
+                        images = product.images.map((img: string) => {
+                            if (img.startsWith('http')) return img;
+                            if (img.startsWith('/')) return `http://localhost:5000${img}`;
+                            // If it's just a filename, prepend the uploads path
+                            return `http://localhost:5000/uploads/products/${img}`;
+                        });
+                    } else if (product.image) {
+                        let imgUrl = product.image;
+                        if (!imgUrl.startsWith('http')) {
+                            if (imgUrl.startsWith('/')) {
+                                imgUrl = `http://localhost:5000${imgUrl}`;
+                            } else {
+                                // If it's just a filename, prepend the uploads path
+                                imgUrl = `http://localhost:5000/uploads/products/${imgUrl}`;
+                            }
+                        }
+                        images = [imgUrl];
+                    }
+
+                    return {
+                        ...product,
+                        id: product.id?.toString() || '',
                         price: product.priceCalculation?.finalPrice || 0,
-                        stock: product.availability === 'YES' ? 10 : 0
-                    }],
-                    createdAt: product.created_at || new Date().toISOString()
-                }));
+                        images: images,
+                        rating: product.rating || 4,
+                        reviewCount: product.reviewCount || 0,
+                        bestseller: product.bestseller || false,
+                        featured: product.featured || false,
+                        inStock: product.availability === 'YES',
+                        variants: product.variants || [{
+                            id: product.id?.toString() || '1',
+                            material: product.metal || 'Gold',
+                            price: product.priceCalculation?.finalPrice || 0,
+                            stock: product.availability === 'YES' ? 10 : 0
+                        }],
+                        createdAt: product.created_at || new Date().toISOString()
+                    };
+                });
 
                 const result = {
                     products: mappedProducts,
@@ -105,12 +129,34 @@ export class ProductService {
                 const productData = response.data?.data?.product || response.data?.product;
                 if (!productData) return undefined;
 
+                // Construct full image URLs
+                let images: string[] = [];
+                if (productData.images && Array.isArray(productData.images)) {
+                    images = productData.images.map((img: string) => {
+                        if (img.startsWith('http')) return img;
+                        if (img.startsWith('/')) return `http://localhost:5000${img}`;
+                        // If it's just a filename, prepend the uploads path
+                        return `http://localhost:5000/uploads/products/${img}`;
+                    });
+                } else if (productData.image) {
+                    let imgUrl = productData.image;
+                    if (!imgUrl.startsWith('http')) {
+                        if (imgUrl.startsWith('/')) {
+                            imgUrl = `http://localhost:5000${imgUrl}`;
+                        } else {
+                            // If it's just a filename, prepend the uploads path
+                            imgUrl = `http://localhost:5000/uploads/products/${imgUrl}`;
+                        }
+                    }
+                    images = [imgUrl];
+                }
+
                 // Map backend product to frontend format with price calculation
                 return {
                     ...productData,
                     id: productData.id?.toString() || '',
                     price: productData.priceCalculation?.finalPrice || 0,
-                    images: productData.images || (productData.image ? [productData.image] : []),
+                    images: images,
                     rating: productData.rating || 4,
                     reviewCount: productData.reviewCount || 0,
                     bestseller: productData.bestseller || false,

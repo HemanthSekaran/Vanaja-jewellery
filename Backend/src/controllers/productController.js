@@ -172,7 +172,7 @@ const createProduct = async (req, res, next) => {
                 category,
                 metal || null,
                 metal_purity || null,
-                weight || null,
+                grams || null, //stored it in weight column tesing propose it is assigned to the grams
                 description || null,
                 availability || 'YES',
                 image

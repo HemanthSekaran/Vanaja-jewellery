@@ -108,11 +108,6 @@ export class ProductList implements OnInit {
         this.totalItems = response.pagination.totalItems;
         this.itemsPerPage = response.pagination.itemsPerPage;
         this.loading = false;
-
-        console.log('✅ Products loaded successfully. Total items:', this.totalItems);
-        console.log('✅ filteredProducts.length:', this.filteredProducts.length);
-        console.log('✅ loading:', this.loading);
-
         // Manually trigger change detection
         this.cd.detectChanges();
       },

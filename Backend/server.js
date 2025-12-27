@@ -17,8 +17,9 @@ const productRoutes = require('./src/routes/productRoutes');
 
 const app = express();
 
-app.use(helmet());
-
+app.use(helmet({
+    crossOriginResourcePolicy: { policy: "cross-origin" }
+}));
 
 app.use(cors({
     origin: process.env.CORS_ORIGIN || '*',
