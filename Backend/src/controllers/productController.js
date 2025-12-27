@@ -174,7 +174,6 @@ const createProduct = async (req, res, next) => {
     try {
         const {
             name,
-            grams,
             wastage,
             category,
             metal,
@@ -183,7 +182,6 @@ const createProduct = async (req, res, next) => {
             description,
             availability
         } = req.body;
-
         // Get uploaded image filenames (multiple files)
         const images = req.files ? req.files.map(file => file.filename) : [];
         const imageJson = JSON.stringify(images);
@@ -191,16 +189,15 @@ const createProduct = async (req, res, next) => {
         // Insert product (store actual values or NULL, never 'All')
         const result = await query(
             `INSERT INTO products
-            (name, grams, wastage, category, metal, metal_purity, weight, description, availability, image)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            (name, wastage, category, metal, metal_purity, weight, description, availability, image)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
             [
                 name,
-                grams,
                 wastage,
                 category,
                 metal || null,
                 metal_purity || null,
-                grams || null, //stored it in weight column tesing propose it is assigned to the grams
+                weight || null,
                 description || null,
                 availability || 'YES',
                 imageJson

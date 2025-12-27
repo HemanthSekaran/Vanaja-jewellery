@@ -38,7 +38,7 @@ import { Product } from '../../models/product.model';
         <div class="grid grid-cols-2 gap-4">
           <div class="space-y-2">
             <label class="text-sm font-medium">Grams (Weight) *</label>
-            <input type="number" [(ngModel)]="product.grams" name="grams" required step="0.01"
+            <input type="number" [(ngModel)]="product.weight" name="weight" required step="0.01"
               class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
           </div>
           <div class="space-y-2">
@@ -177,7 +177,6 @@ export class AdminProduct implements OnInit {
       category: 'rings',
       materials: [],
       metalType: [],
-      weight: 0,
       purity: '22K',
       makingCharges: 0,
       wastagePercentage: 0,
@@ -189,7 +188,7 @@ export class AdminProduct implements OnInit {
       inStock: true,
       createdAt: new Date().toISOString().split('T')[0],
       // Backend fields
-      grams: 0,
+      weight: 0,
       wastage: 0,
       availability: 'YES'
     };

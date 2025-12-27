@@ -204,7 +204,7 @@ export class ProductService {
 
         // Required fields
         formData.append('name', productData.name || '');
-        formData.append('grams', productData.grams?.toString() || '0');
+        formData.append('weight', productData.weight?.toString() || '0');
         formData.append('wastage', productData.wastage?.toString() || '0');
         formData.append('category', productData.category || 'RINGS');
 

@@ -95,10 +95,9 @@ const validateProduct = [
         .notEmpty().withMessage('Product name is required')
         .isLength({ min: 2, max: 255 }).withMessage('Product name must be between 2 and 255 characters'),
 
-    body('grams')
-        .trim()
-        .notEmpty().withMessage('Grams is required')
-        .isLength({ max: 50 }).withMessage('Grams cannot exceed 50 characters'),
+    body('weight')
+        .optional()
+        .isFloat({ min: 0 }).withMessage('Weight must be a non-negative number'),
 
     body('wastage')
         .notEmpty().withMessage('Wastage is required')
@@ -130,10 +129,9 @@ const validateProductUpdate = [
         .trim()
         .isLength({ min: 2, max: 255 }).withMessage('Product name must be between 2 and 255 characters'),
 
-    body('grams')
+    body('weight')
         .optional()
-        .trim()
-        .isLength({ max: 50 }).withMessage('Grams cannot exceed 50 characters'),
+        .isFloat({ min: 0 }).withMessage('Weight must be a non-negative number'),
 
     body('wastage')
         .optional()
