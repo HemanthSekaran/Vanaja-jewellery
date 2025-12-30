@@ -29,6 +29,9 @@ const calculatePrice = (jewelWeight, wastagePercentage, goldRatePerGram = 12000,
     // Calculate total weight
     const totalWeight = weight + wastageWeight;
 
+    // Calculate metal value (jewel weight * gold rate per gram, before wastage)
+    const metalValue = weight * goldRate;
+
     // Calculate base price (before GST)
     const basePrice = totalWeight * goldRate;
 
@@ -44,6 +47,7 @@ const calculatePrice = (jewelWeight, wastagePercentage, goldRatePerGram = 12000,
         wastageWeight: parseFloat(wastageWeight.toFixed(3)),
         totalWeight: parseFloat(totalWeight.toFixed(3)),
         goldRatePerGram: goldRate,
+        metalValue: parseFloat(metalValue.toFixed(2)),
         basePrice: parseFloat(basePrice.toFixed(2)),
         gstPercentage: gstRate,
         gstAmount: parseFloat(gstAmount.toFixed(2)),
