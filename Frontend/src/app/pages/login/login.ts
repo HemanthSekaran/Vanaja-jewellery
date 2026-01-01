@@ -2,6 +2,7 @@ import { Component, inject } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
+import { AlertService } from '../../services/alert.service';
 
 @Component({
     selector: 'app-login',
@@ -14,6 +15,7 @@ export class Login {
     password = '';
     authService = inject(AuthService);
     router = inject(Router);
+    alertService = inject(AlertService);
 
     async onSubmit() {
         if (this.email && this.password) {
@@ -21,7 +23,7 @@ export class Login {
             if (success) {
                 this.router.navigate(['/']);
             } else {
-                alert('Invalid credentials');
+                this.alertService.error("Login Failed", "Invalid credentials. Please try again.");
             }
         }
     }

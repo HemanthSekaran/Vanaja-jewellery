@@ -4,6 +4,7 @@ import { Location } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
 import { ApiService } from '../../services/api.service';
+import { AlertService } from '../../services/alert.service';
 
 @Component({
     selector: 'app-profile',
@@ -18,6 +19,7 @@ export class Profile implements OnInit {
     router = inject(Router);
     fb = inject(FormBuilder);
     location = inject(Location);
+    alertService = inject(AlertService);
 
     profileForm: FormGroup;
     isSubmitting = false;
@@ -75,10 +77,10 @@ export class Profile implements OnInit {
             this.authService.currentUser.set(userData);
             sessionStorage.setItem('user', JSON.stringify(userData));
 
-            alert("Profile updated successfully!");
+            await this.alertService.success("Success", "Profile updated successfully!");
         } catch (error) {
             console.error("Profile Update Error:", error);
-            alert("Failed to update profile.");
+            this.alertService.error("Update Failed", "Failed to update profile.");
         } finally {
             this.isSubmitting = false;
         }

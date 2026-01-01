@@ -1,7 +1,6 @@
 import { Component, OnInit, inject, ChangeDetectorRef, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ProductService } from '../../services/product.service';
-import { PriceService } from '../../services/price.service';
 import { Product } from '../../models/product.model';
 import { ProductCard } from '../../components/product-card/product-card';
 import { ProductFilters } from '../../components/product-filters/product-filters';
@@ -17,7 +16,6 @@ import { AuthService } from '../../services/auth.service';
 })
 export class ProductList implements OnInit {
   productService = inject(ProductService);
-  priceService = inject(PriceService);
   authService = inject(AuthService);
   router = inject(Router);
   cd = inject(ChangeDetectorRef);

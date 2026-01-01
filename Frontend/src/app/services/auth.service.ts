@@ -1,6 +1,7 @@
 import { Injectable, signal } from '@angular/core';
 import { ApiService } from './api.service';
 import { TokenService } from './token.service';
+import { ToastService } from './toast.service';
 
 export interface User {
     name: string;
@@ -18,7 +19,8 @@ export class AuthService {
 
     constructor(
         private apiService: ApiService,
-        private tokenService: TokenService
+        private tokenService: TokenService,
+        private toastService: ToastService,
     ) {
         // Try to restore user from sessionStorage on init
         this.initializeUser();
@@ -81,6 +83,7 @@ export class AuthService {
                     }
                     this.setCurrentUser(profileData);
                 }
+                this.toastService.show('Login successful', 'success');
                 return true;
             }
             return false;
@@ -104,6 +107,7 @@ export class AuthService {
         this.currentUser.set(null);
         sessionStorage.removeItem('user');
         this.tokenService.removeToken();
+        this.toastService.show('Logged out successfully', 'success');
     }
 
     private setCurrentUser(user: User) {

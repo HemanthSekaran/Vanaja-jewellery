@@ -6,13 +6,7 @@
         class="absolute top-3 left-3 z-20 bg-destructive text-white text-[10px] font-bold px-2 py-1 uppercase tracking-wider rounded-sm pointer-events-none">
         Sale
     </div>
-    } @else if (isNew(product.createdAt)) {
-    <div
-        class="absolute top-3 left-3 z-20 bg-primary text-white text-[10px] font-bold px-2 py-1 uppercase tracking-wider rounded-sm pointer-events-none">
-        New
-    </div>
     }
-
     <!-- Quick Actions (Wishlist) -->
     <div class="absolute top-3 right-3 flex flex-col space-y-2 z-20">
         <button (click)="toggleWishlist($event)"

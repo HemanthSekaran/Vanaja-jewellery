@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ApiService } from '../../services/api.service';
+import { AlertService } from '../../services/alert.service';
 
 @Component({
     selector: 'app-customization',
@@ -30,7 +31,8 @@ export class CustomizationComponent {
         private cd: ChangeDetectorRef,
         private api: ApiService,
         private route: ActivatedRoute, // Injected ActivatedRoute
-        public router: Router // Injected Router
+        public router: Router, // Injected Router
+        private alertService: AlertService
     ) {
         this.customizationForm = this.fb.group({
             design_name: ['', Validators.required],
@@ -72,7 +74,7 @@ export class CustomizationComponent {
             }
         }).catch(err => {
             console.error('Failed to load design', err);
-            alert('Failed to load design details');
+            this.alertService.error('Error', 'Failed to load design details');
         });
     }
 
@@ -98,14 +100,14 @@ export class CustomizationComponent {
     handleFiles(files: FileList) {
         // Limit total number of images to 3
         if (this.imageDetails.length + files.length > 3) {
-            alert('You can only upload a maximum of 3 images.');
+            this.alertService.error('Limit Exceeded', 'You can only upload a maximum of 3 images.');
             return;
         }
 
         Array.from(files).forEach(file => {
             // Check file size (5MB limit)
             if (file.size > 5 * 1024 * 1024) {
-                alert(`File "${file.name}" is too large. Maximum size is 5MB.`);
+                this.alertService.error('File Too Large', `File "${file.name}" is too large. Maximum size is 5MB.`);
                 return;
             }
 
@@ -165,19 +167,19 @@ export class CustomizationComponent {
             : this.api.submitCustomization(formData);
 
         promise
-            .then(() => {
-                alert(this.editMode ? 'Design updated successfully!' : 'Design request submitted successfully!');
+            .then(async () => {
+                await this.alertService.success('Success', this.editMode ? 'Design updated successfully!' : 'Design request submitted successfully!');
                 if (!this.editMode) {
                     this.customizationForm.reset();
                     this.imageDetails = [];
                 } else {
                     // Navigate to a list or detail page after update
-                    this.router.navigate(['/customization/list']); // Example navigation
+                    this.router.navigate(['/customization/design-list']);
                 }
             })
             .catch(err => {
                 console.error(err);
-                alert(this.editMode ? 'Failed to update design' : 'Failed to submit design request');
+                this.alertService.error('Error', this.editMode ? 'Failed to update design' : 'Failed to submit design request');
             })
             .finally(() => {
                 this.isSubmitting = false;

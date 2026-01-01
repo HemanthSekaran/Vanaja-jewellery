@@ -13,11 +13,11 @@ export interface Product {
   images: string[];
   imageMetadata?: { name: string, size: string }[];
   description: string;
-  category: 'rings' | 'necklaces' | 'earrings' | 'bracelets';
+  category: 'RINGS' | 'NECKLACE' | 'EARRINGS' | 'BRACELETS' | 'ANTIQUE SET';
   materials: string[];
-  metalType: ('Gold' | 'Silver' | 'Platinum')[];
+  metalType: ('Gold' | 'Silver')[];
   weight: number;
-  purity: '18K' | '22K' | '24K' | '925 Silver' | '950 Platinum';
+  purity: '18K' | '22K' | '24K' | '925 Silver';
   makingCharges: number;
   wastagePercentage: number;
   stonePrice?: number;

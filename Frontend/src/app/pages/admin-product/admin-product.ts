@@ -1,8 +1,9 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { ProductService } from '../../services/product.service';
+import { ToastService } from '../../services/toast.service';
 import { Product } from '../../models/product.model';
 
 @Component({
@@ -136,6 +137,7 @@ import { Product } from '../../models/product.model';
 })
 export class AdminProduct implements OnInit {
   productService = inject(ProductService);
+  toastService = inject(ToastService);
   router = inject(Router);
   route = inject(ActivatedRoute);
 
@@ -145,23 +147,40 @@ export class AdminProduct implements OnInit {
   imageDetails: { name: string, size: string }[] = [];
   selectedImageFiles: File[] = [];
 
+  cdr = inject(ChangeDetectorRef);
+
   ngOnInit() {
     const id = this.route.snapshot.paramMap.get('id');
+    console.log('AdminProduct: Init with ID:', id);
     if (id) {
       this.isEditMode = true;
-      this.productService.getProductById(id).subscribe(p => {
-        if (p) {
-          this.product = { ...p };
-          if (p.imageMetadata) {
-            this.imageDetails = [...p.imageMetadata];
+      this.productService.getProductById(id).subscribe({
+        next: (p) => {
+          console.log('AdminProduct: Received product from service:', p);
+          if (p) {
+            // Update properties in place to preserve object reference for ngModel
+            Object.assign(this.product, p);
+
+            // Log the product after assignment
+            console.log('AdminProduct: Assigned to this.product (in-place):', this.product);
+
+            if (p.imageMetadata) {
+              this.imageDetails = [...p.imageMetadata];
+            } else {
+              // Fallback for existing products without metadata
+              this.imageDetails = this.product.images.map((_, i) => ({
+                name: `Image ${i + 1}`,
+                size: 'Unknown'
+              }));
+            }
+
+            // Force change detection
+            this.cdr.detectChanges();
           } else {
-            // Fallback for existing products without metadata
-            this.imageDetails = this.product.images.map((_, i) => ({
-              name: `Image ${i + 1}`,
-              size: 'Unknown'
-            }));
+            console.error('AdminProduct: Received undefined product');
           }
-        }
+        },
+        error: (err) => console.error('AdminProduct: Error fetching product:', err)
       });
     }
   }
@@ -174,7 +193,7 @@ export class AdminProduct implements OnInit {
       images: [],
       imageMetadata: [],
       description: '',
-      category: 'rings',
+      category: 'RINGS',
       materials: [],
       metalType: [],
       purity: '22K',
@@ -263,11 +282,15 @@ export class AdminProduct implements OnInit {
 
     action.subscribe({
       next: () => {
+        this.toastService.show(
+          this.isEditMode ? 'Product updated successfully' : 'Product created successfully',
+          'success'
+        );
         this.router.navigate(['/products']);
       },
       error: (err) => {
         console.error('Error saving product:', err);
-        alert('Failed to save product. Please try again.');
+        this.toastService.show('Failed to save product', 'error');
       }
     });
   }

@@ -8,7 +8,7 @@ import { CommonModule } from '@angular/common';
     <section class="py-16 px-4">
       <div class="container mx-auto">
         <div class="text-center mb-12">
-          <h2 class="text-3xl font-bold mb-2">@SriAnbuJewellery</h2>
+          <h2 class="text-3xl font-bold mb-2">@SriVanajaJewellery</h2>
           <p class="text-muted-foreground">Follow us on Instagram for daily inspiration</p>
         </div>
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4">

@@ -4,7 +4,6 @@ import { ActivatedRoute } from '@angular/router';
 import { ProductService } from '../../services/product.service';
 import { CartService } from '../../services/cart.service';
 import { WishlistService } from '../../services/wishlist.service';
-import { PriceService, PriceBreakdown } from '../../services/price.service';
 import { Product, ProductVariant } from '../../models/product.model';
 import { FormsModule } from '@angular/forms';
 
@@ -18,24 +17,19 @@ export class ProductDetails implements OnInit {
   private productService = inject(ProductService);
   private cartService = inject(CartService);
   private wishlistService = inject(WishlistService);
-  private priceService = inject(PriceService);
   private cd = inject(ChangeDetectorRef);
 
   product: Product | undefined;
   selectedImage: string = '';
+  priceDetails: any;
   selectedVariant: ProductVariant | undefined;
-  priceDetails: PriceBreakdown | undefined;
   loading: boolean = true;
 
   ngOnInit() {
     this.route.params.subscribe(params => {
       const id = params['id'];
-      console.log('🔍 Loading product with ID:', id);
-
       this.productService.getProductById(id).subscribe({
         next: (product) => {
-          console.log('✅ Product loaded:', product);
-
           if (product) {
             this.product = product;
             this.selectedImage = product.images[0] || 'https://via.placeholder.com/400x400?text=No+Image';
@@ -51,7 +45,7 @@ export class ProductDetails implements OnInit {
 
               this.priceDetails = {
                 metalRate: calc.goldRatePerGram || 0,
-                metalValue: calc.basePrice || 0,
+                metalValue: calc.metalValue || 0,
                 wastageAmount: calc.wastageWeight * calc.goldRatePerGram || 0,
                 makingCharges: 0, // Not provided by backend
                 stoneCharges: 0,
@@ -59,15 +53,10 @@ export class ProductDetails implements OnInit {
                 gstAmount: calc.gstAmount || 0,
                 finalPrice: calc.finalPrice || 0
               };
-            } else {
-              console.log('⚠️ No backend price calculation, using frontend calculation');
-              // Fallback to frontend calculation
-              this.calculatePrice();
-            }
+            } 
 
             this.loading = false;
             this.cd.detectChanges();
-            console.log('✅ Loading complete, change detection triggered');
           } else {
             console.error('❌ Product is undefined');
             this.loading = false;
@@ -81,14 +70,6 @@ export class ProductDetails implements OnInit {
         }
       });
     });
-  }
-
-  calculatePrice() {
-    if (this.product) {
-      this.priceDetails = this.priceService.calculatePrice(this.product);
-      // Update product display price
-      this.product.price = this.priceDetails.finalPrice;
-    }
   }
 
   get hasSizes() {

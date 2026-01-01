@@ -2,6 +2,7 @@ import { Component, inject } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
+import { AlertService } from '../../services/alert.service';
 
 @Component({
     selector: 'app-signup',
@@ -19,22 +20,21 @@ export class Signup {
 
     authService = inject(AuthService);
     router = inject(Router);
+    alertService = inject(AlertService);
 
     async onSubmit() {
-
-        // Basic frontend validation
         if (!this.name.trim()) {
-            alert("Name is required");
+            this.alertService.error("Validation Error", "Name is required");
             return;
         }
 
         if (!this.email.trim()) {
-            alert("Email is required");
+            this.alertService.error("Validation Error", "Email is required");
             return;
         }
 
         if (!this.password.trim()) {
-            alert("Password is required");
+            this.alertService.error("Validation Error", "Password is required");
             return;
         }
 
@@ -48,12 +48,13 @@ export class Signup {
         };
 
         try {
-            const response = await this.authService.signup(user);
-            alert("Registration successful! Please login.");
+            await this.authService.signup(user);
+            await this.alertService.success("Success", "Registration successful! Please login.");
             this.router.navigate(['/login']);
 
         } catch (error: any) {
             console.error("Signup Error:", error);
+            this.alertService.error("Registration Failed", "An error occurred during registration. Please try again.");
         }
     }
 }

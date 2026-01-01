@@ -2,6 +2,7 @@ import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { ApiService } from '../../services/api.service';
+import { AlertService } from '../../services/alert.service';
 
 @Component({
     selector: 'app-design-list',
@@ -18,7 +19,8 @@ export class DesignListComponent implements OnInit {
     constructor(
         private api: ApiService,
         private router: Router,
-        private cd: ChangeDetectorRef
+        private cd: ChangeDetectorRef,
+        private alertService: AlertService // Add injection
     ) { }
 
     ngOnInit() {
@@ -70,8 +72,9 @@ export class DesignListComponent implements OnInit {
             });
     }
 
-    updateStatus(id: string, status: string) {
-        if (!confirm(`Are you sure you want to change status to ${status}?`)) return;
+    async updateStatus(id: string, status: string) {
+        const confirmed = await this.alertService.confirm('Update Status', `Are you sure you want to change status to ${status}?`);
+        if (!confirmed) return;
 
         this.api.updateDesignStatus(id, status)
             .then(() => {
@@ -84,7 +87,7 @@ export class DesignListComponent implements OnInit {
             })
             .catch(err => {
                 console.error("Failed to update status", err);
-                alert("Failed to update status");
+                this.alertService.error('Action Failed', "Failed to update status");
             });
     }
 

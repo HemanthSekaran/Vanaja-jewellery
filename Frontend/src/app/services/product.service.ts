@@ -126,8 +126,27 @@ export class ProductService {
     getProductById(id: string): Observable<Product | undefined> {
         return from(this.apiService.getProductById(id)).pipe(
             map((response: any) => {
-                const productData = response.data?.data?.product || response.data?.product;
-                if (!productData) return undefined;
+                console.log('🔍 Product Details API Response:', response.data);
+
+                // Try multiple paths to find the product object
+                let productData = response.data?.data?.product || response.data?.product;
+
+                // Handle case where it might be in an array (like getProducts response)
+                if (!productData) {
+                    const potentialData = response.data?.data || response.data;
+                    if (Array.isArray(potentialData) && potentialData.length > 0) {
+                        productData = potentialData[0];
+                    } else if (potentialData?.products && Array.isArray(potentialData.products)) {
+                        productData = potentialData.products.find((p: any) => p.id == id) || potentialData.products[0];
+                    }
+                }
+
+                if (!productData) {
+                    console.error('❌ Could not find product data in response', response.data);
+                    return undefined;
+                }
+
+                console.log('✅ Found product data:', productData);
 
                 // Construct full image URLs
                 let images: string[] = [];
@@ -152,9 +171,20 @@ export class ProductService {
                 }
 
                 // Map backend product to frontend format with price calculation
-                return {
+                const mappedProduct = {
                     ...productData,
                     id: productData.id?.toString() || '',
+                    // Map generic fields
+                    name: productData.name || '',
+                    category: (productData.category || 'RINGS').toUpperCase(),
+                    description: productData.description || '',
+                    // Map weight/grams mismatch
+                    weight: productData.weight ? Number(productData.weight) : (productData.grams ? Number(productData.grams) : 0),
+                    // Map technical details
+                    metal: productData.metal,
+                    metal_purity: productData.metal_purity,
+                    wastage: productData.wastage ? Number(productData.wastage) : 0,
+
                     price: productData.priceCalculation?.finalPrice || 0,
                     images: images,
                     rating: productData.rating || 4,
@@ -170,8 +200,13 @@ export class ProductService {
                     }],
                     createdAt: productData.created_at || new Date().toISOString(),
                     // Store price calculation for display
-                    priceCalculation: productData.priceCalculation
+                    priceCalculation: productData.priceCalculation,
+                    // Keep original availability
+                    availability: productData.availability || 'YES'
                 };
+
+                console.log('✅ Mapped Product for Edit:', mappedProduct);
+                return mappedProduct;
             }),
             catchError(() => of(undefined))
         );
@@ -205,6 +240,7 @@ export class ProductService {
         // Required fields
         formData.append('name', productData.name || '');
         formData.append('weight', productData.weight?.toString() || '0');
+        formData.append('grams', productData.weight?.toString() || '0'); // Backend expects grams
         formData.append('wastage', productData.wastage?.toString() || '0');
         formData.append('category', productData.category || 'RINGS');
 

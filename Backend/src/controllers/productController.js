@@ -241,7 +241,6 @@ const updateProduct = async (req, res, next) => {
         const productId = req.params.id;
         const {
             name,
-            grams,
             wastage,
             category,
             metal,
@@ -270,10 +269,6 @@ const updateProduct = async (req, res, next) => {
         if (name !== undefined) {
             updates.push('name = ?');
             params.push(name);
-        }
-        if (grams !== undefined) {
-            updates.push('grams = ?');
-            params.push(grams);
         }
         if (wastage !== undefined) {
             updates.push('wastage = ?');
