@@ -1,1 +1,57 @@
-<p>brand-story works!</p>
+<section class="py-24 bg-secondary/5 relative overflow-hidden">
+    <!-- Decorative Pattern -->
+    <div class="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl -mr-32 -mt-32"></div>
+    <div class="absolute bottom-0 left-0 w-64 h-64 bg-secondary/10 rounded-full blur-3xl -ml-32 -mb-32"></div>
+
+    <div class="container mx-auto px-4 relative z-10">
+        <div class="flex flex-col md:flex-row items-center gap-12 lg:gap-20">
+            <!-- Image Side -->
+            <div class="w-full md:w-1/2 relative group">
+                <div
+                    class="absolute inset-0 bg-primary/10 rounded-lg transform translate-x-4 translate-y-4 transition-transform duration-500 group-hover:translate-x-2 group-hover:translate-y-2">
+                </div>
+                <div class="relative rounded-lg overflow-hidden shadow-2xl h-[500px]">
+                    <img src="/images/story.jpg" alt="Jeweler crafting a ring"
+                        class="w-full h-full object-cover transform transition-transform duration-700 group-hover:scale-105">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-60"></div>
+                </div>
+            </div>
+
+            <!-- Content Side -->
+            <div class="w-full md:w-1/2 text-left space-y-8">
+                <div>
+                    <span class="text-primary font-bold tracking-widest uppercase text-sm mb-2 block">Our Promise</span>
+                    <h2 class="text-4xl md:text-5xl font-serif font-bold text-secondary mb-6 leading-tight">
+                        Crafting Legacies,<br>One Piece at a Time.
+                    </h2>
+                    <div class="w-20 h-1 bg-primary rounded-full mb-8"></div>
+                </div>
+
+                <p class="text-lg text-muted-foreground leading-relaxed">
+                    At <span class="text-foreground font-medium">Sri Vanaja Jewellery</span>, we believe that jewelry is
+                    more than just an accessory—it is a storyteller. For over three decades, our master artisans have
+                    poured their passion into creating pieces that transcend trends and become cherished family
+                    heirlooms.
+                </p>
+
+                <p class="text-lg text-muted-foreground leading-relaxed">
+                    Every diamond is hand-selected, every gold setting is meticulously crafted, and every design is born
+                    from a desire to celebrate the unique beauty of the wearer.
+                </p>
+
+                <div class="pt-4">
+                    <a routerLink="/about"
+                        class="inline-flex items-center text-primary font-bold hover:text-primary/80 transition-colors uppercase tracking-widest text-sm group">
+                        Read Our Full Story
+                        <svg xmlns="http://www.w3.org/2000/svg"
+                            class="h-4 w-4 ml-2 transform transition-transform group-hover:translate-x-1" fill="none"
+                            viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                        </svg>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

@@ -120,7 +120,26 @@ export class ProductService {
     }
 
     getFeaturedCollections() {
-        return of([]);
+        return of([
+            {
+                id: 'rings',
+                name: 'Royal Rings',
+                description: 'Explore our exquisite collection of handcrafted rings, featuring timeless designs and precious stones.',
+                image: '/images/collection-rings.jpg'
+            },
+            {
+                id: 'necklaces',
+                name: 'Elegant Necklaces',
+                description: 'Adorn yourself with our stunning necklaces, curated to add a touch of sophistication to any occasion.',
+                image: '/images/collection-necklaces.jpg'
+            },
+            {
+                id: 'earrings',
+                name: 'Timeless Earrings',
+                description: 'Discover the perfect pair of earrings to complement your style, from classic studs to statement drops.',
+                image: '/images/collection-earrings.jpg'
+            }
+        ]);
     }
 
     getProductById(id: string): Observable<Product | undefined> {

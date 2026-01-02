@@ -1,4 +1,4 @@
-import { Component, Input, signal } from '@angular/core';
+import { Component, Input, signal, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 
@@ -54,9 +54,30 @@ import { RouterLink } from '@angular/router';
     </section>
   `
 })
-export class CollectionCarousel {
+export class CollectionCarousel implements OnInit, OnDestroy {
   @Input() collections: any[] = [];
   currentIndex = signal(0);
+  private intervalId: any;
+
+  ngOnInit() {
+    this.startAutoSlide();
+  }
+
+  ngOnDestroy() {
+    this.stopAutoSlide();
+  }
+
+  startAutoSlide() {
+    this.intervalId = setInterval(() => {
+      this.next();
+    }, 2000);
+  }
+
+  stopAutoSlide() {
+    if (this.intervalId) {
+      clearInterval(this.intervalId);
+    }
+  }
 
   get currentCollection() {
     return this.collections[this.currentIndex()] || {};
