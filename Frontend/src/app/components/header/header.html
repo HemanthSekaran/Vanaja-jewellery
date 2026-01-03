@@ -1,5 +1,5 @@
-<header
-    class="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+<header class="sticky top-0 z-50 w-full border-b bg-sidebar text-sidebar-foreground"
+    style="background-color: #8B0000; color: #FFFFFF;">
     <div class="container relative flex h-24 items-center px-4">
         <!-- Left Section: Mobile Menu & Logo -->
         <div class="flex items-center flex-1 md:flex-none">
@@ -24,22 +24,22 @@
         <!-- Center Section: Desktop Nav -->
         <nav
             class="hidden md:flex flex-1 items-center justify-center space-x-8 text-sm font-medium uppercase tracking-wider">
-            <a routerLink="/" routerLinkActive="text-primary" [routerLinkActiveOptions]="{exact: true}"
-                class="transition-colors hover:text-primary">Home</a>
-            <a routerLink="/products" routerLinkActive="text-primary"
-                class="transition-colors hover:text-primary">Products</a>
-            <a routerLink="/about" routerLinkActive="text-primary"
-                class="transition-colors hover:text-primary">About</a>
-            <a routerLink="/contact" routerLinkActive="text-primary"
-                class="transition-colors hover:text-primary">Contact</a>
-            <a routerLink="/customization" routerLinkActive="text-primary"
-                class="transition-colors hover:text-primary">customization</a>
+            <a routerLink="/" routerLinkActive="text-[#FFF8DC]" [routerLinkActiveOptions]="{exact: true}"
+                class="transition-colors hover:text-[#FFF8DC]">Home</a>
+            <a routerLink="/products" routerLinkActive="text-[#FFF8DC]"
+                class="transition-colors hover:text-[#FFF8DC]">Products</a>
+            <a routerLink="/about" routerLinkActive="text-[#FFF8DC]"
+                class="transition-colors hover:text-[#FFF8DC]">About</a>
+            <a routerLink="/contact" routerLinkActive="text-[#FFF8DC]"
+                class="transition-colors hover:text-[#FFF8DC]">Contact</a>
+            <a routerLink="/customization" routerLinkActive="text-[#FFF8DC]"
+                class="transition-colors hover:text-[#FFF8DC]">customization</a>
         </nav>
 
         <!-- Right Section: Icons -->
         <div class="flex items-center space-x-4 justify-end flex-1 md:flex-none">
             <!-- Search -->
-            <a routerLink="/products" class="p-2 hover:text-primary transition-colors" title="Search Products">
+            <a routerLink="/products" class="p-2 hover:text-[#FFF8DC] transition-colors" title="Search Products">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <circle cx="11" cy="11" r="8" />
@@ -48,7 +48,7 @@
             </a>
 
             <!-- Wishlist -->
-            <a routerLink="/wishlist" class="p-2 hover:text-primary transition-colors relative" title="Wishlist">
+            <a routerLink="/wishlist" class="p-2 hover:text-[#FFF8DC] transition-colors relative" title="Wishlist">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path
@@ -57,7 +57,7 @@
             </a>
 
             <!-- Cart -->
-            <a routerLink="/cart" class="p-2 hover:text-primary transition-colors relative" title="Cart">
+            <a routerLink="/cart" class="p-2 hover:text-[#FFF8DC] transition-colors relative" title="Cart">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <circle cx="8" cy="21" r="1" />
@@ -75,7 +75,7 @@
             <!-- Profile -->
             <div class="relative">
                 @if (authService.currentUser()) {
-                <button (click)="toggleUserMenu()" class="p-2 hover:text-primary transition-colors focus:outline-none"
+                <button (click)="toggleUserMenu()" class="p-2 hover:text-[#FFF8DC] transition-colors focus:outline-none"
                     title="Account">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -84,7 +84,7 @@
                     </svg>
                 </button>
                 } @else {
-                <a routerLink="/login" class="p-2 hover:text-primary transition-colors focus:outline-none"
+                <a routerLink="/login" class="p-2 hover:text-[#FFF8DC] transition-colors focus:outline-none"
                     title="Login">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
