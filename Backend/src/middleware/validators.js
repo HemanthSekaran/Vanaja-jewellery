@@ -151,6 +151,74 @@ const validateProductUpdate = [
         .optional()
         .isIn(['YES', 'NO']).withMessage('Availability must be either YES or NO'),
 
+    body('top_selling')
+        .optional()
+        .isBoolean().withMessage('Top selling must be a boolean value'),
+
+    body('featured')
+        .optional()
+        .isBoolean().withMessage('Featured must be a boolean value'),
+
+    handleValidationErrors
+];
+
+/**
+ * Update User Profile Validation
+ */
+const validateUpdateProfile = [
+    body('phone')
+        .optional()
+        .trim()
+        .matches(/^[0-9]{10}$/).withMessage('Phone number must be 10 digits'),
+
+    body('address')
+        .optional()
+        .trim()
+        .isLength({ min: 5, max: 500 }).withMessage('Address must be between 5 and 500 characters'),
+
+    body('name')
+        .optional()
+        .trim()
+        .isLength({ min: 2, max: 100 }).withMessage('Name must be between 2 and 100 characters'),
+
+    body('wishlist')
+        .optional()
+        .custom((value) => {
+            if (typeof value === 'string') {
+                try {
+                    const parsed = JSON.parse(value);
+                    if (!Array.isArray(parsed)) {
+                        throw new Error('Wishlist must be an array');
+                    }
+                    return true;
+                } catch (e) {
+                    throw new Error('Wishlist must be a valid JSON array');
+                }
+            } else if (Array.isArray(value)) {
+                return true;
+            }
+            throw new Error('Wishlist must be an array or JSON string');
+        }),
+
+    body('add_to_cart')
+        .optional()
+        .custom((value) => {
+            if (typeof value === 'string') {
+                try {
+                    const parsed = JSON.parse(value);
+                    if (!Array.isArray(parsed)) {
+                        throw new Error('Cart must be an array');
+                    }
+                    return true;
+                } catch (e) {
+                    throw new Error('Cart must be a valid JSON array');
+                }
+            } else if (Array.isArray(value)) {
+                return true;
+            }
+            throw new Error('Cart must be an array or JSON string');
+        }),
+
     handleValidationErrors
 ];
 
@@ -170,5 +238,6 @@ module.exports = {
     validateCustomDesign,
     validateProduct,
     validateProductUpdate,
+    validateUpdateProfile,
     validateId
 };

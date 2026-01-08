@@ -247,7 +247,9 @@ const updateProduct = async (req, res, next) => {
             metal_purity,
             weight,
             description,
-            availability
+            availability,
+            top_selling,
+            featured
         } = req.body;
 
         // Check if product exists
@@ -297,6 +299,14 @@ const updateProduct = async (req, res, next) => {
         if (availability !== undefined) {
             updates.push('availability = ?');
             params.push(availability);
+        }
+        if (top_selling !== undefined) {
+            updates.push('top_selling = ?');
+            params.push(top_selling ? 1 : 0);
+        }
+        if (featured !== undefined) {
+            updates.push('featured = ?');
+            params.push(featured ? 1 : 0);
         }
 
         // Handle image update
