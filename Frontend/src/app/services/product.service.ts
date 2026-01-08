@@ -56,60 +56,132 @@ export class ProductService {
         );
     }
 
-    private processProductResponse(response: any, params?: any): PaginatedProductResponse {
-        // Backend returns: { data: { success: true, message: "...", data: { products: [...], pagination: {...} } } }
-        const outerData = response.data;
+    updateProductStatus(id: string, data: any): Observable<Product> {
+        return from(this.apiService.updateProductStatus(id, data)).pipe(
+            map((response: any) => {
+                const productData = response.data?.product || response.data;
+                // Re-process checking logic would be redundant if we just call processProductResponse logic 
+                // but processProductResponse expects a PaginatedResponse structure partially.
+                // Let's manually map or reuse logic carefully.
+                // For simplicity, let's just map this single product similarly.
 
+                // We'll create a mini-processor or just do it here.
+                return this.mapSingleProduct(productData);
+            }),
+            catchError(error => {
+                console.error('Error updating product:', error);
+                throw error;
+            })
+        );
+    }
+
+    updateProduct(id: string, productData: any, imageFiles: File[]): Observable<any> {
+        const formData = this.buildFormData(productData, imageFiles);
+        return from(this.apiService.updateProduct(id, formData)).pipe(
+            map((response: any) => response.data),
+            catchError(error => {
+                console.error('Error updating product:', error);
+                throw error;
+            })
+        );
+    }
+
+    private mapSingleProduct(product: any): Product {
+        // Construct full image URLs
+        let images: string[] = [];
+        if (product.images && Array.isArray(product.images)) {
+            images = product.images.map((img: string) => {
+                if (img.startsWith('http')) return img;
+                if (img.startsWith('/')) return `http://localhost:5000${img}`;
+                return `http://localhost:5000/uploads/products/${img}`;
+            });
+        } else if (product.image) {
+            let imgSource = product.image;
+            // Check if image is a stringified array "['img1.jpg', 'img2.jpg']"
+            if (typeof imgSource === 'string' && imgSource.trim().startsWith('[') && imgSource.trim().endsWith(']')) {
+                try {
+                    const parsed = JSON.parse(imgSource);
+                    if (Array.isArray(parsed) && parsed.length > 0) {
+                        imgSource = parsed[0];
+                    }
+                } catch (e) {
+                    console.warn('Failed to parse image JSON string:', imgSource);
+                }
+            }
+
+            let imgUrl = imgSource;
+            if (typeof imgUrl === 'string' && !imgUrl.startsWith('http')) {
+                if (imgUrl.startsWith('/')) {
+                    imgUrl = `http://localhost:5000${imgUrl}`;
+                } else {
+                    imgUrl = `http://localhost:5000/uploads/products/${imgUrl}`;
+                }
+            }
+            images = [imgUrl];
+        }
+
+        return {
+            ...product,
+            id: product.id?.toString() || '',
+            price: product.priceCalculation?.finalPrice || 0,
+            images: images,
+            rating: product.rating || 4,
+            reviewCount: product.reviewCount || 0,
+            bestseller: this.parseBoolean(product.bestseller) || this.parseBoolean(product.top_selling),
+            featured: this.parseBoolean(product.featured),
+            inStock: product.availability === 'YES',
+            variants: product.variants || [{
+                id: product.id?.toString() || '1',
+                material: product.metal || 'Gold',
+                price: product.priceCalculation?.finalPrice || 0,
+                stock: product.availability === 'YES' ? 10 : 0
+            }],
+            createdAt: product.created_at || new Date().toISOString()
+        };
+    }
+
+    private parseBoolean(value: any): boolean {
+        if (!value) return false;
+
+        // Handle Buffer/Bit field from DB: { type: 'Buffer', data: [1] }
+        if (typeof value === 'object' && value.type === 'Buffer' && Array.isArray(value.data)) {
+            return value.data[0] === 1;
+        }
+
+        if (value === 1 || value === '1' || value === true || value === 'true') {
+            return true;
+        }
+
+        return false;
+    }
+
+    public processProductResponse(response: any, params?: any): PaginatedProductResponse {
+        if (!response || !response.data) {
+            return this.getEmptyResponse();
+        }
+
+        const outerData = response.data;
         // Check if there's a nested data object
         const innerData = outerData.data || outerData;
 
-        // Products are in innerData.data (the array)
-        const productsArray = Array.isArray(innerData.data) ? innerData.data : (innerData.products || []);
-        const pagination = innerData.pagination;
+        if (!innerData) {
+            return this.getEmptyResponse();
+        }
+
+        // Products are in innerData.data (the array), or innerData.products, or innerData itself if it's an array
+        let productsArray: any[] = [];
+        if (Array.isArray(innerData)) {
+            productsArray = innerData;
+        } else if (innerData.data && Array.isArray(innerData.data)) {
+            productsArray = innerData.data;
+        } else if (innerData.products && Array.isArray(innerData.products)) {
+            productsArray = innerData.products;
+        }
+
+        const pagination = innerData.pagination || {};
 
         // Map products and extract price from priceCalculation
-        const mappedProducts = productsArray.map((product: any) => {
-            // Construct full image URLs
-            let images: string[] = [];
-            if (product.images && Array.isArray(product.images)) {
-                images = product.images.map((img: string) => {
-                    if (img.startsWith('http')) return img;
-                    if (img.startsWith('/')) return `http://localhost:5000${img}`;
-                    // If it's just a filename, prepend the uploads path
-                    return `http://localhost:5000/uploads/products/${img}`;
-                });
-            } else if (product.image) {
-                let imgUrl = product.image;
-                if (!imgUrl.startsWith('http')) {
-                    if (imgUrl.startsWith('/')) {
-                        imgUrl = `http://localhost:5000${imgUrl}`;
-                    } else {
-                        // If it's just a filename, prepend the uploads path
-                        imgUrl = `http://localhost:5000/uploads/products/${imgUrl}`;
-                    }
-                }
-                images = [imgUrl];
-            }
-
-            return {
-                ...product,
-                id: product.id?.toString() || '',
-                price: product.priceCalculation?.finalPrice || 0,
-                images: images,
-                rating: product.rating || 4,
-                reviewCount: product.reviewCount || 0,
-                bestseller: product.bestseller || false,
-                featured: product.featured || false,
-                inStock: product.availability === 'YES',
-                variants: product.variants || [{
-                    id: product.id?.toString() || '1',
-                    material: product.metal || 'Gold',
-                    price: product.priceCalculation?.finalPrice || 0,
-                    stock: product.availability === 'YES' ? 10 : 0
-                }],
-                createdAt: product.created_at || new Date().toISOString()
-            };
-        });
+        const mappedProducts = productsArray.map((product: any) => this.mapSingleProduct(product));
 
         const result = {
             products: mappedProducts,
@@ -124,7 +196,7 @@ export class ProductService {
         return result;
     }
 
-    private getEmptyResponse(): PaginatedProductResponse {
+    public getEmptyResponse(): PaginatedProductResponse {
         return {
             products: [],
             pagination: {
@@ -259,16 +331,7 @@ export class ProductService {
         );
     }
 
-    updateProduct(id: string, productData: any, imageFiles: File[]): Observable<any> {
-        const formData = this.buildFormData(productData, imageFiles);
-        return from(this.apiService.updateProduct(id, formData)).pipe(
-            map((response: any) => response.data),
-            catchError(error => {
-                console.error('Error updating product:', error);
-                throw error;
-            })
-        );
-    }
+
 
     private buildFormData(productData: any, imageFiles: File[]): FormData {
         const formData = new FormData();

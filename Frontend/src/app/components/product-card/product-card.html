@@ -1,14 +1,52 @@
 <div
     class="group relative bg-card rounded-lg overflow-hidden border border-border hover:shadow-xl transition-all duration-300 h-full flex flex-col">
-    <!-- Badges -->
-    @if (product.bestseller) {
-    <div
-        class="absolute top-3 left-3 z-20 bg-destructive text-white text-[10px] font-bold px-2 py-1 uppercase tracking-wider rounded-sm pointer-events-none">
-        Sale
+    <!-- Left Side Actions -->
+    <div class="absolute top-3 left-3 z-20 flex flex-col space-y-2">
+        <!-- Static Sale Badge (Non-Admin Only) -->
+        @if (!isAdmin() && product.bestseller) {
+        <div
+            class="absolute top-0 left-0 bg-destructive text-white text-[10px] font-bold px-2 py-1 uppercase tracking-wider rounded-sm pointer-events-none whitespace-nowrap">
+            Sale
+        </div>
+        }
+
+        <!-- Top Selling Toggle (Admin Only - Moved to Left) -->
+        @if (isAdmin()) {
+        <button (click)="toggleTopSelling($event)"
+            class="p-2 bg-white rounded-full transition-all cursor-pointer border border-gray-200 hover:scale-110 shadow-sm"
+            [class.text-red-500]="product.bestseller" [class.border-red-200]="product.bestseller"
+            [class.text-gray-400]="!product.bestseller" [class.hover:text-red-400]="!product.bestseller"
+            [title]="product.bestseller ? 'Remove from Best Sellers' : 'Mark as Best Seller'">
+            <!-- Trending Up Icon -->
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" [attr.stroke-width]="product.bestseller ? 3 : 2.5" stroke-linecap="round"
+                stroke-linejoin="round">
+                <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
+                <polyline points="17 6 23 6 23 12"></polyline>
+            </svg>
+        </button>
+        }
     </div>
-    }
-    <!-- Quick Actions (Wishlist) -->
+
+    <!-- Quick Actions (Top Right) -->
     <div *ngIf="showWishlistButton" class="absolute top-3 right-3 flex flex-col space-y-2 z-20">
+        @if (isAdmin()) {
+        <!-- Featured Toggle -->
+        <button (click)="toggleFeatured($event)"
+            class="p-2 bg-white rounded-full transition-all cursor-pointer border border-gray-200 hover:scale-110 shadow-sm"
+            [class.text-yellow-500]="product.featured" [class.border-yellow-200]="product.featured"
+            [class.text-gray-400]="!product.featured" [class.hover:text-yellow-400]="!product.featured"
+            [title]="product.featured ? 'Remove from Featured' : 'Mark as Featured'">
+            <!-- Star Icon -->
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                [attr.fill]="product.featured ? 'currentColor' : 'none'" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <polygon
+                    points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2">
+                </polygon>
+            </svg>
+        </button>
+        } @else {
         <button (click)="toggleWishlist($event)"
             class="p-2 bg-white rounded-full text-muted-foreground hover:text-red-500 transition-colors cursor-pointer border border-gray-100"
             [class.text-red-500]="isInWishlist" [title]="isInWishlist ? 'Remove from Wishlist' : 'Add to Wishlist'">
@@ -18,6 +56,7 @@
                     d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
             </svg>
         </button>
+        }
     </div>
 
     <!-- Image -->

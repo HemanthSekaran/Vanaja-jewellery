@@ -53,6 +53,42 @@ export class ProductCard {
     return false;
   });
 
+  async toggleFeatured(event: Event) {
+    event.stopPropagation();
+    event.preventDefault();
+
+    if (!this.isAdmin()) return;
+
+    const newValue = !this.product.featured;
+    const payload = { featured: newValue ? 1 : 0 };
+
+    try {
+      await this.productService.updateProductStatus(this.product.id, payload).toPromise();
+      this.product.featured = newValue;
+      this.toastService.show(`Product ${newValue ? 'marked as' : 'removed from'} Featured`, 'success');
+    } catch (error) {
+      this.toastService.show('Failed to update featured status', 'error');
+    }
+  }
+
+  async toggleTopSelling(event: Event) {
+    event.stopPropagation();
+    event.preventDefault();
+
+    if (!this.isAdmin()) return;
+
+    const newValue = !this.product.bestseller;
+    const payload = { top_selling: newValue ? 1 : 0 };
+
+    try {
+      await this.productService.updateProductStatus(this.product.id, payload).toPromise();
+      this.product.bestseller = newValue;
+      this.toastService.show(`Product ${newValue ? 'marked as' : 'removed from'} Best Selling`, 'success');
+    } catch (error) {
+      this.toastService.show('Failed to update best selling status', 'error');
+    }
+  }
+
   async deleteProduct(event: Event) {
     event.stopPropagation();
     event.preventDefault();

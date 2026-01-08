@@ -55,6 +55,8 @@ export class ApiService {
     updateProduct = (id: string, formData: FormData) => axios.put(`/products/${id}`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
     });
+    // JSON update for status toggles to avoid multipart string conversion issues
+    updateProductStatus = (id: string, data: any) => axios.put(`/products/${id}`, data);
     deleteProduct = (id: string) => axios.delete(`/products/${id}`);
 
     // Customization
