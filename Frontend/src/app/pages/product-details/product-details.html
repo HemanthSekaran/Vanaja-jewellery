@@ -6,15 +6,15 @@
 </div>
 
 <div *ngIf="!loading && product" class="container mx-auto px-4 py-8">
-	<div class="grid md:grid-cols-2 gap-8 lg:gap-12">
+	<div class="grid md:grid-cols-2 gap-6 lg:gap-12 pb-[80px] md:pb-0">
 		<!-- Image Gallery -->
 		<div class="space-y-4">
 			<div class="aspect-square bg-muted rounded-lg overflow-hidden">
 				<img [src]="selectedImage" [alt]="product.name" class="w-full h-full object-cover">
 			</div>
-			<div class="grid grid-cols-4 gap-4">
+			<div class="grid grid-cols-4 gap-2 sm:gap-4 overflow-x-auto pb-2 scrollbar-hide">
 				<button *ngFor="let image of product.images" (click)="selectedImage = image"
-					class="aspect-square bg-muted rounded-md overflow-hidden border-2 transition-colors"
+					class="aspect-square bg-muted rounded-md overflow-hidden border-2 transition-colors flex-shrink-0 w-20 sm:w-auto"
 					[class.border-primary]="selectedImage === image"
 					[class.border-transparent]="selectedImage !== image">
 					<img [src]="image" [alt]="product.name" class="w-full h-full object-cover">
@@ -25,7 +25,7 @@
 		<!-- Product Info -->
 		<div class="space-y-6">
 			<div>
-				<h1 class="text-3xl font-bold font-serif text-primary">{{ product.name }}</h1>
+				<h1 class="text-2xl sm:text-3xl font-bold font-serif text-primary">{{ product.name }}</h1>
 				<div class="flex items-center gap-2 mt-2">
 					<div class="flex text-secondary">
 						<svg *ngFor="let star of [1,2,3,4,5]" xmlns="http://www.w3.org/2000/svg" width="16" height="16"
@@ -42,12 +42,12 @@
 					}}</p>
 			</div>
 
-			<p class="text-muted-foreground leading-relaxed">
+			<p class="text-muted-foreground leading-relaxed text-sm sm:text-base">
 				{{ product.description }}
 			</p>
 
 			<!-- Price Breakdown -->
-			<div *ngIf="priceDetails" class="mt-4 border rounded-lg p-4 bg-slate-50">
+			<div *ngIf="priceDetails" class="mt-4 border rounded-lg p-3 sm:p-4 bg-slate-50">
 				<h3 class="font-bold text-lg mb-3">Price Breakdown</h3>
 				<div class="space-y-2 text-sm">
 					<div class="flex justify-between">
@@ -111,8 +111,8 @@
 				</div>
 			</div>
 
-			<!-- Actions -->
-			<div class="flex gap-4 pt-6 border-t border-border mt-auto">
+			<!-- Actions (Desktop) -->
+			<div class="hidden md:flex gap-4 pt-6 border-t border-border mt-auto">
 				<button (click)="toggleCart()"
 					class="flex-1 inline-flex items-center justify-center rounded-md text-sm font-bold h-12 px-8 uppercase tracking-wider transition-colors focus-visible:outline-none disabled:opacity-50 disabled:pointer-events-none text-white"
 					[class.bg-[#8B0000]]="!isInCart" [class.hover:bg-[#600000]]="!isInCart"
@@ -125,11 +125,32 @@
 					[class.text-red-500]="isInWishlist" [class.border-red-500]="isInWishlist"
 					[class.bg-red-50]="isInWishlist">
 					<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-						[attr.fill]="isInWishlist ? 'currentColor' : 'none'" stroke="currentColor" stroke-width="2"
-						stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-heart">
+						fill="currentColor" stroke="none">
 						<path
-							d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5 4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" />
+							d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
 					</svg>
+				</button>
+			</div>
+
+			<!-- Mobile Sticky Bottom Bar -->
+			<div
+				class="fixed bottom-0 left-0 right-0 p-3 bg-white border-t border-border shadow-[0_-4px_10px_rgba(0,0,0,0.1)] z-50 md:hidden flex gap-3 h-[70px] items-center pb-[max(12px,env(safe-area-inset-bottom))] h-auto">
+				<button (click)="toggleWishlist()"
+					class="inline-flex items-center justify-center rounded-full h-12 w-12 transition-colors shrink-0 focus:outline-none bg-white border border-gray-100"
+					[class.text-red-600]="isInWishlist" [class.text-muted-foreground]="!isInWishlist"
+					[class.bg-red-50]="isInWishlist">
+					<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+						fill="currentColor" stroke="none" class="transition-transform active:scale-90">
+						<path
+							d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+					</svg>
+				</button>
+
+				<button (click)="toggleCart()"
+					class="flex-1 inline-flex items-center justify-center rounded-md text-sm font-bold h-12 px-4 uppercase tracking-wider transition-colors focus-visible:outline-none disabled:opacity-50 disabled:pointer-events-none text-white shadow-sm"
+					[class.bg-[#8B0000]]="!isInCart" [class.hover:bg-[#600000]]="!isInCart"
+					[class.bg-green-600]="isInCart" [class.hover:bg-green-700]="isInCart">
+					{{ isInCart ? 'Added to Cart' : 'Add to Cart' }}
 				</button>
 			</div>
 		</div>

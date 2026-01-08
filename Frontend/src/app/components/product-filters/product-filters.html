@@ -1,24 +1,29 @@
-<div class="bg-white border rounded-sm">
+<div class="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
     <!-- Header -->
-    <div class="p-4 border-b">
-        <h2 class="text-lg font-medium text-gray-900">Filters</h2>
+    <div class="p-5 border-b border-gray-100 bg-gray-50/50">
+        <h2 class="text-xl font-serif font-bold text-gray-900 tracking-wide">Filters</h2>
     </div>
 
     <!-- Search -->
-    <div class="border-b">
+    <div class="border-b border-gray-100">
         <button
-            class="w-full px-4 py-3 flex items-center justify-between bg-white hover:bg-gray-50 transition-colors group"
+            class="w-full px-5 py-4 flex items-center justify-between bg-white hover:bg-gray-50 transition-colors group"
             (click)="toggleSection('search')">
-            <h3 class="text-sm font-medium text-gray-700 uppercase tracking-wide">Search</h3>
-            <span class="text-gray-400 text-xl font-light leading-none">
-                {{ openSections['search'] ? '-' : '+' }}
+            <h3 class="text-sm font-bold text-gray-900 uppercase tracking-widest">Search</h3>
+            <span class="text-gray-400 text-lg transition-transform duration-300"
+                [class.rotate-180]="openSections['search']">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="m6 9 6 6 6-6" />
+                </svg>
             </span>
         </button>
-        <div class="px-4 pb-4" [class.hidden]="!openSections['search']">
-            <div class="relative">
-                <input type="text" [(ngModel)]="searchTerm" (input)="onFilterChange()" placeholder="Search by name..."
-                    class="w-full pl-10 pr-4 py-2 text-sm border border-gray-200 rounded-sm focus:outline-none focus:border-primary transition-colors bg-white">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400 absolute left-3 top-2.5"
+        <div class="px-5 pb-5 transition-all duration-300 ease-in-out" [class.hidden]="!openSections['search']">
+            <div class="relative group">
+                <input type="text" [(ngModel)]="searchTerm" (input)="onFilterChange()" placeholder="Search Products..."
+                    class="w-full pl-10 pr-4 py-3 text-sm border border-gray-200 rounded-md focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all bg-gray-50 focus:bg-white">
+                <svg xmlns="http://www.w3.org/2000/svg"
+                    class="h-5 w-5 text-gray-400 absolute left-3 top-3 group-focus-within:text-primary transition-colors"
                     fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -27,79 +32,105 @@
         </div>
     </div>
 
-    <!-- Category -->
-    <div class="border-b">
+    <!-- Category (Pills) -->
+    <div class="border-b border-gray-100">
         <button
-            class="w-full px-4 py-3 flex items-center justify-between bg-white hover:bg-gray-50 transition-colors group"
+            class="w-full px-5 py-4 flex items-center justify-between bg-white hover:bg-gray-50 transition-colors group"
             (click)="toggleSection('category')">
-            <h3 class="text-sm font-medium text-gray-700 uppercase tracking-wide">Category</h3>
-            <span class="text-gray-400 text-xl font-light leading-none">
-                {{ openSections['category'] ? '-' : '+' }}
+            <h3 class="text-sm font-bold text-gray-900 uppercase tracking-widest">Category</h3>
+            <span class="text-gray-400 text-lg transition-transform duration-300"
+                [class.rotate-180]="openSections['category']">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="m6 9 6 6 6-6" />
+                </svg>
             </span>
         </button>
-        <div class="px-4 pb-4" [class.hidden]="!openSections['category']">
-            <div class="space-y-2">
+        <div class="px-5 pb-5" [class.hidden]="!openSections['category']">
+            <div class="flex flex-wrap gap-2">
                 @for (category of categories; track category) {
-                <div class="flex items-center">
-                    <input type="radio" [id]="'cat-'+category" name="category" [value]="category"
-                        [(ngModel)]="selectedCategory" (change)="onFilterChange()"
-                        class="w-4 h-4 text-primary border-gray-300 focus:ring-primary cursor-pointer accent-primary">
-                    <label [for]="'cat-'+category"
-                        class="ml-3 text-sm text-gray-600 cursor-pointer hover:text-primary transition-colors">
-                        {{ category }}
-                    </label>
-                </div>
+                <button (click)="selectedCategory = category; onFilterChange()"
+                    class="px-4 py-2 text-sm rounded-full transition-all duration-200 border"
+                    [class.bg-primary]="selectedCategory === category"
+                    [class.text-white]="selectedCategory === category"
+                    [class.border-primary]="selectedCategory === category"
+                    [class.bg-white]="selectedCategory !== category"
+                    [class.text-gray-600]="selectedCategory !== category"
+                    [class.border-gray-200]="selectedCategory !== category"
+                    [class.hover:border-primary]="selectedCategory !== category"
+                    [class.hover:text-primary]="selectedCategory !== category">
+                    {{ category }}
+                </button>
                 }
             </div>
         </div>
     </div>
 
-    <!-- Metal Type -->
-    <div class="border-b">
+    <!-- Metal Color (Pills) -->
+    <div class="border-b border-gray-100">
         <button
-            class="w-full px-4 py-3 flex items-center justify-between bg-white hover:bg-gray-50 transition-colors group"
+            class="w-full px-5 py-4 flex items-center justify-between bg-white hover:bg-gray-50 transition-colors group"
             (click)="toggleSection('metalType')">
-            <h3 class="text-sm font-medium text-gray-700 uppercase tracking-wide">Metal Color</h3>
-            <span class="text-gray-400 text-xl font-light leading-none">
-                {{ openSections['metalType'] ? '-' : '+' }}
+            <h3 class="text-sm font-bold text-gray-900 uppercase tracking-widest">Metal Color</h3>
+            <span class="text-gray-400 text-lg transition-transform duration-300"
+                [class.rotate-180]="openSections['metalType']">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="m6 9 6 6 6-6" />
+                </svg>
             </span>
         </button>
-        <div class="px-4 pb-4" [class.hidden]="!openSections['metalType']">
-            <div class="space-y-2">
+        <div class="px-5 pb-5" [class.hidden]="!openSections['metalType']">
+            <div class="flex flex-wrap gap-2">
                 @for (metalType of metalTypes; track metalType) {
-                <div class="flex items-center">
-                    <input type="radio" [id]="'type-'+metalType" name="metalType" [value]="metalType"
-                        [(ngModel)]="selectedMetalType" (change)="onFilterChange()"
-                        class="w-4 h-4 text-primary border-gray-300 focus:ring-primary cursor-pointer accent-primary">
-                    <label [for]="'type-'+metalType"
-                        class="ml-3 text-sm text-gray-600 cursor-pointer hover:text-primary transition-colors">
-                        {{ metalType }}
-                    </label>
-                </div>
+                <button (click)="selectedMetalType = metalType; onFilterChange()"
+                    class="px-4 py-2 text-sm rounded-full transition-all duration-200 border"
+                    [class.bg-primary]="selectedMetalType === metalType"
+                    [class.text-white]="selectedMetalType === metalType"
+                    [class.border-primary]="selectedMetalType === metalType"
+                    [class.bg-white]="selectedMetalType !== metalType"
+                    [class.text-gray-600]="selectedMetalType !== metalType"
+                    [class.border-gray-200]="selectedMetalType !== metalType"
+                    [class.hover:border-primary]="selectedMetalType !== metalType"
+                    [class.hover:text-primary]="selectedMetalType !== metalType">
+                    {{ metalType }}
+                </button>
                 }
             </div>
         </div>
     </div>
 
-    <!-- Purity -->
-    <div class="border-b">
+    <!-- Purity (Checkboxes) -->
+    <div class="border-b border-gray-100">
         <button
-            class="w-full px-4 py-3 flex items-center justify-between bg-white hover:bg-gray-50 transition-colors group"
+            class="w-full px-5 py-4 flex items-center justify-between bg-white hover:bg-gray-50 transition-colors group"
             (click)="toggleSection('purity')">
-            <h3 class="text-sm font-medium text-gray-700 uppercase tracking-wide">Metal Purity</h3>
-            <span class="text-gray-400 text-xl font-light leading-none">
-                {{ openSections['purity'] ? '-' : '+' }}
+            <h3 class="text-sm font-bold text-gray-900 uppercase tracking-widest">Metal Purity</h3>
+            <span class="text-gray-400 text-lg transition-transform duration-300"
+                [class.rotate-180]="openSections['purity']">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="m6 9 6 6 6-6" />
+                </svg>
             </span>
         </button>
-        <div class="px-4 pb-4" [class.hidden]="!openSections['purity']">
-            <div class="space-y-2">
+        <div class="px-5 pb-5" [class.hidden]="!openSections['purity']">
+            <div class="space-y-3">
                 @for (purity of purities; track purity) {
-                <div class="flex items-center">
-                    <input type="checkbox" [id]="purity" [(ngModel)]="selectedPurities[purity]"
-                        (change)="onFilterChange()"
-                        class="w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary cursor-pointer accent-primary">
-                    <label [for]="purity"
-                        class="ml-3 text-sm text-gray-600 cursor-pointer hover:text-primary transition-colors">
+                <div class="flex items-center group cursor-pointer"
+                    (click)="selectedPurities[purity] = !selectedPurities[purity]; onFilterChange()">
+                    <div class="w-5 h-5 border rounded flex items-center justify-center transition-colors"
+                        [class.bg-primary]="selectedPurities[purity]" [class.border-primary]="selectedPurities[purity]"
+                        [class.border-gray-300]="!selectedPurities[purity]"
+                        [class.group-hover:border-primary]="!selectedPurities[purity]">
+                        <svg *ngIf="selectedPurities[purity]" xmlns="http://www.w3.org/2000/svg" width="14" height="14"
+                            viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round"
+                            stroke-linejoin="round">
+                            <polyline points="20 6 9 17 4 12" />
+                        </svg>
+                    </div>
+                    <label
+                        class="ml-3 text-sm text-gray-600 cursor-pointer group-hover:text-primary transition-colors select-none">
                         {{ purity }}
                     </label>
                 </div>
@@ -109,24 +140,37 @@
     </div>
 
     <!-- Weight Range -->
-    <div class="border-b">
+    <div>
         <button
-            class="w-full px-4 py-3 flex items-center justify-between bg-white hover:bg-gray-50 transition-colors group"
+            class="w-full px-5 py-4 flex items-center justify-between bg-white hover:bg-gray-50 transition-colors group"
             (click)="toggleSection('weight')">
-            <h3 class="text-sm font-medium text-gray-700 uppercase tracking-wide">Weight Filter</h3>
-            <span class="text-gray-400 text-xl font-light leading-none">
-                {{ openSections['weight'] ? '-' : '+' }}
+            <h3 class="text-sm font-bold text-gray-900 uppercase tracking-widest">Weight</h3>
+            <span class="text-gray-400 text-lg transition-transform duration-300"
+                [class.rotate-180]="openSections['weight']">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="m6 9 6 6 6-6" />
+                </svg>
             </span>
         </button>
-        <div class="px-4 pb-4" [class.hidden]="!openSections['weight']">
-            <div class="space-y-2">
+        <div class="px-5 pb-5" [class.hidden]="!openSections['weight']">
+            <div class="space-y-3">
                 @for (range of weightRanges; track range.label) {
-                <div class="flex items-center">
-                    <input type="checkbox" [id]="range.label" [(ngModel)]="selectedWeightRanges[range.label]"
-                        (change)="onFilterChange()"
-                        class="w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary cursor-pointer accent-primary">
-                    <label [for]="range.label"
-                        class="ml-3 text-sm text-gray-600 cursor-pointer hover:text-primary transition-colors">
+                <div class="flex items-center group cursor-pointer"
+                    (click)="selectedWeightRanges[range.label] = !selectedWeightRanges[range.label]; onFilterChange()">
+                    <div class="w-5 h-5 border rounded flex items-center justify-center transition-colors"
+                        [class.bg-primary]="selectedWeightRanges[range.label]"
+                        [class.border-primary]="selectedWeightRanges[range.label]"
+                        [class.border-gray-300]="!selectedWeightRanges[range.label]"
+                        [class.group-hover:border-primary]="!selectedWeightRanges[range.label]">
+                        <svg *ngIf="selectedWeightRanges[range.label]" xmlns="http://www.w3.org/2000/svg" width="14"
+                            height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="20 6 9 17 4 12" />
+                        </svg>
+                    </div>
+                    <label
+                        class="ml-3 text-sm text-gray-600 cursor-pointer group-hover:text-primary transition-colors select-none">
                         {{ range.label }}
                     </label>
                 </div>
@@ -135,23 +179,5 @@
         </div>
     </div>
 
-    <!-- Price Range -->
-    <div>
-        <button
-            class="w-full px-4 py-3 flex items-center justify-between bg-white hover:bg-gray-50 transition-colors group"
-            (click)="toggleSection('price')">
-            <h3 class="text-sm font-medium text-gray-700 uppercase tracking-wide">Price Range</h3>
-            <span class="text-gray-400 text-xl font-light leading-none">
-                {{ openSections['price'] ? '-' : '+' }}
-            </span>
-        </button>
-        <div class="px-4 pb-4" [class.hidden]="!openSections['price']">
-            <input type="range" min="0" max="500000" step="1000" [(ngModel)]="priceRange" (input)="onFilterChange()"
-                class="w-full h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-primary">
-            <div class="flex justify-between text-xs text-gray-500 mt-2">
-                <span>₹0</span>
-                <span class="font-medium text-gray-900">₹{{ priceRange | number }}</span>
-            </div>
-        </div>
-    </div>
+
 </div>

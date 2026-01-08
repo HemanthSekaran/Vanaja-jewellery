@@ -26,12 +26,35 @@ import { CommonModule } from '@angular/common';
 export class Home implements OnInit {
   productService = inject(ProductService);
   bestSellers: Product[] = [];
+  featuredProducts: Product[] = [];
   featuredCollections: any[] = [];
 
+  isLoadingBestSellers = true;
+  isLoadingFeatured = true;
+
   ngOnInit() {
-    this.productService.getProducts({ limit: 100 }).subscribe(response => {
-      this.bestSellers = response.products.filter((p: Product) => p.bestseller);
+    this.productService.getTopSellingProducts({ limit: 4 }).subscribe({
+      next: (response) => {
+        this.bestSellers = response.products;
+        this.isLoadingBestSellers = false;
+      },
+      error: (err) => {
+        console.error(err);
+        this.isLoadingBestSellers = false;
+      }
     });
+
+    this.productService.getFeaturedProducts({ limit: 4 }).subscribe({
+      next: (response) => {
+        this.featuredProducts = response.products;
+        this.isLoadingFeatured = false;
+      },
+      error: (err) => {
+        console.error(err);
+        this.isLoadingFeatured = false;
+      }
+    });
+
     this.productService.getFeaturedCollections().subscribe(collections => {
       this.featuredCollections = collections;
     });

@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { Observable, from, map, catchError, of } from 'rxjs';
+import { Observable, from, map, catchError, of, delay, switchMap, timeout } from 'rxjs';
 import { Product } from '../models/product.model';
 import { ApiService } from './api.service';
 
@@ -27,96 +27,113 @@ export class ProductService {
         availability?: string;
     }): Observable<PaginatedProductResponse> {
         return from(this.apiService.getProducts(params)).pipe(
-            map((response: any) => {
-                console.log('🔍 Raw API Response:', response);
-                console.log('🔍 Response.data:', response.data);
-
-                // Backend returns: { data: { success: true, message: "...", data: { products: [...], pagination: {...} } } }
-                const outerData = response.data;
-
-                // Check if there's a nested data object
-                const innerData = outerData.data || outerData;
-                console.log('🔍 Inner data:', innerData);
-
-                // Products are in innerData.data (the array)
-                const productsArray = Array.isArray(innerData.data) ? innerData.data : (innerData.products || []);
-                const pagination = innerData.pagination;
-
-                console.log('🔍 Products array:', productsArray);
-                console.log('🔍 Products array length:', productsArray.length);
-                console.log('🔍 Pagination:', pagination);
-
-                // Map products and extract price from priceCalculation
-                const mappedProducts = productsArray.map((product: any) => {
-                    // Construct full image URLs
-                    let images: string[] = [];
-                    if (product.images && Array.isArray(product.images)) {
-                        images = product.images.map((img: string) => {
-                            if (img.startsWith('http')) return img;
-                            if (img.startsWith('/')) return `http://localhost:5000${img}`;
-                            // If it's just a filename, prepend the uploads path
-                            return `http://localhost:5000/uploads/products/${img}`;
-                        });
-                    } else if (product.image) {
-                        let imgUrl = product.image;
-                        if (!imgUrl.startsWith('http')) {
-                            if (imgUrl.startsWith('/')) {
-                                imgUrl = `http://localhost:5000${imgUrl}`;
-                            } else {
-                                // If it's just a filename, prepend the uploads path
-                                imgUrl = `http://localhost:5000/uploads/products/${imgUrl}`;
-                            }
-                        }
-                        images = [imgUrl];
-                    }
-
-                    return {
-                        ...product,
-                        id: product.id?.toString() || '',
-                        price: product.priceCalculation?.finalPrice || 0,
-                        images: images,
-                        rating: product.rating || 4,
-                        reviewCount: product.reviewCount || 0,
-                        bestseller: product.bestseller || false,
-                        featured: product.featured || false,
-                        inStock: product.availability === 'YES',
-                        variants: product.variants || [{
-                            id: product.id?.toString() || '1',
-                            material: product.metal || 'Gold',
-                            price: product.priceCalculation?.finalPrice || 0,
-                            stock: product.availability === 'YES' ? 10 : 0
-                        }],
-                        createdAt: product.created_at || new Date().toISOString()
-                    };
-                });
-
-                const result = {
-                    products: mappedProducts,
-                    pagination: {
-                        currentPage: pagination?.currentPage || params?.page || 1,
-                        totalPages: pagination?.totalPages || 1,
-                        totalItems: pagination?.totalItems || productsArray.length,
-                        itemsPerPage: pagination?.itemsPerPage || params?.limit || 10
-                    }
-                };
-
-                console.log('🔍 Final result:', result);
-                console.log('🔍 Mapped products count:', result.products.length);
-                return result;
-            }),
+            map((response: any) => this.processProductResponse(response, params)),
             catchError(error => {
                 console.error('Error fetching products:', error);
-                return of({
-                    products: [],
-                    pagination: {
-                        currentPage: 1,
-                        totalPages: 0,
-                        totalItems: 0,
-                        itemsPerPage: 10
-                    }
-                });
+                return of(this.getEmptyResponse());
             })
         );
+    }
+
+    getTopSellingProducts(params?: any): Observable<PaginatedProductResponse> {
+        return from(this.apiService.getTopSellingProducts(params)).pipe(
+            map((response: any) => this.processProductResponse(response, params)),
+            catchError(error => {
+                console.error('Error fetching best sellers:', error);
+                // Return empty response on error if strict mode, or re-throw
+                return of(this.getEmptyResponse());
+            })
+        );
+    }
+
+    getFeaturedProducts(params?: any): Observable<PaginatedProductResponse> {
+        return from(this.apiService.getFeaturedProducts(params)).pipe(
+            map((response: any) => this.processProductResponse(response, params)),
+            catchError(error => {
+                console.error('Error fetching featured products:', error);
+                return of(this.getEmptyResponse());
+            })
+        );
+    }
+
+    private processProductResponse(response: any, params?: any): PaginatedProductResponse {
+        // Backend returns: { data: { success: true, message: "...", data: { products: [...], pagination: {...} } } }
+        const outerData = response.data;
+
+        // Check if there's a nested data object
+        const innerData = outerData.data || outerData;
+
+        // Products are in innerData.data (the array)
+        const productsArray = Array.isArray(innerData.data) ? innerData.data : (innerData.products || []);
+        const pagination = innerData.pagination;
+
+        // Map products and extract price from priceCalculation
+        const mappedProducts = productsArray.map((product: any) => {
+            // Construct full image URLs
+            let images: string[] = [];
+            if (product.images && Array.isArray(product.images)) {
+                images = product.images.map((img: string) => {
+                    if (img.startsWith('http')) return img;
+                    if (img.startsWith('/')) return `http://localhost:5000${img}`;
+                    // If it's just a filename, prepend the uploads path
+                    return `http://localhost:5000/uploads/products/${img}`;
+                });
+            } else if (product.image) {
+                let imgUrl = product.image;
+                if (!imgUrl.startsWith('http')) {
+                    if (imgUrl.startsWith('/')) {
+                        imgUrl = `http://localhost:5000${imgUrl}`;
+                    } else {
+                        // If it's just a filename, prepend the uploads path
+                        imgUrl = `http://localhost:5000/uploads/products/${imgUrl}`;
+                    }
+                }
+                images = [imgUrl];
+            }
+
+            return {
+                ...product,
+                id: product.id?.toString() || '',
+                price: product.priceCalculation?.finalPrice || 0,
+                images: images,
+                rating: product.rating || 4,
+                reviewCount: product.reviewCount || 0,
+                bestseller: product.bestseller || false,
+                featured: product.featured || false,
+                inStock: product.availability === 'YES',
+                variants: product.variants || [{
+                    id: product.id?.toString() || '1',
+                    material: product.metal || 'Gold',
+                    price: product.priceCalculation?.finalPrice || 0,
+                    stock: product.availability === 'YES' ? 10 : 0
+                }],
+                createdAt: product.created_at || new Date().toISOString()
+            };
+        });
+
+        const result = {
+            products: mappedProducts,
+            pagination: {
+                currentPage: pagination?.currentPage || params?.page || 1,
+                totalPages: pagination?.totalPages || 1,
+                totalItems: pagination?.totalItems || productsArray.length,
+                itemsPerPage: pagination?.itemsPerPage || params?.limit || 10
+            }
+        };
+
+        return result;
+    }
+
+    private getEmptyResponse(): PaginatedProductResponse {
+        return {
+            products: [],
+            pagination: {
+                currentPage: 1,
+                totalPages: 0,
+                totalItems: 0,
+                itemsPerPage: 10
+            }
+        };
     }
 
     getFeaturedCollections() {

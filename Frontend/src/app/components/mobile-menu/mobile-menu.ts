@@ -1,17 +1,33 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
+import { CartService } from '../../services/cart.service';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
     selector: 'app-mobile-menu',
     standalone: true,
     imports: [CommonModule, RouterLink],
     templateUrl: './mobile-menu.html',
-    styleUrls: ['./mobile-menu.css'] // Using styleUrls for standard Angular behavior
+    styleUrls: ['./mobile-menu.css']
 })
 export class MobileMenu {
     @Input() isOpen = false;
     @Output() close = new EventEmitter<void>();
+
+    cartService = inject(CartService);
+    authService = inject(AuthService);
+
+    get userName(): string {
+        const user = this.authService.currentUser();
+        if (!user) return '';
+        return user.name || (user as any).user?.name || '';
+    }
+
+    logout() {
+        this.authService.logout();
+        this.onClose();
+    }
 
     // Menu Categories with sub-items
     menuCategories = [

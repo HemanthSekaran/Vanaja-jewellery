@@ -18,6 +18,7 @@ import { AlertService } from '../../services/alert.service';
 })
 export class ProductCard {
   @Input() product!: Product;
+  @Input() showWishlistButton = true;
   cartService = inject(CartService);
   wishlistService = inject(WishlistService);
   authService = inject(AuthService);

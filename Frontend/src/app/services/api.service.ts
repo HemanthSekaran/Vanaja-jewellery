@@ -45,6 +45,8 @@ export class ApiService {
         filterValue?: string;
         availability?: string;
     }) => axios.get("/products", { params });
+    getTopSellingProducts = (params?: { page?: number; limit?: number }) => axios.get("/products/top-selling", { params });
+    getFeaturedProducts = (params?: { page?: number; limit?: number }) => axios.get("/products/featured", { params });
     getCategories = () => axios.get("/products/categories/list");
     getProductById = (id: string) => axios.get(`/products/${id}`);
     createProduct = (formData: FormData) => axios.post("/products", formData, {

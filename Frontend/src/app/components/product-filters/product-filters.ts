@@ -29,7 +29,7 @@ export class ProductFilters {
     { label: '20+ g', min: 20, max: 9999 }
   ];
 
-  purities = ['24K', '22K', '18K', '925 Silver', '950 Platinum'];
+  purities = ['22K', '18K', '925 Silver'];
 
   // Accordion State
   openSections: { [key: string]: boolean } = {
