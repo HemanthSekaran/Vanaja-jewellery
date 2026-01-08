@@ -428,11 +428,89 @@ const getCategories = async (req, res, next) => {
     }
 };
 
+/**
+ * @desc    Get top selling products
+ * @route   GET /api/products/top-selling
+ * @access  Public
+ */
+const getTopSellingProducts = async (req, res, next) => {
+    try {
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 10;
+        const { limit: queryLimit, offset } = getPagination(page, limit);
+
+        const sql = 'SELECT * FROM products WHERE top_selling = 1 AND availability = "YES" ORDER BY created_at DESC LIMIT ? OFFSET ?';
+        const products = await query(sql, [queryLimit, offset]);
+
+        const countResult = await query('SELECT COUNT(*) as total FROM products WHERE top_selling = 1 AND availability = "YES"');
+        const total = countResult[0].total;
+
+        // Get pricing configuration from environment variables
+        const goldRatePerGram = parseFloat(process.env.GOLD_RATE_PER_GRAM) || 12000;
+        const gstPercentage = parseFloat(process.env.GST_PERCENTAGE) || 3;
+
+        const productsWithImagesAndPrice = products.map(product => {
+            const productWithImages = {
+                ...product,
+                images: parseImages(product.image)
+            };
+            return addPriceToProduct(productWithImages, goldRatePerGram, gstPercentage);
+        });
+
+        const response = formatPaginatedResponse(productsWithImagesAndPrice, page, limit, total);
+
+        sendSuccess(res, response, 'Top selling products retrieved successfully');
+    } catch (error) {
+        logger.error('Get top selling products error:', error);
+        next(error);
+    }
+};
+
+/**
+ * @desc    Get featured products
+ * @route   GET /api/products/featured
+ * @access  Public
+ */
+const getFeaturedProducts = async (req, res, next) => {
+    try {
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 10;
+        const { limit: queryLimit, offset } = getPagination(page, limit);
+
+        const sql = 'SELECT * FROM products WHERE featured = 1 AND availability = "YES" ORDER BY created_at DESC LIMIT ? OFFSET ?';
+        const products = await query(sql, [queryLimit, offset]);
+
+        const countResult = await query('SELECT COUNT(*) as total FROM products WHERE featured = 1 AND availability = "YES"');
+        const total = countResult[0].total;
+
+        // Get pricing configuration from environment variables
+        const goldRatePerGram = parseFloat(process.env.GOLD_RATE_PER_GRAM) || 12000;
+        const gstPercentage = parseFloat(process.env.GST_PERCENTAGE) || 3;
+
+        const productsWithImagesAndPrice = products.map(product => {
+            const productWithImages = {
+                ...product,
+                images: parseImages(product.image)
+            };
+            return addPriceToProduct(productWithImages, goldRatePerGram, gstPercentage);
+        });
+
+        const response = formatPaginatedResponse(productsWithImagesAndPrice, page, limit, total);
+
+        sendSuccess(res, response, 'Featured products retrieved successfully');
+    } catch (error) {
+        logger.error('Get featured products error:', error);
+        next(error);
+    }
+};
+
 module.exports = {
     getAllProducts,
     getProduct,
     createProduct,
     updateProduct,
     deleteProduct,
-    getCategories
+    getCategories,
+    getTopSellingProducts,
+    getFeaturedProducts
 };

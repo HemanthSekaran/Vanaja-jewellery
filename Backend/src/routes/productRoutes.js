@@ -10,7 +10,9 @@ const {
     createProduct,
     updateProduct,
     deleteProduct,
-    getCategories
+    getCategories,
+    getTopSellingProducts,
+    getFeaturedProducts
 } = require('../controllers/productController');
 const { validateProduct, validateProductUpdate, validateId } = require('../middleware/validators');
 const { protect, authorize } = require('../middleware/auth');
@@ -19,6 +21,8 @@ const { uploadMultiple } = require('../middleware/upload');
 // Public routes
 router.get('/', getAllProducts);
 router.get('/categories/list', getCategories);
+router.get('/top-selling', getTopSellingProducts);
+router.get('/featured', getFeaturedProducts);
 router.get('/:id', validateId, getProduct);
 
 // Admin routes
