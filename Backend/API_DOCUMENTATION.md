@@ -139,9 +139,71 @@ Authorization: Bearer <token>
       "name": "John Doe",
       "email": "john@example.com",
       "phone": "1234567890",
+      "address": "123 Main Street, City, State",
       "role": "user"
     }
   }
+}
+```
+
+---
+
+### Update User Profile
+
+**PUT** `/auth/profile`
+
+**Access**: Private (Authenticated users)
+
+**Headers**:
+```
+Authorization: Bearer <token>
+```
+
+**Request Body** (all fields optional, but at least one required):
+```json
+{
+  "name": "John Smith",
+  "phone": "9876543210",
+  "address": "456 New Street, City, State",
+  "wishlist": [1, 5, 12],
+  "add_to_cart": [3, 7]
+}
+```
+
+**Validation Rules**:
+- `name`: 2-100 characters (optional)
+- `phone`: Exactly 10 digits (optional)
+- `address`: 5-500 characters (optional)
+- `wishlist`: Array of product IDs stored as JSON (optional)
+- `add_to_cart`: Array of product IDs stored as JSON (optional)
+- At least one field must be provided
+
+**Success Response** (200):
+```json
+{
+  "success": true,
+  "message": "Profile updated successfully",
+  "data": {
+    "user": {
+      "id": 1,
+      "name": "John Smith",
+      "email": "john@example.com",
+      "phone": "9876543210",
+      "address": "456 New Street, City, State",
+      "wishlist": "[1,5,12]",
+      "add_to_cart": "[3,7]",
+      "role": "user",
+      "created_at": "2024-01-01T00:00:00.000Z"
+    }
+  }
+}
+```
+
+**Error Response** (400):
+```json
+{
+  "success": false,
+  "message": "Please provide at least one field to update"
 }
 ```
 
@@ -395,6 +457,54 @@ Authorization: Bearer <token>
 
 ---
 
+### Get Top Selling Products
+
+**GET** `/products/top-selling`
+
+**Access**: Public
+
+**Query Parameters**:
+- `page` (integer, optional): Page number (default: 1)
+- `limit` (integer, optional): Items per page (default: 10)
+
+**Success Response** (200):
+```json
+{
+  "success": true,
+  "message": "Top selling products retrieved successfully",
+  "data": {
+    "data": [ ... ],
+    "pagination": { ... }
+  }
+}
+```
+
+---
+
+### Get Featured Products
+
+**GET** `/products/featured`
+
+**Access**: Public
+
+**Query Parameters**:
+- `page` (integer, optional): Page number (default: 1)
+- `limit` (integer, optional): Items per page (default: 10)
+
+**Success Response** (200):
+```json
+{
+  "success": true,
+  "message": "Featured products retrieved successfully",
+  "data": {
+    "data": [ ... ],
+    "pagination": { ... }
+  }
+}
+```
+
+---
+
 ### Get Single Product
 
 **GET** `/products/:id`
@@ -487,6 +597,8 @@ Authorization: Bearer <token>
 - `weight` (string, optional)
 - `description` (string, optional)
 - `availability` (string, optional)
+- `top_selling` (boolean, optional): Mark product as top selling
+- `featured` (boolean, optional): Mark product as featured
 - `image` (file, optional)
 
 **Success Response** (200):
