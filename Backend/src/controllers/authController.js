@@ -124,6 +124,8 @@ const getMe = async (req, res, next) => {
  * @access  Private
  */
 const updateProfile = async (req, res, next) => {
+    console.log("hit the backend");
+
     try {
         const { phone, address, name, wishlist, add_to_cart } = req.body;
         const userId = req.user.id;

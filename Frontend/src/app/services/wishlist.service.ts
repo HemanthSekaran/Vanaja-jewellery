@@ -1,20 +1,73 @@
-import { Injectable, signal, computed } from '@angular/core';
+import { Injectable, signal, computed, inject } from '@angular/core';
 import { Product, WishlistItem } from '../models/product.model';
+import { ApiService } from './api.service';
+import { ProductService } from './product.service';
+import { firstValueFrom } from 'rxjs';
 
 @Injectable({
     providedIn: 'root'
 })
 export class WishlistService {
+    private apiService = inject(ApiService);
+    private productService = inject(ProductService);
     private wishlistItems = signal<WishlistItem[]>([]);
 
     public readonly items = computed(() => this.wishlistItems());
     public readonly count = computed(() => this.wishlistItems().length);
 
     constructor() {
-        // Load from local storage if needed
-        const saved = localStorage.getItem('wishlist');
-        if (saved) {
-            this.wishlistItems.set(JSON.parse(saved));
+        this.loadInitialWishlist();
+    }
+
+    private async loadInitialWishlist() {
+        try {
+            const res = await this.apiService.getProfile();
+            if (!res.data?.user) return;
+
+            let rawItems = res.data.user.wishlist;
+
+            if (typeof rawItems === 'string') {
+                try { rawItems = JSON.parse(rawItems); } catch (e) { rawItems = []; }
+            }
+
+            if (!Array.isArray(rawItems)) return;
+
+            const hydratedItems: WishlistItem[] = [];
+
+            for (const item of rawItems) {
+                // Scenario 1: Legacy Object
+                if (typeof item === 'object' && item.product) {
+                    hydratedItems.push(item);
+                }
+                // Scenario 2: Minimal Object (from previous optimization)
+                else if (typeof item === 'object' && item.productId) {
+                    try {
+                        const product = await firstValueFrom(this.productService.getProductById(item.productId));
+                        if (product) {
+                            hydratedItems.push({
+                                product,
+                                addedAt: item.addedAt || new Date().toISOString()
+                            });
+                        }
+                    } catch (e) { console.error('Wishlist object hydration error', e); }
+                }
+                // Scenario 3: String ID (New Goal)
+                else if (typeof item === 'string') {
+                    try {
+                        const product = await firstValueFrom(this.productService.getProductById(item));
+                        if (product) {
+                            hydratedItems.push({
+                                product,
+                                addedAt: new Date().toISOString()
+                            });
+                        }
+                    } catch (e) { console.error('Wishlist string hydration error', e); }
+                }
+            }
+
+            this.wishlistItems.set(hydratedItems);
+        } catch (e) {
+            console.warn('Could not load wishlist from API', e);
         }
     }
 
@@ -24,7 +77,7 @@ export class WishlistService {
                 return items;
             }
             const newItems = [...items, { product, addedAt: new Date().toISOString() }];
-            this.saveToStorage(newItems);
+            this.syncToDb(newItems);
             return newItems;
         });
     }
@@ -32,7 +85,7 @@ export class WishlistService {
     removeFromWishlist(productId: string) {
         this.wishlistItems.update(items => {
             const newItems = items.filter(item => item.product.id !== productId);
-            this.saveToStorage(newItems);
+            this.syncToDb(newItems);
             return newItems;
         });
     }
@@ -41,7 +94,12 @@ export class WishlistService {
         return this.wishlistItems().some(item => item.product.id === productId);
     }
 
-    private saveToStorage(items: WishlistItem[]) {
-        localStorage.setItem('wishlist', JSON.stringify(items));
+    private syncToDb(items: WishlistItem[]) {
+        // Map to strictly array of strings: ['id1', 'id2']
+        const ids = items.map(item => item.product.id);
+
+        this.apiService.updateProfile({ wishlist: ids })
+            .then(() => console.log('Wishlist synced (IDs only)'))
+            .catch(err => console.error('Error syncing wishlist', err));
     }
 }

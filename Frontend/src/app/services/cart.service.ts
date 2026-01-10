@@ -1,10 +1,15 @@
-import { Injectable, signal, computed } from '@angular/core';
+import { Injectable, signal, computed, inject } from '@angular/core';
 import { Product, CartItem, ProductVariant } from '../models/product.model';
+import { ApiService } from './api.service';
+import { ProductService } from './product.service';
+import { firstValueFrom } from 'rxjs';
 
 @Injectable({
     providedIn: 'root'
 })
 export class CartService {
+    private apiService = inject(ApiService);
+    private productService = inject(ProductService);
     private cartItems = signal<CartItem[]>([]);
 
     public readonly items = computed(() => this.cartItems());
@@ -12,14 +17,52 @@ export class CartService {
     public readonly total = computed(() => this.cartItems().reduce((acc, item) => acc + (item.variant.price * item.quantity), 0));
 
     constructor() {
+        this.loadInitialCart();
+    }
+
+    private async loadInitialCart() {
         try {
-            const saved = localStorage.getItem('cart');
-            if (saved) {
-                const items = JSON.parse(saved);
-                this.cartItems.set(Array.isArray(items) ? items.filter(i => i.product && i.variant) : []);
+            const res = await this.apiService.getProfile();
+            if (!res.data?.user) return;
+
+            let rawItems = res.data.user.add_to_cart || res.data.user.cart;
+
+            if (typeof rawItems === 'string') {
+                try { rawItems = JSON.parse(rawItems); } catch (e) { rawItems = []; }
             }
+
+            if (!Array.isArray(rawItems)) return;
+
+            const hydratedItems: CartItem[] = [];
+
+            for (const item of rawItems) {
+                // Scenario 1: Legacy Full Object
+                if (item.product && item.product.id) {
+                    hydratedItems.push(item);
+                }
+                // Scenario 2: New ID-only Storage
+                else if (item.productId) {
+                    try {
+                        const product = await firstValueFrom(this.productService.getProductById(item.productId));
+                        if (product) {
+                            // Find specific variant or default to first
+                            const variant = product.variants.find(v => v.id === item.variantId) || product.variants[0];
+                            hydratedItems.push({
+                                product,
+                                variant,
+                                quantity: item.quantity || 1
+                            });
+                        }
+                    } catch (err) {
+                        console.error(`Failed to hydrate product ${item.productId}`, err);
+                    }
+                }
+            }
+
+            this.cartItems.set(hydratedItems);
+
         } catch (e) {
-            console.error('Error loading cart from localStorage', e);
+            console.warn('Could not load cart from API', e);
         }
     }
 
@@ -37,7 +80,7 @@ export class CartService {
                 newItems = [...items, { product, variant, quantity }];
             }
 
-            this.saveToStorage(newItems);
+            this.syncToDb(newItems);
             return newItems;
         });
     }
@@ -47,7 +90,7 @@ export class CartService {
             const newItems = items.filter(item =>
                 !(item.product.id === productId && item.variant.id === variantId)
             );
-            this.saveToStorage(newItems);
+            this.syncToDb(newItems);
             return newItems;
         });
     }
@@ -61,17 +104,23 @@ export class CartService {
                 return item;
             }).filter(item => item.quantity > 0);
 
-            this.saveToStorage(newItems);
+            this.syncToDb(newItems);
             return newItems;
         });
     }
 
-    private saveToStorage(items: CartItem[]) {
-        try {
-            localStorage.setItem('cart', JSON.stringify(items));
-        } catch (e) {
-            console.error('Error saving cart to localStorage', e);
-        }
+    private syncToDb(items: CartItem[]) {
+        // Map to strictly minimal structure: { productId, variantId, quantity }
+        // User requested "only productId", but we MUST keep quantity to be a valid cart
+        const minimalItems = items.map(item => ({
+            productId: item.product.id,
+            variantId: item.variant.id,
+            quantity: item.quantity
+        }));
+
+        this.apiService.updateProfile({ add_to_cart: minimalItems })
+            .then(() => console.log('Cart synced to DB (IDs only)'))
+            .catch(err => console.error('Error syncing cart to DB', err));
     }
 
     isInCart(productId: string, variantId?: string): boolean {
