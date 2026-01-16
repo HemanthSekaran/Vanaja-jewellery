@@ -12,7 +12,9 @@ const {
     deleteProduct,
     getCategories,
     getTopSellingProducts,
-    getFeaturedProducts
+    getFeaturedProducts,
+    getUserCartProducts,
+    getUserWishlistProducts
 } = require('../controllers/productController');
 const { validateProduct, validateProductUpdate, validateId } = require('../middleware/validators');
 const { protect, authorize } = require('../middleware/auth');
@@ -23,6 +25,11 @@ router.get('/', getAllProducts);
 router.get('/categories/list', getCategories);
 router.get('/top-selling', getTopSellingProducts);
 router.get('/featured', getFeaturedProducts);
+
+// Protected user routes - must come before /:id route
+router.get('/user/cart', protect, getUserCartProducts);
+router.get('/user/wishlist', protect, getUserWishlistProducts);
+
 router.get('/:id', validateId, getProduct);
 
 // Admin routes

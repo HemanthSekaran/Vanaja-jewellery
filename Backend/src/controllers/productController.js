@@ -504,6 +504,148 @@ const getFeaturedProducts = async (req, res, next) => {
     }
 };
 
+/**
+ * @desc    Get user's cart products
+ * @route   GET /api/products/user/cart
+ * @access  Private (Authenticated users)
+ */
+const getUserCartProducts = async (req, res, next) => {
+    try {
+        const userId = req.user.id;
+
+        // Get user's cart data
+        const users = await query(
+            'SELECT add_to_cart FROM users WHERE id = ?',
+            [userId]
+        );
+
+        if (users.length === 0) {
+            return next(new AppError('User not found', 404));
+        }
+
+        const user = users[0];
+        let cartProductIds = [];
+
+        // Parse cart data (stored as JSON string)
+        if (user.add_to_cart) {
+            try {
+                cartProductIds = JSON.parse(user.add_to_cart);
+                if (!Array.isArray(cartProductIds)) {
+                    cartProductIds = [];
+                }
+            } catch (e) {
+                logger.error('Error parsing cart data:', e);
+                cartProductIds = [];
+            }
+        }
+
+        // If cart is empty, return empty array
+        if (cartProductIds.length === 0) {
+            return sendSuccess(res, { products: [], count: 0 }, 'Cart is empty');
+        }
+
+        // Get products from cart
+        const placeholders = cartProductIds.map(() => '?').join(',');
+        const products = await query(
+            `SELECT * FROM products WHERE id IN (${placeholders})`,
+            cartProductIds
+        );
+
+        // Get pricing configuration from environment variables
+        const goldRatePerGram = parseFloat(process.env.GOLD_RATE_PER_GRAM) || 12000;
+        const gstPercentage = parseFloat(process.env.GST_PERCENTAGE) || 3;
+
+        // Parse images and add price calculation to all products
+        const productsWithImagesAndPrice = products.map(product => {
+            const productWithImages = {
+                ...product,
+                images: parseImages(product.image)
+            };
+            return addPriceToProduct(productWithImages, goldRatePerGram, gstPercentage);
+        });
+
+        sendSuccess(
+            res,
+            { products: productsWithImagesAndPrice, count: productsWithImagesAndPrice.length },
+            'Cart products retrieved successfully'
+        );
+    } catch (error) {
+        logger.error('Get user cart products error:', error);
+        next(error);
+    }
+};
+
+/**
+ * @desc    Get user's wishlist products
+ * @route   GET /api/products/user/wishlist
+ * @access  Private (Authenticated users)
+ */
+const getUserWishlistProducts = async (req, res, next) => {
+    try {
+        const userId = req.user.id;
+
+        // Get user's wishlist data
+        const users = await query(
+            'SELECT wishlist FROM users WHERE id = ?',
+            [userId]
+        );
+
+        if (users.length === 0) {
+            return next(new AppError('User not found', 404));
+        }
+
+        const user = users[0];
+        let wishlistProductIds = [];
+
+        // Parse wishlist data (stored as JSON string)
+        if (user.wishlist) {
+            try {
+                wishlistProductIds = JSON.parse(user.wishlist);
+                if (!Array.isArray(wishlistProductIds)) {
+                    wishlistProductIds = [];
+                }
+            } catch (e) {
+                logger.error('Error parsing wishlist data:', e);
+                wishlistProductIds = [];
+            }
+        }
+
+        // If wishlist is empty, return empty array
+        if (wishlistProductIds.length === 0) {
+            return sendSuccess(res, { products: [], count: 0 }, 'Wishlist is empty');
+        }
+
+        // Get products from wishlist
+        const placeholders = wishlistProductIds.map(() => '?').join(',');
+        const products = await query(
+            `SELECT * FROM products WHERE id IN (${placeholders})`,
+            wishlistProductIds
+        );
+
+        // Get pricing configuration from environment variables
+        const goldRatePerGram = parseFloat(process.env.GOLD_RATE_PER_GRAM) || 12000;
+        const gstPercentage = parseFloat(process.env.GST_PERCENTAGE) || 3;
+
+        // Parse images and add price calculation to all products
+        const productsWithImagesAndPrice = products.map(product => {
+            const productWithImages = {
+                ...product,
+                images: parseImages(product.image)
+            };
+            return addPriceToProduct(productWithImages, goldRatePerGram, gstPercentage);
+        });
+
+        sendSuccess(
+            res,
+            { products: productsWithImagesAndPrice, count: productsWithImagesAndPrice.length },
+            'Wishlist products retrieved successfully'
+        );
+    } catch (error) {
+        logger.error('Get user wishlist products error:', error);
+        next(error);
+    }
+};
+
 module.exports = {
     getAllProducts,
     getProduct,
@@ -512,5 +654,7 @@ module.exports = {
     deleteProduct,
     getCategories,
     getTopSellingProducts,
-    getFeaturedProducts
+    getFeaturedProducts,
+    getUserCartProducts,
+    getUserWishlistProducts
 };
