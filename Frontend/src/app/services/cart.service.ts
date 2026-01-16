@@ -22,45 +22,29 @@ export class CartService {
 
     private async loadInitialCart() {
         try {
-            const res = await this.apiService.getProfile();
-            if (!res.data?.user) return;
+            const res = await this.apiService.getCart();
+            const products = res.data?.products || [];
 
-            let rawItems = res.data.user.add_to_cart || res.data.user.cart;
-
-            if (typeof rawItems === 'string') {
-                try { rawItems = JSON.parse(rawItems); } catch (e) { rawItems = []; }
-            }
-
-            if (!Array.isArray(rawItems)) return;
-
-            const hydratedItems: CartItem[] = [];
-
-            for (const item of rawItems) {
-                // Scenario 1: Legacy Full Object
-                if (item.product && item.product.id) {
-                    hydratedItems.push(item);
+            const items: CartItem[] = products.map((product: any) => {
+                // Ensure variants are parsed if they come as string
+                if (typeof product.variants === 'string') {
+                    try { product.variants = JSON.parse(product.variants); } catch (e) { }
                 }
-                // Scenario 2: New ID-only Storage
-                else if (item.productId) {
-                    try {
-                        const product = await firstValueFrom(this.productService.getProductById(item.productId));
-                        if (product) {
-                            // Find specific variant or default to first
-                            const variant = product.variants.find(v => v.id === item.variantId) || product.variants[0];
-                            hydratedItems.push({
-                                product,
-                                variant,
-                                quantity: item.quantity || 1
-                            });
-                        }
-                    } catch (err) {
-                        console.error(`Failed to hydrate product ${item.productId}`, err);
-                    }
-                }
-            }
 
-            this.cartItems.set(hydratedItems);
+                // Default logic since backend response doesn't strictly pair variant/qty
+                // We default to the first variant if available, or a placeholder
+                const defaultVariant = (product.variants && product.variants.length > 0)
+                    ? product.variants[0]
+                    : { id: 'default', price: product.price || 0, stock: 1, material: 'Standard' };
 
+                return {
+                    product: product,
+                    variant: defaultVariant,
+                    quantity: 1
+                };
+            });
+
+            this.cartItems.set(items);
         } catch (e) {
             console.warn('Could not load cart from API', e);
         }

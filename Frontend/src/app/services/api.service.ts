@@ -59,6 +59,10 @@ export class ApiService {
     updateProductStatus = (id: string, data: any) => axios.put(`/products/${id}`, data);
     deleteProduct = (id: string) => axios.delete(`/products/${id}`);
 
+    // User Data
+    getCart = () => axios.get("/user/cart");
+    getWishlist = () => axios.get("/user/wishlist");
+
     // Customization
     submitCustomization = (data: any) => axios.post("/designs", data);
     updateDesign = (id: string, data: any) => axios.put(`/designs/${id}`, data);

@@ -21,51 +21,22 @@ export class WishlistService {
 
     private async loadInitialWishlist() {
         try {
-            const res = await this.apiService.getProfile();
-            if (!res.data?.user) return;
+            const res = await this.apiService.getWishlist();
+            const products = res.data?.products || [];
 
-            let rawItems = res.data.user.wishlist;
-
-            if (typeof rawItems === 'string') {
-                try { rawItems = JSON.parse(rawItems); } catch (e) { rawItems = []; }
-            }
-
-            if (!Array.isArray(rawItems)) return;
-
-            const hydratedItems: WishlistItem[] = [];
-
-            for (const item of rawItems) {
-                // Scenario 1: Legacy Object
-                if (typeof item === 'object' && item.product) {
-                    hydratedItems.push(item);
+            const items: WishlistItem[] = products.map((product: any) => {
+                // Ensure variants are parsed if they come as string
+                if (typeof product.variants === 'string') {
+                    try { product.variants = JSON.parse(product.variants); } catch (e) { }
                 }
-                // Scenario 2: Minimal Object (from previous optimization)
-                else if (typeof item === 'object' && item.productId) {
-                    try {
-                        const product = await firstValueFrom(this.productService.getProductById(item.productId));
-                        if (product) {
-                            hydratedItems.push({
-                                product,
-                                addedAt: item.addedAt || new Date().toISOString()
-                            });
-                        }
-                    } catch (e) { console.error('Wishlist object hydration error', e); }
-                }
-                // Scenario 3: String ID (New Goal)
-                else if (typeof item === 'string') {
-                    try {
-                        const product = await firstValueFrom(this.productService.getProductById(item));
-                        if (product) {
-                            hydratedItems.push({
-                                product,
-                                addedAt: new Date().toISOString()
-                            });
-                        }
-                    } catch (e) { console.error('Wishlist string hydration error', e); }
-                }
-            }
 
-            this.wishlistItems.set(hydratedItems);
+                return {
+                    product: product,
+                    addedAt: new Date().toISOString()
+                };
+            });
+
+            this.wishlistItems.set(items);
         } catch (e) {
             console.warn('Could not load wishlist from API', e);
         }
