@@ -30,6 +30,10 @@ export class WishlistService {
                     try { product.variants = JSON.parse(product.variants); } catch (e) { }
                 }
 
+                if (!product.price && product.priceCalculation?.finalPrice) {
+                    product.price = product.priceCalculation.finalPrice;
+                }
+
                 return {
                     product: product,
                     addedAt: new Date().toISOString()

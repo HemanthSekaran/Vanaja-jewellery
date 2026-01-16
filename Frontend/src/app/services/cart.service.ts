@@ -35,7 +35,7 @@ export class CartService {
                 // We default to the first variant if available, or a placeholder
                 const defaultVariant = (product.variants && product.variants.length > 0)
                     ? product.variants[0]
-                    : { id: 'default', price: product.price || 0, stock: 1, material: 'Standard' };
+                    : { id: 'default', price: product.price || product.priceCalculation?.finalPrice || 0, stock: 1, material: 'Standard' };
 
                 // Find the specific variant if variantId is provided in the response
                 let variant = defaultVariant;
