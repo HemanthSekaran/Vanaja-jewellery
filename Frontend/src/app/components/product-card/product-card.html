@@ -61,7 +61,8 @@
 
     <!-- Image -->
     <div class="aspect-square overflow-hidden relative bg-muted">
-        <img [src]="product.images[0] || 'https://via.placeholder.com/400x400?text=No+Image'" [alt]="product.name"
+        <img [src]="product.images && product.images.length > 0 ? getImageUrl(product.images[0]) : 'https://via.placeholder.com/400x400?text=No+Image'"
+            [alt]="product.name"
             class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110">
     </div>
 
@@ -114,10 +115,10 @@
                 </button>
             </div>
             } @else {
-            <button (click)="addToCart($event)"
+            <button (click)="isInCart ? router.navigate(['/cart']) : addToCart($event)"
                 class="px-3 py-1.5 bg-primary text-primary-foreground text-xs font-bold uppercase tracking-wide rounded-sm shadow-sm hover:bg-primary/90 transition-colors cursor-pointer z-20 relative"
-                [class.bg-green-600]="isAdded">
-                {{ isAdded ? 'Added' : 'Add' }}
+                [class.bg-green-600]="isInCart || isAdded">
+                {{ (isInCart || isAdded) ? 'Added' : 'Add' }}
             </button>
             }
         </div>

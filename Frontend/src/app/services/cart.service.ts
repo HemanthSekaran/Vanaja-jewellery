@@ -23,7 +23,7 @@ export class CartService {
     private async loadInitialCart() {
         try {
             const res = await this.apiService.getCart();
-            const products = res.data?.products || [];
+            const products = res.data?.data?.products || [];
 
             const items: CartItem[] = products.map((product: any) => {
                 // Ensure variants are parsed if they come as string
@@ -37,10 +37,19 @@ export class CartService {
                     ? product.variants[0]
                     : { id: 'default', price: product.price || 0, stock: 1, material: 'Standard' };
 
+                // Find the specific variant if variantId is provided in the response
+                let variant = defaultVariant;
+                if (product.variantId) {
+                    const foundVariant = product.variants?.find((v: any) => v.id === product.variantId);
+                    if (foundVariant) {
+                        variant = foundVariant;
+                    }
+                }
+
                 return {
                     product: product,
-                    variant: defaultVariant,
-                    quantity: 1
+                    variant: variant,
+                    quantity: product.quantity || 1
                 };
             });
 
@@ -53,7 +62,7 @@ export class CartService {
     addToCart(product: Product, variant: ProductVariant, quantity: number = 1) {
         this.cartItems.update(items => {
             const existingItemIndex = items.findIndex(item =>
-                item.product.id === product.id && item.variant.id === variant.id
+                String(item.product.id) === String(product.id) && item.variant.id === variant.id
             );
 
             let newItems;
@@ -72,7 +81,7 @@ export class CartService {
     removeFromCart(productId: string, variantId: string) {
         this.cartItems.update(items => {
             const newItems = items.filter(item =>
-                !(item.product.id === productId && item.variant.id === variantId)
+                !(String(item.product.id) === String(productId) && item.variant.id === variantId)
             );
             this.syncToDb(newItems);
             return newItems;
@@ -82,7 +91,7 @@ export class CartService {
     updateQuantity(productId: string, variantId: string, quantity: number) {
         this.cartItems.update(items => {
             const newItems = items.map(item => {
-                if (item.product.id === productId && item.variant.id === variantId) {
+                if (String(item.product.id) === String(productId) && item.variant.id === variantId) {
                     return { ...item, quantity: Math.max(0, quantity) };
                 }
                 return item;
@@ -109,7 +118,7 @@ export class CartService {
 
     isInCart(productId: string, variantId?: string): boolean {
         return this.cartItems().some(item =>
-            item?.product?.id === productId &&
+            String(item?.product?.id) === String(productId) &&
             (!variantId || item?.variant?.id === variantId)
         );
     }

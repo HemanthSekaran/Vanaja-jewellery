@@ -9,6 +9,7 @@ import { AuthService } from '../../services/auth.service';
 import { ProductService } from '../../services/product.service';
 import { ToastService } from '../../services/toast.service';
 import { AlertService } from '../../services/alert.service';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-product-card',
@@ -53,20 +54,31 @@ export class ProductCard {
     return false;
   });
 
+  getImageUrl(image: string): string {
+    if (!image) return 'https://via.placeholder.com/400x400?text=No+Image';
+    if (image.startsWith('http')) return image;
+    return `${environment.imageBaseUrl}${image}`;
+  }
+
   async toggleFeatured(event: Event) {
     event.stopPropagation();
     event.preventDefault();
 
     if (!this.isAdmin()) return;
 
-    const newValue = !this.product.featured;
+    // Optimistic Update
+    const originalValue = this.product.featured;
+    const newValue = !originalValue;
+    this.product.featured = newValue;
+
     const payload = { featured: newValue ? 1 : 0 };
 
     try {
       await this.productService.updateProductStatus(this.product.id, payload).toPromise();
-      this.product.featured = newValue;
       this.toastService.show(`Product ${newValue ? 'marked as' : 'removed from'} Featured`, 'success');
     } catch (error) {
+      // Revert on failure
+      this.product.featured = originalValue;
       this.toastService.show('Failed to update featured status', 'error');
     }
   }
@@ -77,14 +89,19 @@ export class ProductCard {
 
     if (!this.isAdmin()) return;
 
-    const newValue = !this.product.bestseller;
+    // Optimistic Update
+    const originalValue = this.product.bestseller;
+    const newValue = !originalValue;
+    this.product.bestseller = newValue;
+
     const payload = { top_selling: newValue ? 1 : 0 };
 
     try {
       await this.productService.updateProductStatus(this.product.id, payload).toPromise();
-      this.product.bestseller = newValue;
       this.toastService.show(`Product ${newValue ? 'marked as' : 'removed from'} Best Selling`, 'success');
     } catch (error) {
+      // Revert on failure
+      this.product.bestseller = originalValue;
       this.toastService.show('Failed to update best selling status', 'error');
     }
   }
@@ -146,6 +163,10 @@ export class ProductCard {
 
   get isInWishlist() {
     return this.wishlistService.isInWishlist(this.product.id);
+  }
+
+  get isInCart() {
+    return this.cartService.isInCart(this.product.id);
   }
 
   isNew(dateString: string): boolean {

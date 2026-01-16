@@ -511,41 +511,49 @@ const getFeaturedProducts = async (req, res, next) => {
  */
 const getUserCartProducts = async (req, res, next) => {
     try {
-        const userId = req.user.id;
+        const userId = req.user?.id;
+        if (!userId) {
+            return next(new AppError('Unauthorized', 401));
+        }
 
-        // Get user's cart data
         const users = await query(
             'SELECT add_to_cart FROM users WHERE id = ?',
             [userId]
         );
 
-        if (users.length === 0) {
+        if (!users.length) {
             return next(new AppError('User not found', 404));
         }
 
-        const user = users[0];
-        let cartProductIds = [];
+        let cartItems = [];
 
-        // Parse cart data (stored as JSON string)
-        if (user.add_to_cart) {
-            try {
-                cartProductIds = JSON.parse(user.add_to_cart);
-                if (!Array.isArray(cartProductIds)) {
-                    cartProductIds = [];
-                }
-            } catch (e) {
-                logger.error('Error parsing cart data:', e);
-                cartProductIds = [];
+        // Parse cart JSON
+        try {
+            const parsed = JSON.parse(users[0].add_to_cart || '[]');
+
+            if (Array.isArray(parsed)) {
+                cartItems = parsed;
             }
+        } catch (err) {
+            logger.error('Invalid cart JSON', err);
         }
 
-        // If cart is empty, return empty array
+        // Extract product IDs correctly
+        const cartProductIds = cartItems
+            .map(item => Number(item.productId))
+            .filter(id => Number.isInteger(id) && id > 0);
+
         if (cartProductIds.length === 0) {
-            return sendSuccess(res, { products: [], count: 0 }, 'Cart is empty');
+            return sendSuccess(
+                res,
+                { products: [], count: 0 },
+                'Cart is empty'
+            );
         }
 
-        // Get products from cart
+        // Build placeholders
         const placeholders = cartProductIds.map(() => '?').join(',');
+
         const products = await query(
             `SELECT * FROM products WHERE id IN (${placeholders})`,
             cartProductIds
@@ -555,20 +563,27 @@ const getUserCartProducts = async (req, res, next) => {
         const goldRatePerGram = parseFloat(process.env.GOLD_RATE_PER_GRAM) || 12000;
         const gstPercentage = parseFloat(process.env.GST_PERCENTAGE) || 3;
 
-        // Parse images and add price calculation to all products
+        // Attach images + price
         const productsWithImagesAndPrice = products.map(product => {
-            const productWithImages = {
-                ...product,
-                images: parseImages(product.image)
-            };
-            return addPriceToProduct(productWithImages, goldRatePerGram, gstPercentage);
+            return addPriceToProduct(
+                {
+                    ...product,
+                    images: parseImages(product.image)
+                },
+                goldRatePerGram,
+                gstPercentage
+            );
         });
 
-        sendSuccess(
+        return sendSuccess(
             res,
-            { products: productsWithImagesAndPrice, count: productsWithImagesAndPrice.length },
+            {
+                products: productsWithImagesAndPrice,
+                count: productsWithImagesAndPrice.length
+            },
             'Cart products retrieved successfully'
         );
+
     } catch (error) {
         logger.error('Get user cart products error:', error);
         next(error);

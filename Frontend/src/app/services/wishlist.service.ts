@@ -22,7 +22,7 @@ export class WishlistService {
     private async loadInitialWishlist() {
         try {
             const res = await this.apiService.getWishlist();
-            const products = res.data?.products || [];
+            const products = res.data?.data?.products || [];
 
             const items: WishlistItem[] = products.map((product: any) => {
                 // Ensure variants are parsed if they come as string
@@ -44,7 +44,7 @@ export class WishlistService {
 
     addToWishlist(product: Product) {
         this.wishlistItems.update(items => {
-            if (items.some(item => item.product.id === product.id)) {
+            if (items.some(item => String(item.product.id) === String(product.id))) {
                 return items;
             }
             const newItems = [...items, { product, addedAt: new Date().toISOString() }];
@@ -55,14 +55,14 @@ export class WishlistService {
 
     removeFromWishlist(productId: string) {
         this.wishlistItems.update(items => {
-            const newItems = items.filter(item => item.product.id !== productId);
+            const newItems = items.filter(item => String(item.product.id) !== String(productId));
             this.syncToDb(newItems);
             return newItems;
         });
     }
 
     isInWishlist(productId: string): boolean {
-        return this.wishlistItems().some(item => item.product.id === productId);
+        return this.wishlistItems().some(item => String(item.product.id) === String(productId));
     }
 
     private syncToDb(items: WishlistItem[]) {
