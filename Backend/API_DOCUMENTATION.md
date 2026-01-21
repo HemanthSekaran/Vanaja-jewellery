@@ -546,6 +546,121 @@ Authorization: Bearer <token>
 
 ---
 
+### Get User's Cart Products
+
+**GET** `/products/user/cart`
+
+**Access**: Private (Authenticated users)
+
+**Headers**:
+```
+Authorization: Bearer <token>
+```
+
+**Description**: Retrieves all products that are in the authenticated user's cart. Returns full product details with pricing information.
+
+**Success Response** (200):
+```json
+{
+  "success": true,
+  "message": "Cart products retrieved successfully",
+  "data": {
+    "products": [
+      {
+        "id": 1,
+        "name": "ANTIQUE MAANGA FLOWER SET",
+        "grams": "39/21",
+        "wastage": 10,
+        "category": "ANTIQUE SET",
+        "metal": "Gold",
+        "metal_purity": "22K",
+        "weight": 1.5,
+        "description": "Beautiful antique maanga flower set",
+        "availability": "YES",
+        "images": ["image-1234567890-123456789.jpg"],
+        "price": 13200,
+        "gst": 396,
+        "total_price": 13596,
+        "created_at": "2024-01-01T00:00:00.000Z"
+      }
+    ],
+    "count": 1
+  }
+}
+```
+
+**Empty Cart Response** (200):
+```json
+{
+  "success": true,
+  "message": "Cart is empty",
+  "data": {
+    "products": [],
+    "count": 0
+  }
+}
+```
+
+---
+
+### Get User's Wishlist Products
+
+**GET** `/products/user/wishlist`
+
+**Access**: Private (Authenticated users)
+
+**Headers**:
+```
+Authorization: Bearer <token>
+```
+
+**Description**: Retrieves all products that are in the authenticated user's wishlist. Returns full product details with pricing information.
+
+**Success Response** (200):
+```json
+{
+  "success": true,
+  "message": "Wishlist products retrieved successfully",
+  "data": {
+    "products": [
+      {
+        "id": 5,
+        "name": "TRADITIONAL NECKLACE",
+        "grams": "45",
+        "wastage": 12,
+        "category": "NECKLACE",
+        "metal": "Gold",
+        "metal_purity": "22K",
+        "weight": 2.5,
+        "description": "Classic traditional gold necklace",
+        "availability": "YES",
+        "images": ["image-9876543210-987654321.jpg"],
+        "price": 30000,
+        "gst": 900,
+        "total_price": 30900,
+        "created_at": "2024-01-01T00:00:00.000Z"
+      }
+    ],
+    "count": 1
+  }
+}
+```
+
+**Empty Wishlist Response** (200):
+```json
+{
+  "success": true,
+  "message": "Wishlist is empty",
+  "data": {
+    "products": [],
+    "count": 0
+  }
+}
+```
+
+---
+
+
 ### Create Product (Admin)
 
 **POST** `/products`
@@ -629,6 +744,106 @@ Authorization: Bearer <token>
   "success": true,
   "message": "Product deleted successfully",
   "data": null
+}
+```
+
+---
+
+## Metal Prices Endpoints
+
+### Get All Metal Prices
+
+**GET** `/metal-prices`
+
+**Access**: Public
+
+**Description**: Retrieves all metal prices from the database. This endpoint can be used to display current metal rates to users.
+
+**Success Response** (200):
+```json
+{
+  "success": true,
+  "message": "Metal prices retrieved successfully",
+  "data": {
+    "metalPrices": [
+      {
+        "s_no": 1,
+        "metal_name": "gold-22k",
+        "price": 7000.00,
+        "created_at": "2026-01-20T00:00:00.000Z",
+        "updated_at": "2026-01-20T00:00:00.000Z"
+      }
+    ],
+    "count": 1
+  }
+}
+```
+
+---
+
+### Update Metal Price (Admin)
+
+**PUT** `/metal-prices/:metalName`
+
+**Access**: Private (Admin only)
+
+**Headers**:
+```
+Authorization: Bearer <admin_token>
+```
+
+**URL Parameters**:
+- `metalName` (string): Name of the metal (e.g., "gold-22k", "silver-925")
+
+**Request Body**:
+```json
+{
+  "price": 7500.50
+}
+```
+
+**Validation Rules**:
+- `metalName`: 2-100 characters, must exist in database
+- `price`: Positive float number (minimum 0.01)
+
+**Success Response** (200):
+```json
+{
+  "success": true,
+  "message": "Metal price updated successfully",
+  "data": {
+    "metalPrice": {
+      "s_no": 1,
+      "metal_name": "gold-22k",
+      "price": 7500.50,
+      "created_at": "2026-01-20T00:00:00.000Z",
+      "updated_at": "2026-01-20T07:00:00.000Z"
+    }
+  }
+}
+```
+
+**Error Response** (404):
+```json
+{
+  "success": false,
+  "message": "Metal 'gold-24k' not found"
+}
+```
+
+**Error Response** (401):
+```json
+{
+  "success": false,
+  "message": "Not authorized to access this route"
+}
+```
+
+**Error Response** (403):
+```json
+{
+  "success": false,
+  "message": "User role 'user' is not authorized to access this route"
 }
 ```
 
