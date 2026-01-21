@@ -14,6 +14,7 @@ const { initScheduledJobs } = require('./src/services/scheduledJobs');
 const authRoutes = require('./src/routes/authRoutes');
 const designRoutes = require('./src/routes/designRoutes');
 const productRoutes = require('./src/routes/productRoutes');
+const metalPriceRoutes = require('./src/routes/metalPriceRoutes');
 
 const app = express();
 
@@ -60,6 +61,7 @@ app.get('/health', (req, res) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/designs', designRoutes);
 app.use('/api/products', productRoutes);
+app.use('/api/metal-prices', metalPriceRoutes);
 
 app.use(notFound);
 

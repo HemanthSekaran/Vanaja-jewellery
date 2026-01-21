@@ -232,6 +232,22 @@ const validateId = [
     handleValidationErrors
 ];
 
+/**
+ * Metal Price Update Validation
+ */
+const validateMetalPriceUpdate = [
+    param('metalName')
+        .trim()
+        .notEmpty().withMessage('Metal name is required')
+        .isLength({ min: 2, max: 100 }).withMessage('Metal name must be between 2 and 100 characters'),
+
+    body('price')
+        .notEmpty().withMessage('Price is required')
+        .isFloat({ min: 0.01 }).withMessage('Price must be a positive number'),
+
+    handleValidationErrors
+];
+
 module.exports = {
     validateRegister,
     validateLogin,
@@ -239,5 +255,6 @@ module.exports = {
     validateProduct,
     validateProductUpdate,
     validateUpdateProfile,
-    validateId
+    validateId,
+    validateMetalPriceUpdate
 };
