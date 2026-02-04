@@ -7,11 +7,11 @@
  * Calculate product price with wastage and GST
  * @param {number} jewelWeight - Weight of the jewel in grams (from weight column)
  * @param {number} wastagePercentage - Wastage percentage (from wastage column)
- * @param {number} goldRatePerGram - Gold rate per gram (default: 12000)
+ * @param {number} metalRatePerGram - Metal rate per gram (fetched from metal_prices table)
  * @param {number} gstPercentage - GST percentage (default: 3)
  * @returns {Object} Price breakdown
  */
-const calculatePrice = (jewelWeight, wastagePercentage, goldRatePerGram = 12000, gstPercentage = 3) => {
+const calculatePrice = (jewelWeight, wastagePercentage, metalRatePerGram = 7000, gstPercentage = 3) => {
     // Validate inputs
     if (!jewelWeight || jewelWeight <= 0) {
         return null;
@@ -20,7 +20,7 @@ const calculatePrice = (jewelWeight, wastagePercentage, goldRatePerGram = 12000,
     // Convert to numbers and handle edge cases
     const weight = parseFloat(jewelWeight);
     const wastage = parseInt(wastagePercentage) || 0;
-    const goldRate = parseFloat(goldRatePerGram) || 12000;
+    const metalRate = parseFloat(metalRatePerGram) || 7000;
     const gstRate = parseFloat(gstPercentage) || 3;
 
     // Calculate wastage weight
@@ -29,11 +29,11 @@ const calculatePrice = (jewelWeight, wastagePercentage, goldRatePerGram = 12000,
     // Calculate total weight
     const totalWeight = weight + wastageWeight;
 
-    // Calculate metal value (jewel weight * gold rate per gram, before wastage)
-    const metalValue = weight * goldRate;
+    // Calculate metal value (jewel weight * metal rate per gram, before wastage)
+    const metalValue = weight * metalRate;
 
     // Calculate base price (before GST)
-    const basePrice = totalWeight * goldRate;
+    const basePrice = totalWeight * metalRate;
 
     // Calculate GST amount
     const gstAmount = (basePrice * gstRate) / 100;
@@ -46,7 +46,7 @@ const calculatePrice = (jewelWeight, wastagePercentage, goldRatePerGram = 12000,
         wastagePercentage: wastage,
         wastageWeight: parseFloat(wastageWeight.toFixed(3)),
         totalWeight: parseFloat(totalWeight.toFixed(3)),
-        goldRatePerGram: goldRate,
+        metalRatePerGram: metalRate,
         metalValue: parseFloat(metalValue.toFixed(2)),
         basePrice: parseFloat(basePrice.toFixed(2)),
         gstPercentage: gstRate,
@@ -58,11 +58,11 @@ const calculatePrice = (jewelWeight, wastagePercentage, goldRatePerGram = 12000,
 /**
  * Add price calculation to product object
  * @param {Object} product - Product object from database
- * @param {number} goldRatePerGram - Gold rate per gram
+ * @param {number} metalRatePerGram - Metal rate per gram (from metal_prices table)
  * @param {number} gstPercentage - GST percentage
  * @returns {Object} Product with price calculation
  */
-const addPriceToProduct = (product, goldRatePerGram, gstPercentage) => {
+const addPriceToProduct = (product, metalRatePerGram, gstPercentage) => {
     if (!product) {
         return product;
     }
@@ -71,7 +71,7 @@ const addPriceToProduct = (product, goldRatePerGram, gstPercentage) => {
     const priceCalculation = calculatePrice(
         product.weight,
         product.wastage,
-        goldRatePerGram,
+        metalRatePerGram,
         gstPercentage
     );
 
@@ -85,16 +85,16 @@ const addPriceToProduct = (product, goldRatePerGram, gstPercentage) => {
 /**
  * Add price calculation to array of products
  * @param {Array} products - Array of product objects
- * @param {number} goldRatePerGram - Gold rate per gram
+ * @param {number} metalRatePerGram - Metal rate per gram (from metal_prices table)
  * @param {number} gstPercentage - GST percentage
  * @returns {Array} Products with price calculations
  */
-const addPriceToProducts = (products, goldRatePerGram, gstPercentage) => {
+const addPriceToProducts = (products, metalRatePerGram, gstPercentage) => {
     if (!Array.isArray(products)) {
         return products;
     }
 
-    return products.map(product => addPriceToProduct(product, goldRatePerGram, gstPercentage));
+    return products.map(product => addPriceToProduct(product, metalRatePerGram, gstPercentage));
 };
 
 module.exports = {

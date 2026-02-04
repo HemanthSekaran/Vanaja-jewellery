@@ -99,14 +99,9 @@ const validateProduct = [
         .optional()
         .isFloat({ min: 0 }).withMessage('Weight must be a non-negative number'),
 
-    body('wastage')
-        .notEmpty().withMessage('Wastage is required')
-        .isInt({ min: 0 }).withMessage('Wastage must be a non-negative integer'),
-
-    body('category')
-        .trim()
-        .notEmpty().withMessage('Category is required')
-        .isLength({ min: 2, max: 100 }).withMessage('Category must be between 2 and 100 characters'),
+    body('waste_id')
+        .notEmpty().withMessage('Waste ID is required')
+        .isInt({ min: 1 }).withMessage('Waste ID must be a positive integer'),
 
     body('description')
         .optional()
@@ -133,14 +128,9 @@ const validateProductUpdate = [
         .optional()
         .isFloat({ min: 0 }).withMessage('Weight must be a non-negative number'),
 
-    body('wastage')
+    body('waste_id')
         .optional()
-        .isInt({ min: 0 }).withMessage('Wastage must be a non-negative integer'),
-
-    body('category')
-        .optional()
-        .trim()
-        .isLength({ min: 2, max: 100 }).withMessage('Category must be between 2 and 100 characters'),
+        .isInt({ min: 1 }).withMessage('Waste ID must be a positive integer'),
 
     body('description')
         .optional()
@@ -248,6 +238,38 @@ const validateMetalPriceUpdate = [
     handleValidationErrors
 ];
 
+/**
+ * Wastage Validation
+ */
+const validateWastage = [
+    body('jewel_type')
+        .trim()
+        .notEmpty().withMessage('Jewel type is required')
+        .isLength({ min: 2, max: 50 }).withMessage('Jewel type must be between 2 and 50 characters'),
+
+    body('wastage')
+        .notEmpty().withMessage('Wastage is required')
+        .isFloat({ min: 0, max: 100 }).withMessage('Wastage must be a number between 0 and 100'),
+
+    handleValidationErrors
+];
+
+/**
+ * Wastage Update Validation (all fields optional)
+ */
+const validateWastageUpdate = [
+    body('jewel_type')
+        .optional()
+        .trim()
+        .isLength({ min: 2, max: 50 }).withMessage('Jewel type must be between 2 and 50 characters'),
+
+    body('wastage')
+        .optional()
+        .isFloat({ min: 0, max: 100 }).withMessage('Wastage must be a number between 0 and 100'),
+
+    handleValidationErrors
+];
+
 module.exports = {
     validateRegister,
     validateLogin,
@@ -256,5 +278,7 @@ module.exports = {
     validateProductUpdate,
     validateUpdateProfile,
     validateId,
-    validateMetalPriceUpdate
+    validateMetalPriceUpdate,
+    validateWastage,
+    validateWastageUpdate
 };

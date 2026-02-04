@@ -10,6 +10,7 @@ const { deleteFile } = require('../middleware/upload');
 const logger = require('../utils/logger');
 const path = require('path');
 const { addPriceToProducts, addPriceToProduct } = require('../utils/priceCalculator');
+const { fetchMetalPrices, getMetalPriceForProduct, getGSTPercentage } = require('../utils/metalPriceHelper');
 
 /**
  * Helper function to parse images from JSON string
@@ -51,8 +52,11 @@ const getAllProducts = async (req, res, next) => {
             'weight': 'weight'
         };
 
-        // Build query
-        let sql = 'SELECT * FROM products WHERE 1=1';
+        // Build query with JOIN to wastage table
+        let sql = `SELECT p.*, w.jewel_type, w.wastage 
+                   FROM products p 
+                   LEFT JOIN wastage w ON p.waste_id = w.waste_id 
+                   WHERE 1=1`;
         const params = [];
 
         // Apply filter only if filterType, filterValue exist and filterValue is not 'All'
@@ -63,12 +67,12 @@ const getAllProducts = async (req, res, next) => {
                 if (filterType === 'weight' && filterValue.includes('-')) {
                     const [minWeight, maxWeight] = filterValue.split('-').map(v => parseFloat(v.trim()));
                     if (!isNaN(minWeight) && !isNaN(maxWeight)) {
-                        sql += ` AND CAST(${columnName} AS DECIMAL(10,2)) BETWEEN ? AND ?`;
+                        sql += ` AND CAST(p.${columnName} AS DECIMAL(10,2)) BETWEEN ? AND ?`;
                         params.push(minWeight, maxWeight);
                     }
                 } else {
                     // Exact match for other filters
-                    sql += ` AND ${columnName} = ?`;
+                    sql += ` AND p.${columnName} = ?`;
                     params.push(filterValue);
                 }
             }
@@ -76,18 +80,21 @@ const getAllProducts = async (req, res, next) => {
 
         // Apply availability filter if provided and not 'All'
         if (availability && availability.toUpperCase() !== 'ALL') {
-            sql += ' AND availability = ?';
+            sql += ' AND p.availability = ?';
             params.push(availability);
         }
 
-        sql += ' ORDER BY created_at DESC LIMIT ? OFFSET ?';
+        sql += ' ORDER BY p.created_at DESC LIMIT ? OFFSET ?';
         params.push(queryLimit, offset);
 
         // Get products
         const products = await query(sql, params);
 
         // Get total count with same filters
-        let countSql = 'SELECT COUNT(*) as total FROM products WHERE 1=1';
+        let countSql = `SELECT COUNT(*) as total 
+                        FROM products p 
+                        LEFT JOIN wastage w ON p.waste_id = w.waste_id 
+                        WHERE 1=1`;
         const countParams = [];
 
         // Apply same filters for count
@@ -98,28 +105,28 @@ const getAllProducts = async (req, res, next) => {
                 if (filterType === 'weight' && filterValue.includes('-')) {
                     const [minWeight, maxWeight] = filterValue.split('-').map(v => parseFloat(v.trim()));
                     if (!isNaN(minWeight) && !isNaN(maxWeight)) {
-                        countSql += ` AND CAST(${columnName} AS DECIMAL(10,2)) BETWEEN ? AND ?`;
+                        countSql += ` AND CAST(p.${columnName} AS DECIMAL(10,2)) BETWEEN ? AND ?`;
                         countParams.push(minWeight, maxWeight);
                     }
                 } else {
                     // Exact match for other filters
-                    countSql += ` AND ${columnName} = ?`;
+                    countSql += ` AND p.${columnName} = ?`;
                     countParams.push(filterValue);
                 }
             }
         }
 
         if (availability && availability.toUpperCase() !== 'ALL') {
-            countSql += ' AND availability = ?';
+            countSql += ' AND p.availability = ?';
             countParams.push(availability);
         }
 
         const countResult = await query(countSql, countParams);
         const total = countResult[0].total;
 
-        // Get pricing configuration from environment variables
-        const goldRatePerGram = parseFloat(process.env.GOLD_RATE_PER_GRAM) || 12000;
-        const gstPercentage = parseFloat(process.env.GST_PERCENTAGE) || 3;
+        // Fetch metal prices from database
+        const metalPriceMap = await fetchMetalPrices();
+        const gstPercentage = getGSTPercentage();
 
         // Parse images and add price calculation to all products
         const productsWithImagesAndPrice = products.map(product => {
@@ -127,7 +134,9 @@ const getAllProducts = async (req, res, next) => {
                 ...product,
                 images: parseImages(product.image)
             };
-            return addPriceToProduct(productWithImages, goldRatePerGram, gstPercentage);
+            // Get metal price for this specific product
+            const metalRate = getMetalPriceForProduct(productWithImages, metalPriceMap);
+            return addPriceToProduct(productWithImages, metalRate, gstPercentage);
         });
 
         const response = formatPaginatedResponse(productsWithImagesAndPrice, page, limit, total);
@@ -144,7 +153,10 @@ const getProduct = async (req, res, next) => {
         const productId = req.params.id;
 
         const products = await query(
-            'SELECT * FROM products WHERE id = ?',
+            `SELECT p.*, w.jewel_type, w.wastage 
+             FROM products p 
+             LEFT JOIN wastage w ON p.waste_id = w.waste_id 
+             WHERE p.id = ?`,
             [productId]
         );
 
@@ -152,16 +164,18 @@ const getProduct = async (req, res, next) => {
             return next(new AppError('Product not found', 404));
         }
 
-        // Get pricing configuration from environment variables
-        const goldRatePerGram = parseFloat(process.env.GOLD_RATE_PER_GRAM) || 12000;
-        const gstPercentage = parseFloat(process.env.GST_PERCENTAGE) || 3;
+        // Fetch metal prices from database
+        const metalPriceMap = await fetchMetalPrices();
+        const gstPercentage = getGSTPercentage();
 
         // Parse images and add price calculation to product
         const productWithImages = {
             ...products[0],
             images: parseImages(products[0].image)
         };
-        const productWithPrice = addPriceToProduct(productWithImages, goldRatePerGram, gstPercentage);
+        // Get metal price for this specific product
+        const metalRate = getMetalPriceForProduct(productWithImages, metalPriceMap);
+        const productWithPrice = addPriceToProduct(productWithImages, metalRate, gstPercentage);
 
         sendSuccess(res, { product: productWithPrice }, 'Product retrieved successfully');
     } catch (error) {
@@ -174,8 +188,7 @@ const createProduct = async (req, res, next) => {
     try {
         const {
             name,
-            wastage,
-            category,
+            waste_id,
             metal,
             metal_purity,
             weight,
@@ -189,12 +202,11 @@ const createProduct = async (req, res, next) => {
         // Insert product (store actual values or NULL, never 'All')
         const result = await query(
             `INSERT INTO products
-            (name, wastage, category, metal, metal_purity, weight, description, availability, image)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            (name, waste_id, metal, metal_purity, weight, description, availability, image)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
             [
                 name,
-                wastage,
-                category,
+                waste_id,
                 metal || null,
                 metal_purity || null,
                 weight || null,
@@ -204,20 +216,24 @@ const createProduct = async (req, res, next) => {
             ]
         );
 
-        // Get created product
+        // Get created product with wastage data
         const products = await query(
-            'SELECT * FROM products WHERE id = ?',
+            `SELECT p.*, w.jewel_type, w.wastage 
+             FROM products p 
+             LEFT JOIN wastage w ON p.waste_id = w.waste_id 
+             WHERE p.id = ?`,
             [result.insertId]
         );
 
         logger.info(`Product created: ${name} by admin ${req.user.email}`);
 
-        // Get pricing configuration from environment variables
-        const goldRatePerGram = parseFloat(process.env.GOLD_RATE_PER_GRAM) || 12000;
-        const gstPercentage = parseFloat(process.env.GST_PERCENTAGE) || 3;
+        // Fetch metal prices from database
+        const metalPriceMap = await fetchMetalPrices();
+        const gstPercentage = getGSTPercentage();
 
-        // Add price calculation to product
-        const productWithPrice = addPriceToProduct(products[0], goldRatePerGram, gstPercentage);
+        // Get metal price for this specific product
+        const metalRate = getMetalPriceForProduct(products[0], metalPriceMap);
+        const productWithPrice = addPriceToProduct(products[0], metalRate, gstPercentage);
 
         sendSuccess(
             res,
@@ -241,8 +257,7 @@ const updateProduct = async (req, res, next) => {
         const productId = req.params.id;
         const {
             name,
-            wastage,
-            category,
+            waste_id,
             metal,
             metal_purity,
             weight,
@@ -272,13 +287,9 @@ const updateProduct = async (req, res, next) => {
             updates.push('name = ?');
             params.push(name);
         }
-        if (wastage !== undefined) {
-            updates.push('wastage = ?');
-            params.push(wastage);
-        }
-        if (category !== undefined) {
-            updates.push('category = ?');
-            params.push(category);
+        if (waste_id !== undefined) {
+            updates.push('waste_id = ?');
+            params.push(waste_id);
         }
         if (metal !== undefined) {
             updates.push('metal = ?');
@@ -344,20 +355,24 @@ const updateProduct = async (req, res, next) => {
             params
         );
 
-        // Get updated product
+        // Get updated product with wastage data
         const products = await query(
-            'SELECT * FROM products WHERE id = ?',
+            `SELECT p.*, w.jewel_type, w.wastage 
+             FROM products p 
+             LEFT JOIN wastage w ON p.waste_id = w.waste_id 
+             WHERE p.id = ?`,
             [productId]
         );
 
         logger.info(`Product ${productId} updated by admin ${req.user.email}`);
 
-        // Get pricing configuration from environment variables
-        const goldRatePerGram = parseFloat(process.env.GOLD_RATE_PER_GRAM) || 12000;
-        const gstPercentage = parseFloat(process.env.GST_PERCENTAGE) || 3;
+        // Fetch metal prices from database
+        const metalPriceMap = await fetchMetalPrices();
+        const gstPercentage = getGSTPercentage();
 
-        // Add price calculation to product
-        const productWithPrice = addPriceToProduct(products[0], goldRatePerGram, gstPercentage);
+        // Get metal price for this specific product
+        const metalRate = getMetalPriceForProduct(products[0], metalPriceMap);
+        const productWithPrice = addPriceToProduct(products[0], metalRate, gstPercentage);
 
         sendSuccess(res, { product: productWithPrice }, 'Product updated successfully');
     } catch (error) {
@@ -416,10 +431,10 @@ const deleteProduct = async (req, res, next) => {
 const getCategories = async (req, res, next) => {
     try {
         const categories = await query(
-            'SELECT DISTINCT category FROM products ORDER BY category'
+            'SELECT DISTINCT jewel_type FROM wastage ORDER BY jewel_type'
         );
 
-        const categoryList = categories.map(c => c.category);
+        const categoryList = categories.map(c => c.jewel_type);
 
         sendSuccess(res, { categories: categoryList }, 'Categories retrieved successfully');
     } catch (error) {
@@ -439,22 +454,28 @@ const getTopSellingProducts = async (req, res, next) => {
         const limit = parseInt(req.query.limit) || 10;
         const { limit: queryLimit, offset } = getPagination(page, limit);
 
-        const sql = 'SELECT * FROM products WHERE top_selling = 1 AND availability = "YES" ORDER BY created_at DESC LIMIT ? OFFSET ?';
+        const sql = `SELECT p.*, w.jewel_type, w.wastage 
+                     FROM products p 
+                     LEFT JOIN wastage w ON p.waste_id = w.waste_id 
+                     WHERE p.top_selling = 1 AND p.availability = "YES" 
+                     ORDER BY p.created_at DESC LIMIT ? OFFSET ?`;
         const products = await query(sql, [queryLimit, offset]);
 
         const countResult = await query('SELECT COUNT(*) as total FROM products WHERE top_selling = 1 AND availability = "YES"');
         const total = countResult[0].total;
 
-        // Get pricing configuration from environment variables
-        const goldRatePerGram = parseFloat(process.env.GOLD_RATE_PER_GRAM) || 12000;
-        const gstPercentage = parseFloat(process.env.GST_PERCENTAGE) || 3;
+        // Fetch metal prices from database
+        const metalPriceMap = await fetchMetalPrices();
+        const gstPercentage = getGSTPercentage();
 
         const productsWithImagesAndPrice = products.map(product => {
             const productWithImages = {
                 ...product,
                 images: parseImages(product.image)
             };
-            return addPriceToProduct(productWithImages, goldRatePerGram, gstPercentage);
+            // Get metal price for this specific product
+            const metalRate = getMetalPriceForProduct(productWithImages, metalPriceMap);
+            return addPriceToProduct(productWithImages, metalRate, gstPercentage);
         });
 
         const response = formatPaginatedResponse(productsWithImagesAndPrice, page, limit, total);
@@ -477,22 +498,28 @@ const getFeaturedProducts = async (req, res, next) => {
         const limit = parseInt(req.query.limit) || 10;
         const { limit: queryLimit, offset } = getPagination(page, limit);
 
-        const sql = 'SELECT * FROM products WHERE featured = 1 AND availability = "YES" ORDER BY created_at DESC LIMIT ? OFFSET ?';
+        const sql = `SELECT p.*, w.jewel_type, w.wastage 
+                     FROM products p 
+                     LEFT JOIN wastage w ON p.waste_id = w.waste_id 
+                     WHERE p.featured = 1 AND p.availability = "YES" 
+                     ORDER BY p.created_at DESC LIMIT ? OFFSET ?`;
         const products = await query(sql, [queryLimit, offset]);
 
         const countResult = await query('SELECT COUNT(*) as total FROM products WHERE featured = 1 AND availability = "YES"');
         const total = countResult[0].total;
 
-        // Get pricing configuration from environment variables
-        const goldRatePerGram = parseFloat(process.env.GOLD_RATE_PER_GRAM) || 12000;
-        const gstPercentage = parseFloat(process.env.GST_PERCENTAGE) || 3;
+        // Fetch metal prices from database
+        const metalPriceMap = await fetchMetalPrices();
+        const gstPercentage = getGSTPercentage();
 
         const productsWithImagesAndPrice = products.map(product => {
             const productWithImages = {
                 ...product,
                 images: parseImages(product.image)
             };
-            return addPriceToProduct(productWithImages, goldRatePerGram, gstPercentage);
+            // Get metal price for this specific product
+            const metalRate = getMetalPriceForProduct(productWithImages, metalPriceMap);
+            return addPriceToProduct(productWithImages, metalRate, gstPercentage);
         });
 
         const response = formatPaginatedResponse(productsWithImagesAndPrice, page, limit, total);
@@ -555,24 +582,26 @@ const getUserCartProducts = async (req, res, next) => {
         const placeholders = cartProductIds.map(() => '?').join(',');
 
         const products = await query(
-            `SELECT * FROM products WHERE id IN (${placeholders})`,
+            `SELECT p.*, w.jewel_type, w.wastage 
+             FROM products p 
+             LEFT JOIN wastage w ON p.waste_id = w.waste_id 
+             WHERE p.id IN (${placeholders})`,
             cartProductIds
         );
 
-        // Get pricing configuration from environment variables
-        const goldRatePerGram = parseFloat(process.env.GOLD_RATE_PER_GRAM) || 12000;
-        const gstPercentage = parseFloat(process.env.GST_PERCENTAGE) || 3;
+        // Fetch metal prices from database
+        const metalPriceMap = await fetchMetalPrices();
+        const gstPercentage = getGSTPercentage();
 
         // Attach images + price
         const productsWithImagesAndPrice = products.map(product => {
-            return addPriceToProduct(
-                {
-                    ...product,
-                    images: parseImages(product.image)
-                },
-                goldRatePerGram,
-                gstPercentage
-            );
+            const productWithImages = {
+                ...product,
+                images: parseImages(product.image)
+            };
+            // Get metal price for this specific product
+            const metalRate = getMetalPriceForProduct(productWithImages, metalPriceMap);
+            return addPriceToProduct(productWithImages, metalRate, gstPercentage);
         });
 
         return sendSuccess(
@@ -633,13 +662,16 @@ const getUserWishlistProducts = async (req, res, next) => {
         // Get products from wishlist
         const placeholders = wishlistProductIds.map(() => '?').join(',');
         const products = await query(
-            `SELECT * FROM products WHERE id IN (${placeholders})`,
+            `SELECT p.*, w.jewel_type, w.wastage 
+             FROM products p 
+             LEFT JOIN wastage w ON p.waste_id = w.waste_id 
+             WHERE p.id IN (${placeholders})`,
             wishlistProductIds
         );
 
-        // Get pricing configuration from environment variables
-        const goldRatePerGram = parseFloat(process.env.GOLD_RATE_PER_GRAM) || 12000;
-        const gstPercentage = parseFloat(process.env.GST_PERCENTAGE) || 3;
+        // Fetch metal prices from database
+        const metalPriceMap = await fetchMetalPrices();
+        const gstPercentage = getGSTPercentage();
 
         // Parse images and add price calculation to all products
         const productsWithImagesAndPrice = products.map(product => {
@@ -647,7 +679,9 @@ const getUserWishlistProducts = async (req, res, next) => {
                 ...product,
                 images: parseImages(product.image)
             };
-            return addPriceToProduct(productWithImages, goldRatePerGram, gstPercentage);
+            // Get metal price for this specific product
+            const metalRate = getMetalPriceForProduct(productWithImages, metalPriceMap);
+            return addPriceToProduct(productWithImages, metalRate, gstPercentage);
         });
 
         sendSuccess(
