@@ -4,12 +4,15 @@ import { ApiService } from './api.service';
 import { ProductService } from './product.service';
 import { firstValueFrom } from 'rxjs';
 
+import { TokenService } from './token.service';
+
 @Injectable({
     providedIn: 'root'
 })
 export class WishlistService {
     private apiService = inject(ApiService);
     private productService = inject(ProductService);
+    private tokenService = inject(TokenService);
     private wishlistItems = signal<WishlistItem[]>([]);
 
     public readonly items = computed(() => this.wishlistItems());
@@ -20,6 +23,9 @@ export class WishlistService {
     }
 
     private async loadInitialWishlist() {
+        const token = await this.tokenService.getToken();
+        if (!token) return;
+
         try {
             const res = await this.apiService.getWishlist();
             const products = res.data?.data?.products || [];

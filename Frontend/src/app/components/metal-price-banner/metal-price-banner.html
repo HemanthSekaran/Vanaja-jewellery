@@ -1,0 +1,72 @@
+<div class="metal-price-banner">
+    <div class="container">
+        @if (metalPriceService.isLoading()) {
+        <div class="loading">
+            <span class="spinner"></span>
+            <span>Loading metal prices...</span>
+        </div>
+        } @else if (metalPriceService.error()) {
+        <div class="error">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10" />
+                <line x1="12" x2="12" y1="8" y2="12" />
+                <line x1="12" x2="12.01" y1="16" y2="16" />
+            </svg>
+            <span>{{ metalPriceService.error() }}</span>
+        </div>
+        } @else {
+        <div class="price-list">
+            @for (metal of metalPriceService.metalPrices(); track metal.metal_name) {
+            <div class="price-item">
+                <div class="metal-info">
+                    <span class="metal-name">{{ metal.metal_name }}</span>
+                </div>
+
+                @if (editingMetal() === metal.metal_name) {
+                <div class="edit-form">
+                    <div class="input-group">
+                        <span class="currency-symbol">₹</span>
+                        <input type="number" [(ngModel)]="editPrice" class="price-input" step="0.01" min="0"
+                            placeholder="Enter price" (keyup.enter)="saveEdit(metal.metal_name)"
+                            (keyup.escape)="cancelEdit()" />
+                        <span class="unit">/gram</span>
+                    </div>
+                    <div class="action-buttons">
+                        <button class="btn-save" (click)="saveEdit(metal.metal_name)" title="Save">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <polyline points="20 6 9 17 4 12" />
+                            </svg>
+                        </button>
+                        <button class="btn-cancel" (click)="cancelEdit()" title="Cancel">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <line x1="18" x2="6" y1="6" y2="18" />
+                                <line x1="6" x2="18" y1="6" y2="18" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                } @else {
+                <div class="price-display">
+                    <span class="price">{{ formatPrice(metal.price) }}</span>
+                    <span class="unit">/gram</span>
+                    @if (isAdmin()) {
+                    <button class="btn-edit" (click)="startEdit(metal.metal_name, metal.price)" title="Edit price">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z" />
+                        </svg>
+                    </button>
+                    }
+                </div>
+                }
+            </div>
+            }
+        </div>
+        }
+    </div>
+</div>

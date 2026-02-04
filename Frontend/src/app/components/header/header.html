@@ -32,7 +32,7 @@
                 class="transition-colors hover:text-[#FFF8DC]">About</a>
             <a routerLink="/contact" routerLinkActive="text-[#FFF8DC]"
                 class="transition-colors hover:text-[#FFF8DC]">Contact</a>
-            <a routerLink="/customization" routerLinkActive="text-[#FFF8DC]"
+            <a [routerLink]="customizationLink" routerLinkActive="text-[#FFF8DC]"
                 class="transition-colors hover:text-[#FFF8DC]">customization</a>
         </nav>
 
@@ -141,3 +141,6 @@
     </div>
     <!-- Mobile Menu -->
 </header>
+
+<!-- Metal Price Banner -->
+<app-metal-price-banner></app-metal-price-banner>

@@ -80,4 +80,8 @@ export class ApiService {
     createOrder = (data: any) => axios.post("/orders", data);
     getOrders = () => axios.get("/orders");
     getOrderById = (id: string) => axios.get(`/orders/${id}`);
+
+    // Metal Prices
+    getMetalPrices = () => axios.get("/metal-prices");
+    updateMetalPrice = (metalName: string, price: number) => axios.put(`/metal-prices/${metalName}`, { price });
 }

@@ -1,0 +1,251 @@
+.metal-price-banner {
+    background: #FFF8DC;
+    /* Beige/Cornsilk to match theme */
+    border-bottom: 2px solid #8B0000;
+    padding: 0.75rem 0;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
+/* Loading State */
+.loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    color: #8B0000;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.spinner {
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(139, 0, 0, 0.2);
+    border-top-color: #8B0000;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Error State */
+.error {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    color: #ef4444;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+/* Price List */
+.price-list {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 2rem;
+    flex-wrap: wrap;
+}
+
+.price-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.5rem 1.25rem;
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 50px;
+    /* Pill shape */
+    border: 1px solid rgba(139, 0, 0, 0.15);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+}
+
+.price-item:hover {
+    background: #fff;
+    border-color: #8B0000;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px -1px rgba(139, 0, 0, 0.1);
+}
+
+/* Metal Info */
+.metal-info {
+    display: flex;
+    align-items: center;
+}
+
+.metal-name {
+    font-weight: 700;
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #8B0000;
+    /* Deep Maroon */
+}
+
+/* Price Display */
+.price-display {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.price {
+    font-size: 1.125rem;
+    font-weight: 800;
+    color: #D4AF37;
+    /* Gold color for price */
+    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
+}
+
+.unit {
+    font-size: 0.75rem;
+    color: #666;
+    font-weight: 500;
+}
+
+/* Edit Button */
+.btn-edit {
+    padding: 0.375rem;
+    background: rgba(139, 0, 0, 0.05);
+    border: 1px solid rgba(139, 0, 0, 0.1);
+    border-radius: 50%;
+    color: #8B0000;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 0.5rem;
+}
+
+.btn-edit:hover {
+    background: #8B0000;
+    color: #FFF;
+    border-color: #8B0000;
+}
+
+/* Edit Form */
+.edit-form {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.input-group {
+    display: flex;
+    align-items: center;
+    background: #FFF;
+    border: 1px solid #8B0000;
+    border-radius: 6px;
+    padding: 0.25rem 0.5rem;
+}
+
+.currency-symbol {
+    color: #8B0000;
+    font-weight: 600;
+    margin-right: 0.25rem;
+}
+
+.price-input {
+    background: transparent;
+    border: none;
+    outline: none;
+    color: #333;
+    font-size: 0.875rem;
+    font-weight: 600;
+    width: 100px;
+    padding: 0.25rem;
+}
+
+.price-input::placeholder {
+    color: #999;
+}
+
+/* Remove number input arrows */
+.price-input::-webkit-outer-spin-button,
+.price-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.price-input[type=number] {
+    appearance: textfield;
+    -moz-appearance: textfield;
+}
+
+/* Action Buttons */
+.action-buttons {
+    display: flex;
+    gap: 0.25rem;
+}
+
+.btn-save,
+.btn-cancel {
+    padding: 0.375rem;
+    border-radius: 4px;
+    border: 1px solid;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-save {
+    background: rgba(34, 197, 94, 0.1);
+    border-color: rgba(34, 197, 94, 0.3);
+    color: #15803d;
+    /* darker green */
+}
+
+.btn-save:hover {
+    background: #15803d;
+    color: white;
+    border-color: #15803d;
+}
+
+.btn-cancel {
+    background: rgba(239, 68, 68, 0.1);
+    border-color: rgba(239, 68, 68, 0.3);
+    color: #b91c1c;
+    /* darker red */
+}
+
+.btn-cancel:hover {
+    background: #b91c1c;
+    color: white;
+    border-color: #b91c1c;
+}
+
+/* Responsive Design */
+@media (max-width: 640px) {
+    .metal-price-banner {
+        padding: 0.5rem 0;
+    }
+
+    .price-list {
+        gap: 0.75rem;
+    }
+
+    .price-item {
+        width: 100%;
+        justify-content: space-between;
+        border-radius: 8px;
+        /* Less round on mobile */
+    }
+
+    .price {
+        font-size: 1rem;
+    }
+}

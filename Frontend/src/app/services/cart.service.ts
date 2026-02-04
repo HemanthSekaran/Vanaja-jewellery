@@ -4,12 +4,15 @@ import { ApiService } from './api.service';
 import { ProductService } from './product.service';
 import { firstValueFrom } from 'rxjs';
 
+import { TokenService } from './token.service';
+
 @Injectable({
     providedIn: 'root'
 })
 export class CartService {
     private apiService = inject(ApiService);
     private productService = inject(ProductService);
+    private tokenService = inject(TokenService);
     private cartItems = signal<CartItem[]>([]);
 
     public readonly items = computed(() => this.cartItems());
@@ -21,6 +24,9 @@ export class CartService {
     }
 
     private async loadInitialCart() {
+        const token = await this.tokenService.getToken();
+        if (!token) return;
+
         try {
             const res = await this.apiService.getCart();
             const products = res.data?.data?.products || [];

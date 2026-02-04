@@ -4,11 +4,12 @@ import { CartService } from '../../services/cart.service';
 import { WishlistService } from '../../services/wishlist.service';
 import { LayoutService } from '../../services/layout.service';
 import { AuthService } from '../../services/auth.service';
+import { MetalPriceBanner } from '../metal-price-banner/metal-price-banner';
 
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [RouterLink, RouterLinkActive],
+  imports: [RouterLink, RouterLinkActive, MetalPriceBanner],
   templateUrl: './header.html',
   styleUrl: './header.css',
 })
@@ -43,5 +44,10 @@ export class Header {
     const user = this.authService.currentUser();
     if (!user) return '';
     return user.email || (user as any).user?.email || '';
+  }
+
+  get customizationLink(): string {
+    const user = this.authService.currentUser();
+    return user?.role === 'admin' ? '/customization/list' : '/customization';
   }
 }
