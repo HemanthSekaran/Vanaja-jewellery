@@ -19,7 +19,7 @@ const calculatePrice = (jewelWeight, wastagePercentage, metalRatePerGram = 7000,
 
     // Convert to numbers and handle edge cases
     const weight = parseFloat(jewelWeight);
-    const wastage = parseInt(wastagePercentage) || 0;
+    const wastage = parseFloat(wastagePercentage) || 0;
     const metalRate = parseFloat(metalRatePerGram) || 7000;
     const gstRate = parseFloat(gstPercentage) || 3;
 
@@ -31,6 +31,9 @@ const calculatePrice = (jewelWeight, wastagePercentage, metalRatePerGram = 7000,
 
     // Calculate metal value (jewel weight * metal rate per gram, before wastage)
     const metalValue = weight * metalRate;
+
+    // Calculate wastage value (wastage weight * metal rate per gram)
+    const wastageValue = wastageWeight * metalRate;
 
     // Calculate base price (before GST)
     const basePrice = totalWeight * metalRate;
@@ -45,6 +48,7 @@ const calculatePrice = (jewelWeight, wastagePercentage, metalRatePerGram = 7000,
         jewelWeight: parseFloat(weight.toFixed(3)),
         wastagePercentage: wastage,
         wastageWeight: parseFloat(wastageWeight.toFixed(3)),
+        wastageValue: parseFloat(wastageValue.toFixed(2)),
         totalWeight: parseFloat(totalWeight.toFixed(3)),
         metalRatePerGram: metalRate,
         metalValue: parseFloat(metalValue.toFixed(2)),

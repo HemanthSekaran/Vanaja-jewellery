@@ -41,7 +41,13 @@ const constructMetalName = (metal, metalPurity) => {
 
     // Normalize and construct composite name
     const normalizedMetal = metal.toString().toLowerCase().trim();
-    const normalizedPurity = metalPurity.toString().toLowerCase().trim();
+    let normalizedPurity = metalPurity.toString().toLowerCase().trim();
+
+    // Add 'k' suffix if purity is numeric only (e.g., '22' -> '22k', '18' -> '18k')
+    // This handles cases where database has '22' but metal_prices has '22k'
+    if (/^\d+$/.test(normalizedPurity)) {
+        normalizedPurity = normalizedPurity + 'k';
+    }
 
     return `${normalizedMetal}-${normalizedPurity}`;
 };
