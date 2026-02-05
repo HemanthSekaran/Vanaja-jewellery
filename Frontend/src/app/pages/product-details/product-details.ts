@@ -44,16 +44,16 @@ export class ProductDetails implements OnInit {
               console.log('💰 Using backend price calculation:', calc);
 
               this.priceDetails = {
-                metalRate: calc.goldRatePerGram || 0,
+                metalRate: calc.metalRatePerGram || 0,
                 metalValue: calc.metalValue || 0,
-                wastageAmount: calc.wastageWeight * calc.goldRatePerGram || 0,
-                makingCharges: 0, // Not provided by backend
+                wastageAmount: calc.wastageValue || 0,
+                makingCharges: 0,
                 stoneCharges: 0,
                 taxableValue: calc.basePrice || 0,
                 gstAmount: calc.gstAmount || 0,
                 finalPrice: calc.finalPrice || 0
               };
-            } 
+            }
 
             this.loading = false;
             this.cd.detectChanges();

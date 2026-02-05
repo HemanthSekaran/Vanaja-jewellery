@@ -43,10 +43,16 @@ export class AuthService {
 
                 // Fetch fresh profile
                 const response = await this.apiService.getProfile();
+
+                // Handle different response structures
                 let userData = response.data;
-                // Check if wrapped in data property
+                // If it's wrapped in { success: true, data: { user: ... } }
                 if (userData && userData.data) {
                     userData = userData.data;
+                }
+                // If user data is further nested in 'user' key
+                if (userData && userData.user) {
+                    userData = userData.user;
                 }
 
                 this.setCurrentUser(userData);

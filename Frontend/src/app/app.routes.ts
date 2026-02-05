@@ -24,5 +24,6 @@ export const routes: Routes = [
     { path: 'profile', loadComponent: () => import('./pages/profile/profile').then(m => m.Profile) },
     { path: 'admin/product/new', loadComponent: () => import('./pages/admin-product/admin-product').then(m => m.AdminProduct) },
     { path: 'admin/product/edit/:id', loadComponent: () => import('./pages/admin-product/admin-product').then(m => m.AdminProduct) },
+    { path: 'admin/wastage', loadComponent: () => import('./pages/admin/wastage/wastage').then(m => m.WastageComponent) },
     { path: '**', redirectTo: '' }
 ];

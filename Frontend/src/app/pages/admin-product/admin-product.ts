@@ -4,7 +4,9 @@ import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { ProductService } from '../../services/product.service';
 import { ToastService } from '../../services/toast.service';
+import { ApiService } from '../../services/api.service';
 import { Product } from '../../models/product.model';
+import { Wastage } from '../admin/wastage/wastage';
 
 @Component({
   selector: 'app-admin-product',
@@ -25,13 +27,12 @@ import { Product } from '../../models/product.model';
           </div>
           <div class="space-y-2">
             <label class="text-sm font-medium">Category *</label>
-            <select [(ngModel)]="product.category" name="category" required
+            <select [(ngModel)]="product.category" name="category" required (ngModelChange)="onCategoryChange()"
               class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
-              <option value="RINGS">Rings</option>
-              <option value="NECKLACE">Necklaces</option>
-              <option value="EARRINGS">Earrings</option>
-              <option value="BRACELETS">Bracelets</option>
-              <option value="ANTIQUE SET">Antique Set</option>
+              <option value="" disabled>Select Category</option>
+              <option *ngFor="let option of wastageOptions" [value]="option.waste_id">
+                {{ option.jewel_type }}
+              </option>
             </select>
           </div>
         </div>
@@ -42,10 +43,11 @@ import { Product } from '../../models/product.model';
             <input type="number" [(ngModel)]="product.weight" name="weight" required step="0.01"
               class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
           </div>
-          <div class="space-y-2">
+          <!-- Wastage Input Removed as per request -->
+          <div class="space-y-2 hidden">
             <label class="text-sm font-medium">Wastage (%) *</label>
-            <input type="number" [(ngModel)]="product.wastage" name="wastage" required step="0.01"
-              class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
+            <input type="number" [(ngModel)]="product.wastage" name="wastage" required step="0.01" readonly
+              class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 opacity-50">
           </div>
         </div>
 
@@ -138,6 +140,7 @@ import { Product } from '../../models/product.model';
 export class AdminProduct implements OnInit {
   productService = inject(ProductService);
   toastService = inject(ToastService);
+  apiService = inject(ApiService);
   router = inject(Router);
   route = inject(ActivatedRoute);
 
@@ -146,10 +149,12 @@ export class AdminProduct implements OnInit {
 
   imageDetails: { name: string, size: string }[] = [];
   selectedImageFiles: File[] = [];
+  wastageOptions: any[] = []; // Using any to avoid importing Wastage interface if complex, or import it.
 
   cdr = inject(ChangeDetectorRef);
 
-  ngOnInit() {
+  async ngOnInit() {
+    await this.loadWastageOptions(); // Ensure options are loaded first
     const id = this.route.snapshot.paramMap.get('id');
     console.log('AdminProduct: Init with ID:', id);
     if (id) {
@@ -163,6 +168,17 @@ export class AdminProduct implements OnInit {
 
             // Log the product after assignment
             console.log('AdminProduct: Assigned to this.product (in-place):', this.product);
+
+            // Ensure wastage is set correctly if not present or just to be safe
+            // This also validates that the category exists in the options
+            const selectedOption = this.wastageOptions.find(w => w.jewel_type === this.product.category);
+            if (selectedOption) {
+              console.log(`AdminProduct: Matched category ${this.product.category} with wastage option. Wastage: ${selectedOption.wastage}`);
+              // Optional: Sync wastage if needed, though product should have it.
+              // this.product.wastage = parseFloat(selectedOption.wastage); 
+            } else {
+              console.warn(`AdminProduct: Product category '${this.product.category}' not found in wastage options:`, this.wastageOptions);
+            }
 
             if (p.imageMetadata) {
               this.imageDetails = [...p.imageMetadata];
@@ -193,7 +209,7 @@ export class AdminProduct implements OnInit {
       images: [],
       imageMetadata: [],
       description: '',
-      category: 'RINGS',
+      category: '',
       materials: [],
       metalType: [],
       purity: '22K',
@@ -273,6 +289,37 @@ export class AdminProduct implements OnInit {
   onMetalChange() {
     // Reset purity when metal type changes
     this.product.metal_purity = undefined;
+  }
+
+  async loadWastageOptions() {
+    try {
+      console.log("AdminProduct: Loading wastage options...");
+      const response = await this.apiService.getWastages();
+      console.log("AdminProduct: Raw response:", response);
+
+      let data = response.data;
+      if (data && data.data && data.data.wastages) {
+        this.wastageOptions = data.data.wastages;
+      } else if (data && data.wastages) {
+        this.wastageOptions = data.wastages;
+      } else if (data && data.data) {
+        this.wastageOptions = data.data;
+      }
+
+      console.log("AdminProduct: Wastage Options Set:", this.wastageOptions);
+      this.cdr.detectChanges(); // Force UI update
+    } catch (error) {
+      console.error("AdminProduct: Failed to load wastage options", error);
+      this.toastService.show("Failed to load categories", "error");
+    }
+  }
+
+  onCategoryChange() {
+    const selectedOption = this.wastageOptions.find(w => w.jewel_type === this.product.category);
+    if (selectedOption) {
+      this.product.wastage = parseFloat(selectedOption.wastage);
+      console.log(`AdminProduct: Category changed to ${this.product.category}, Wastage set to ${this.product.wastage}`);
+    }
   }
 
   onSubmit() {

@@ -84,4 +84,10 @@ export class ApiService {
     // Metal Prices
     getMetalPrices = () => axios.get("/metal-prices");
     updateMetalPrice = (metalName: string, price: number) => axios.put(`/metal-prices/${metalName}`, { price });
+
+    // Wastage
+    getWastages = () => axios.get("/wastage");
+    createWastage = (data: { jewel_type: string; wastage: string }) => axios.post("/wastage", data);
+    updateWastage = (id: number, data: { jewel_type: string; wastage: string }) => axios.put(`/wastage/${id}`, data);
+    deleteWastage = (id: number) => axios.delete(`/wastage/${id}`);
 }

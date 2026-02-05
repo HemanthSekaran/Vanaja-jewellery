@@ -34,6 +34,10 @@
                 class="transition-colors hover:text-[#FFF8DC]">Contact</a>
             <a [routerLink]="customizationLink" routerLinkActive="text-[#FFF8DC]"
                 class="transition-colors hover:text-[#FFF8DC]">customization</a>
+            @if (authService.currentUser()?.role === 'admin') {
+            <a routerLink="/admin/wastage" routerLinkActive="text-[#FFF8DC]"
+                class="transition-colors hover:text-[#FFF8DC]">Wastage</a>
+            }
         </nav>
 
         <!-- Right Section: Icons -->

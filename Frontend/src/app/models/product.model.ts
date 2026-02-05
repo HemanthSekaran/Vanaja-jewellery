@@ -13,7 +13,7 @@ export interface Product {
   images: string[];
   imageMetadata?: { name: string, size: string }[];
   description: string;
-  category: 'RINGS' | 'NECKLACE' | 'EARRINGS' | 'BRACELETS' | 'ANTIQUE SET';
+  category: string;
   materials: string[];
   metalType: ('Gold' | 'Silver')[];
   weight: number;
