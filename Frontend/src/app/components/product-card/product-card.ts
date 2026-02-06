@@ -39,7 +39,8 @@ export class ProductCard {
         // Handle both wrapped and direct formats
         const userData = parsedUser.user || parsedUser;
         const role = userData?.role;
-        return role === 'admin';
+        console.log('ProductCard: checking session role:', role);
+        return role?.toLowerCase() === 'admin';
       }
     } catch (e) {
       // Silent fail
@@ -48,7 +49,8 @@ export class ProductCard {
     // Fallback: Try signal
     const user = this.authService.currentUser();
     if (user) {
-      return user.role === 'admin';
+      console.log('ProductCard: checking signal role:', user.role);
+      return user.role?.toLowerCase() === 'admin';
     }
 
     return false;

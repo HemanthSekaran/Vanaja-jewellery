@@ -51,7 +51,7 @@
 				<h3 class="font-bold text-lg mb-3">Price Breakdown</h3>
 				<div class="space-y-2 text-sm">
 					<div class="flex justify-between">
-						<span>Metal Rate ({{product.purity}})</span>
+						<span>Metal Rate ({{product.metal}} {{product.metal_purity}})</span>
 						<span>{{priceDetails.metalRate | currency:'INR'}} / g</span>
 					</div>
 					<div class="flex justify-between">
@@ -59,7 +59,7 @@
 						<span>{{priceDetails.metalValue | currency:'INR'}}</span>
 					</div>
 					<div class="flex justify-between">
-						<span>Wastage / VA ({{product.wastagePercentage | percent}})</span>
+						<span>Wastage / VA ({{product.wastagePercentage}})</span>
 						<span>{{priceDetails.wastageAmount | currency:'INR'}}</span>
 					</div>
 

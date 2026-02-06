@@ -284,7 +284,7 @@ export class ProductService {
                     id: productData.id?.toString() || '',
                     // Map generic fields
                     name: productData.name || '',
-                    category: (productData.category || 'RINGS').toUpperCase(),
+                    category: productData.waste_id || productData.category || 'RINGS',
                     description: productData.description || '',
                     // Map weight/grams mismatch
                     weight: productData.weight ? Number(productData.weight) : (productData.grams ? Number(productData.grams) : 0),
@@ -341,7 +341,7 @@ export class ProductService {
         formData.append('weight', productData.weight?.toString() || '0');
         formData.append('grams', productData.weight?.toString() || '0'); // Backend expects grams
         formData.append('wastage', productData.wastage?.toString() || '0');
-        formData.append('category', productData.category || 'RINGS');
+        formData.append('waste_id', productData.category || productData.waste_id);
 
         // Optional fields
         if (productData.metal) {

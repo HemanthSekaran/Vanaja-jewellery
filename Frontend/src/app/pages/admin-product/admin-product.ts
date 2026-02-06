@@ -30,7 +30,7 @@ import { Wastage } from '../admin/wastage/wastage';
             <select [(ngModel)]="product.category" name="category" required (ngModelChange)="onCategoryChange()"
               class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
               <option value="" disabled>Select Category</option>
-              <option *ngFor="let option of wastageOptions" [value]="option.waste_id">
+              <option *ngFor="let option of wastageOptions" [ngValue]="option.waste_id">
                 {{ option.jewel_type }}
               </option>
             </select>
@@ -171,11 +171,18 @@ export class AdminProduct implements OnInit {
 
             // Ensure wastage is set correctly if not present or just to be safe
             // This also validates that the category exists in the options
-            const selectedOption = this.wastageOptions.find(w => w.jewel_type === this.product.category);
+            // Ensure matching is case-insensitive to handle 'RINGS' vs 'Rings'
+            // Try matching by waste_id first (if mapped correctly) OR by jewel_type (legacy/fallback)
+            const selectedOption = this.wastageOptions.find(w =>
+              w.waste_id == this.product.category ||
+              w.jewel_type?.toLowerCase() === this.product.category?.toString().toLowerCase()
+            );
             if (selectedOption) {
               console.log(`AdminProduct: Matched category ${this.product.category} with wastage option. Wastage: ${selectedOption.wastage}`);
-              // Optional: Sync wastage if needed, though product should have it.
-              // this.product.wastage = parseFloat(selectedOption.wastage); 
+              // Fix: Map the category name string to the waste_id for the select input
+              this.product.category = selectedOption.waste_id;
+              // Sync wastage
+              this.product.wastage = parseFloat(selectedOption.wastage);
             } else {
               console.warn(`AdminProduct: Product category '${this.product.category}' not found in wastage options:`, this.wastageOptions);
             }
@@ -315,7 +322,8 @@ export class AdminProduct implements OnInit {
   }
 
   onCategoryChange() {
-    const selectedOption = this.wastageOptions.find(w => w.jewel_type === this.product.category);
+    // Determine wastage based on the selected waste_id (value bound to ngModel)
+    const selectedOption = this.wastageOptions.find(w => w.waste_id == this.product.category);
     if (selectedOption) {
       this.product.wastage = parseFloat(selectedOption.wastage);
       console.log(`AdminProduct: Category changed to ${this.product.category}, Wastage set to ${this.product.wastage}`);
