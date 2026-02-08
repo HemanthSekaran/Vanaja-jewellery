@@ -38,7 +38,7 @@ export class Home implements OnInit {
   isLoadingFeatured = true;
 
   ngOnInit() {
-    this.getTopSellingProducts({ limit: 4 }).subscribe({
+    this.getTopSellingProducts({ limit: 20 }).subscribe({
       next: (response) => {
         console.log('Home: Top Selling Loaded', response);
         this.bestSellers = response.products;
@@ -52,7 +52,7 @@ export class Home implements OnInit {
       }
     });
 
-    this.getFeaturedProducts({ limit: 4 }).subscribe({
+    this.getFeaturedProducts({ limit: 20 }).subscribe({
       next: (response) => {
         console.log('Home: Featured Loaded', response);
         this.featuredProducts = response.products;

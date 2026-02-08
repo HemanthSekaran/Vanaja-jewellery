@@ -17,11 +17,13 @@
             <p class="text-muted-foreground animate-pulse">Loading best selling products...</p>
         </div>
         } @else {
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div class="flex overflow-x-auto space-x-6 pb-4 snap-x snap-mandatory scrollbar-hide">
             @for (product of bestSellers; track product.id) {
-            <app-product-card [product]="product"></app-product-card>
+            <div class="min-w-[280px] sm:min-w-[300px] snap-start">
+                <app-product-card [product]="product"></app-product-card>
+            </div>
             } @empty {
-            <div class="col-span-full text-center py-12 text-muted-foreground">
+            <div class="w-full text-center py-12 text-muted-foreground">
                 <p>No best selling products found.</p>
             </div>
             }
@@ -44,11 +46,13 @@
             <p class="text-muted-foreground animate-pulse">Loading featured products...</p>
         </div>
         } @else {
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div class="flex overflow-x-auto space-x-6 pb-4 snap-x snap-mandatory scrollbar-hide">
             @for (product of featuredProducts; track product.id) {
-            <app-product-card [product]="product"></app-product-card>
+            <div class="min-w-[280px] sm:min-w-[300px] snap-start">
+                <app-product-card [product]="product"></app-product-card>
+            </div>
             } @empty {
-            <div class="col-span-full text-center py-12 text-muted-foreground">
+            <div class="w-full text-center py-12 text-muted-foreground">
                 <p>No featured products found.</p>
             </div>
             }

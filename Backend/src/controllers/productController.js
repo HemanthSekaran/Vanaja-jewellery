@@ -211,7 +211,7 @@ const createProduct = async (req, res, next) => {
                 metal_purity || null,
                 weight || null,
                 description || null,
-                availability || 'YES',
+                (availability && ['YES', 'NO'].includes(availability)) ? availability : 'YES',
                 imageJson
             ]
         );
@@ -308,8 +308,11 @@ const updateProduct = async (req, res, next) => {
             params.push(description);
         }
         if (availability !== undefined) {
-            updates.push('availability = ?');
-            params.push(availability);
+            // Only update if valid value 'YES' or 'NO'
+            if (['YES', 'NO'].includes(availability)) {
+                updates.push('availability = ?');
+                params.push(availability);
+            }
         }
         if (top_selling !== undefined) {
             updates.push('top_selling = ?');
