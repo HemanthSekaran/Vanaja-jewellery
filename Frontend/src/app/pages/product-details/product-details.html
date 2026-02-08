@@ -5,8 +5,8 @@
 	</div>
 </div>
 
-<div *ngIf="!loading && product" class="container mx-auto px-4 py-8">
-	<div class="grid md:grid-cols-2 gap-6 lg:gap-12 pb-[80px] md:pb-0">
+<div *ngIf="!loading && product" class="container mx-auto px-4 py-6 max-w-5xl">
+	<div class="grid md:grid-cols-2 gap-6 lg:gap-8 pb-[80px] md:pb-0">
 		<!-- Image Gallery -->
 		<div class="space-y-4">
 			<div class="aspect-square bg-muted rounded-lg overflow-hidden">
@@ -25,7 +25,7 @@
 		<!-- Product Info -->
 		<div class="space-y-6">
 			<div>
-				<h1 class="text-2xl sm:text-3xl font-bold font-serif text-primary">{{ product.name }}</h1>
+				<h1 class="text-xl sm:text-2xl font-bold font-serif text-primary">{{ product.name }}</h1>
 				<div class="flex items-center gap-2 mt-2">
 					<div class="flex text-secondary">
 						<svg *ngFor="let star of [1,2,3,4,5]" xmlns="http://www.w3.org/2000/svg" width="16" height="16"
@@ -38,7 +38,7 @@
 					</div>
 					<span class="text-sm text-muted-foreground">({{ product.reviewCount }} reviews)</span>
 				</div>
-				<p class="text-2xl font-bold mt-4 text-secondary">{{ selectedVariant?.price || product.price | currency
+				<p class="text-xl font-bold mt-3 text-secondary">{{ selectedVariant?.price || product.price | currency
 					}}</p>
 			</div>
 

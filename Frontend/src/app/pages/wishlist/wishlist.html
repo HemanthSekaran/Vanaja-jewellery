@@ -11,7 +11,7 @@
         </a>
     </div>
     } @else {
-    <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
+    <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-5 gap-3 md:gap-6">
         @for (item of wishlistService.items(); track item.product.id) {
         <div class="relative group">
             <app-product-card [product]="item.product" [showWishlistButton]="false"></app-product-card>

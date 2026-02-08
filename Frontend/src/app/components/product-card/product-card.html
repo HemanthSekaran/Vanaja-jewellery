@@ -1,5 +1,5 @@
 <div
-    class="group relative bg-card rounded-lg overflow-hidden border border-border hover:shadow-xl transition-all duration-300 h-full flex flex-col">
+    class="product-card-root group relative bg-card rounded-lg overflow-hidden border border-border hover:shadow-xl transition-all duration-300 h-full flex flex-col">
     <!-- Left Side Actions -->
     <div class="absolute top-3 left-3 z-20 flex flex-col space-y-2">
         <!-- Static Sale Badge (Non-Admin Only) -->
@@ -60,7 +60,7 @@
     </div>
 
     <!-- Image -->
-    <div class="aspect-square overflow-hidden relative bg-muted">
+    <div class="media aspect-square overflow-hidden relative bg-muted">
         <img [src]="product.images && product.images.length > 0 ? getImageUrl(product.images[0]) : 'https://via.placeholder.com/400x400?text=No+Image'"
             [alt]="product.name"
             class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110">

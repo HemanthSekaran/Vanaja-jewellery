@@ -1,4 +1,9 @@
 /* Product card responsive helpers (works with Tailwind classes in template) */
+:host {
+	display: block;
+	height: 100%;
+}
+
 .product-card-root {
 	display: flex;
 	flex-direction: column;
@@ -19,7 +24,11 @@
 }
 
 @media (max-width: 640px) {
-	.product-card-root h3 { font-size: 1rem; }
-	.product-card-root .price { font-size: 1rem; }
-}
+	.product-card-root h3 {
+		font-size: 1rem;
+	}
 
+	.product-card-root .price {
+		font-size: 1rem;
+	}
+}
