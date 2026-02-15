@@ -28,7 +28,7 @@ export interface CarouselItem {
         <div class="relative max-w-6xl mx-auto">
           @if (items().length > 0) {
             <div class="overflow-hidden rounded-lg shadow-2xl bg-card border border-border">
-              <div class="flex flex-col md:flex-row h-[600px]">
+              <div class="flex flex-col md:flex-row h-[500px]">
                 <!-- Image Section -->
                  <div class="md:w-1/2 md:shrink-0 relative h-full bg-white flex items-center justify-center p-8">
                   <img [src]="currentItem().image" [alt]="currentItem().title" 

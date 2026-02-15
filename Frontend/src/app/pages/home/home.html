@@ -19,7 +19,7 @@
         } @else {
         <div class="flex overflow-x-auto space-x-6 pb-4 snap-x snap-mandatory scrollbar-hide">
             @for (product of bestSellers; track product.id) {
-            <div class="w-[250px] sm:w-[270px] snap-start flex-none">
+            <div class="w-[280px] sm:w-[300px] snap-start flex-none">
                 <app-product-card [product]="product"></app-product-card>
             </div>
             } @empty {
@@ -48,7 +48,7 @@
         } @else {
         <div class="flex overflow-x-auto space-x-6 pb-4 snap-x snap-mandatory scrollbar-hide">
             @for (product of featuredProducts; track product.id) {
-            <div class="w-[250px] sm:w-[270px] snap-start flex-none">
+            <div class="w-[280px] sm:w-[300px] snap-start flex-none">
                 <app-product-card [product]="product"></app-product-card>
             </div>
             } @empty {
