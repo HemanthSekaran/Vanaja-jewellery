@@ -270,6 +270,36 @@ const validateWastageUpdate = [
     handleValidationErrors
 ];
 
+/**
+ * Checkout Validation
+ */
+const validateCheckout = [
+    body('productIds')
+        .notEmpty().withMessage('Product IDs are required')
+        .isArray({ min: 1 }).withMessage('Product IDs must be a non-empty array')
+        .custom((value) => {
+            if (!value.every(id => Number.isInteger(id) && id > 0)) {
+                throw new Error('All product IDs must be positive integers');
+            }
+            return true;
+        }),
+
+    handleValidationErrors
+];
+
+/**
+ * Order Status Update Validation
+ */
+const validateOrderStatusUpdate = [
+    body('status')
+        .trim()
+        .notEmpty().withMessage('Status is required')
+        .isIn(['Pending', 'Acknowledge', 'Completed', 'Rejected'])
+        .withMessage('Status must be one of: Pending, Acknowledge, Completed, Rejected'),
+
+    handleValidationErrors
+];
+
 module.exports = {
     validateRegister,
     validateLogin,
@@ -280,5 +310,7 @@ module.exports = {
     validateId,
     validateMetalPriceUpdate,
     validateWastage,
-    validateWastageUpdate
+    validateWastageUpdate,
+    validateCheckout,
+    validateOrderStatusUpdate
 };

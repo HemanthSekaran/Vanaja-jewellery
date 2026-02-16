@@ -16,6 +16,7 @@ const designRoutes = require('./src/routes/designRoutes');
 const productRoutes = require('./src/routes/productRoutes');
 const metalPriceRoutes = require('./src/routes/metalPriceRoutes');
 const wastageRoutes = require('./src/routes/wastageRoutes');
+const orderRoutes = require('./src/routes/orderRoutes');
 
 const app = express();
 
@@ -64,6 +65,7 @@ app.use('/api/designs', designRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/metal-prices', metalPriceRoutes);
 app.use('/api/wastage', wastageRoutes);
+app.use('/api/orders', orderRoutes);
 
 app.use(notFound);
 
