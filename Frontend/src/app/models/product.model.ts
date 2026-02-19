@@ -34,6 +34,19 @@ export interface Product {
   availability?: 'YES' | 'NO';
   metal?: string;
   metal_purity?: number;
+  priceCalculation?: {
+    metalRatePerGram: number;
+    metalValue: number;
+    wastageValue: number;
+    basePrice: number;
+    gstAmount: number;
+    finalPrice: number;
+    jewelWeight?: number;
+    totalWeight?: number;
+    wastageWeight?: number;
+    wastagePercentage?: number;
+    gstPercentage?: number;
+  };
 }
 
 export interface CartItem {

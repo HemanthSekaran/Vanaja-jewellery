@@ -21,6 +21,14 @@ export const routes: Routes = [
     { path: 'customization/edit/:id', loadComponent: () => import('./pages/customization/customization').then(m => m.CustomizationComponent) },
     { path: 'login', loadComponent: () => import('./pages/login/login').then(m => m.Login) },
     { path: 'signup', loadComponent: () => import('./pages/signup/signup').then(m => m.Signup) },
+    {
+        path: 'checkout',
+        loadComponent: () => import('./pages/checkout/checkout').then(m => m.Checkout)
+    },
+    {
+        path: 'orders',
+        loadComponent: () => import('./pages/my-orders/my-orders').then(m => m.MyOrdersComponent)
+    },
     { path: 'profile', loadComponent: () => import('./pages/profile/profile').then(m => m.Profile), canActivate: [authGuard] },
     { path: 'admin/product/new', loadComponent: () => import('./pages/admin-product/admin-product').then(m => m.AdminProduct), canActivate: [adminGuard] },
     { path: 'admin/product/edit/:id', loadComponent: () => import('./pages/admin-product/admin-product').then(m => m.AdminProduct), canActivate: [adminGuard] },

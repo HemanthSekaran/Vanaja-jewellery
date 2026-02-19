@@ -128,4 +128,28 @@ export class CartService {
             (!variantId || item?.variant?.id === variantId)
         );
     }
+
+    async checkout(itemsToCheckout: CartItem[] = this.cartItems()): Promise<any> {
+        try {
+            // Flatten items based on quantity
+            const productIds: number[] = [];
+            itemsToCheckout.forEach(item => {
+                for (let i = 0; i < item.quantity; i++) {
+                    productIds.push(Number(item.product.id));
+                }
+            });
+
+            const res = await this.apiService.createOrder({ productIds });
+
+            // If checkout is for the entire cart, clear it
+            if (itemsToCheckout === this.cartItems()) {
+                this.cartItems.set([]);
+                await this.apiService.updateProfile({ add_to_cart: [] });
+            }
+
+            return res.data;
+        } catch (error) {
+            throw error;
+        }
+    }
 }

@@ -94,19 +94,19 @@
                     </div>
                     <div class="flex justify-between text-muted-foreground">
                         <span>Tax (Estimated)</span>
-                        <span>{{ cartService.total() * 0.1 | currency:'INR' }}</span>
+                        <span>{{ 0 | currency:'INR' }}</span>
                     </div>
                     <div class="border-t border-border pt-4 flex justify-between items-center">
                         <span class="text-lg font-bold text-secondary">Total</span>
-                        <span class="text-2xl font-bold text-primary">{{ cartService.total() * 1.1 | currency:'INR'
+                        <span class="text-2xl font-bold text-primary">{{ cartService.total() | currency:'INR'
                             }}</span>
                     </div>
                 </div>
 
-                <button
-                    class="w-full bg-primary text-primary-foreground py-4 rounded-md font-bold uppercase tracking-widest hover:bg-primary/90 transition-colors shadow-lg">
+                <a routerLink="/checkout"
+                    class="block w-full bg-primary text-primary-foreground py-4 rounded-md font-bold uppercase tracking-widest hover:bg-primary/90 transition-colors shadow-lg text-center">
                     Proceed to Checkout
-                </button>
+                </a>
 
                 <div class="mt-6 text-center">
                     <a routerLink="/products"

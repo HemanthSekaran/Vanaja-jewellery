@@ -77,9 +77,11 @@ export class ApiService {
     sendMessage = (data: any) => axios.post("/contact", data);
 
     // Orders
-    createOrder = (data: any) => axios.post("/orders", data);
+    createOrder = (data: any) => axios.post("/orders/checkout", data);
     getOrders = () => axios.get("/orders");
+    getAllOrdersAdmin = () => axios.get("/orders/admin/all");
     getOrderById = (id: string) => axios.get(`/orders/${id}`);
+    updateOrderStatus = (id: string, status: string) => axios.put(`/orders/${id}/status`, { status });
 
     // Metal Prices
     getMetalPrices = () => axios.get("/metal-prices");

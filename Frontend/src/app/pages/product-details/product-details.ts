@@ -1,6 +1,6 @@
 import { Component, OnInit, inject, signal, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { ProductService } from '../../services/product.service';
 import { CartService } from '../../services/cart.service';
 import { WishlistService } from '../../services/wishlist.service';
@@ -18,6 +18,7 @@ export class ProductDetails implements OnInit {
   private cartService = inject(CartService);
   private wishlistService = inject(WishlistService);
   private cd = inject(ChangeDetectorRef);
+  private router = inject(Router);
 
   product: Product | undefined;
   selectedImage: string = '';
@@ -113,6 +114,18 @@ export class ProductDetails implements OnInit {
   get isInCart() {
     return this.product && this.selectedVariant ?
       this.cartService.isInCart(this.product.id, this.selectedVariant.id) : false;
+  }
+
+  buyNow() {
+    if (this.product && this.selectedVariant) {
+      // Navigate to checkout with query params
+      this.router.navigate(['/checkout'], {
+        queryParams: {
+          productId: this.product.id,
+          quantity: 1 // Default to 1
+        }
+      });
+    }
   }
 
   toggleWishlist() {

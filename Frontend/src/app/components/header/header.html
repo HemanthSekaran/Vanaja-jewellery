@@ -34,6 +34,10 @@
                 class="transition-colors hover:text-[#FFF8DC]">Contact</a>
             <a [routerLink]="customizationLink" routerLinkActive="text-[#FFF8DC]"
                 class="transition-colors hover:text-[#FFF8DC]">customization</a>
+            @if (authService.currentUser()) {
+            <a routerLink="/orders" routerLinkActive="text-[#FFF8DC]"
+                class="transition-colors hover:text-[#FFF8DC]">Orders</a>
+            }
             @if (authService.currentUser()?.role === 'admin') {
             <a routerLink="/admin/wastage" routerLinkActive="text-[#FFF8DC]"
                 class="transition-colors hover:text-[#FFF8DC]">Wastage</a>
@@ -113,10 +117,24 @@
                     </div>
 
                     <div class="py-2">
+                        <a routerLink="/orders"
+                            class="flex items-center px-5 py-3 text-sm font-medium text-foreground/80 hover:text-primary hover:bg-primary/5 transition-colors group"
+                            (click)="isUserMenuOpen = false">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                                stroke-linejoin="round"
+                                class="mr-3 text-muted-foreground group-hover:text-primary transition-colors">
+                                <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+                                <line x1="3" y1="6" x2="21" y2="6"></line>
+                                <path d="M16 10a4 4 0 0 1-8 0"></path>
+                            </svg>
+                            My Orders
+                        </a>
+
                         <a routerLink="/profile"
                             class="flex items-center px-5 py-3 text-sm font-medium text-foreground/80 hover:text-primary hover:bg-primary/5 transition-colors group"
                             (click)="isUserMenuOpen = false">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24"
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
                                 fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
                                 stroke-linejoin="round"
                                 class="mr-3 text-muted-foreground group-hover:text-primary transition-colors">
@@ -127,7 +145,7 @@
 
                         <button (click)="logout()"
                             class="flex w-full items-center px-5 py-3 text-sm font-medium text-destructive/90 hover:text-destructive hover:bg-destructive/10 transition-colors group">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24"
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
                                 fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
                                 stroke-linejoin="round" class="mr-3 group-hover:text-destructive transition-colors">
                                 <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />

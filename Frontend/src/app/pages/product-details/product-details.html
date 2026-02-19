@@ -117,6 +117,10 @@
 
 					{{ isInCart ? 'Added to Cart' : 'Add to Cart' }}
 				</button>
+				<button (click)="buyNow()"
+					class="flex-1 inline-flex items-center justify-center rounded-md text-sm font-bold h-12 px-8 uppercase tracking-wider transition-colors focus-visible:outline-none disabled:opacity-50 disabled:pointer-events-none text-white bg-secondary hover:bg-secondary/90">
+					Buy Now
+				</button>
 				<button (click)="toggleWishlist()"
 					class="inline-flex items-center justify-center rounded-md text-sm font-medium h-12 w-12 border border-input bg-white hover:bg-gray-100 transition-colors"
 					[class.text-red-500]="isInWishlist" [class.border-red-500]="isInWishlist"
@@ -148,6 +152,10 @@
 					[class.bg-[#8B0000]]="!isInCart" [class.hover:bg-[#600000]]="!isInCart"
 					[class.bg-green-600]="isInCart" [class.hover:bg-green-700]="isInCart">
 					{{ isInCart ? 'Added to Cart' : 'Add to Cart' }}
+				</button>
+				<button (click)="buyNow()"
+					class="flex-1 inline-flex items-center justify-center rounded-md text-sm font-bold h-12 px-4 uppercase tracking-wider transition-colors focus-visible:outline-none disabled:opacity-50 disabled:pointer-events-none text-white shadow-sm bg-secondary hover:bg-secondary/90">
+					Buy Now
 				</button>
 			</div>
 		</div>

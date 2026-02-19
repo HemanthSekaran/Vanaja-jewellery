@@ -152,6 +152,18 @@ export class ProductCard {
     }
   }
 
+  buyNow(event: Event) {
+    event.stopPropagation();
+    event.preventDefault();
+
+    this.router.navigate(['/checkout'], {
+      queryParams: {
+        productId: this.product.id,
+        quantity: 1
+      }
+    });
+  }
+
   toggleWishlist(event: Event) {
     event.stopPropagation();
     event.preventDefault();
