@@ -71,6 +71,51 @@ INSERT INTO products (name, grams, wastage, category, description, availability)
 ('DIAMOND EARRINGS', '8', 5, 'EARRINGS', 'Elegant diamond studded earrings', 'YES')
 ON DUPLICATE KEY UPDATE name=name;
 
+
+-- ============================================
+-- Orders Table
+-- ============================================
+CREATE TABLE IF NOT EXISTS orders (
+    order_id INT PRIMARY KEY AUTO_INCREMENT,
+    user_id INT NOT NULL,
+    total_amount DECIMAL(10, 2) NOT NULL,
+    total_gst DECIMAL(10, 2) NOT NULL,
+    grand_total DECIMAL(10, 2) NOT NULL,
+    order_status ENUM('pending', 'completed', 'cancelled', 'shipped', 'delivered') DEFAULT 'pending',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    INDEX idx_user_orders (user_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ============================================
+-- Order Items Table
+-- ============================================
+CREATE TABLE IF NOT EXISTS order_items (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    order_id INT NOT NULL,
+    product_id INT NOT NULL,
+    product_name VARCHAR(255) NOT NULL,
+    product_category VARCHAR(100),
+    metal VARCHAR(50),
+    metal_purity VARCHAR(50),
+    weight DECIMAL(10, 3),
+    wastage_percentage DECIMAL(5, 2),
+    wastage_weight DECIMAL(10, 3),
+    total_weight DECIMAL(10, 3),
+    metal_rate_per_gram DECIMAL(10, 2),
+    metal_value DECIMAL(10, 2),
+    wastage_value DECIMAL(10, 2),
+    base_price DECIMAL(10, 2),
+    gst_percentage DECIMAL(5, 2),
+    gst_amount DECIMAL(10, 2),
+    final_price DECIMAL(10, 2),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (order_id) REFERENCES orders(order_id) ON DELETE CASCADE,
+    FOREIGN KEY (product_id) REFERENCES products(id),
+    INDEX idx_order_items (order_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 -- ============================================
 -- End of Schema
 -- ============================================

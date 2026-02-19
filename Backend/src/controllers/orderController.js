@@ -155,12 +155,12 @@ const createOrder = async (req, res, next) => {
                 [orderId]
             );
 
-            sendSuccess(res, 201, 'Order created successfully', {
+            sendSuccess(res, {
                 order: {
                     ...orderData[0],
                     items: itemsData
                 }
-            });
+            }, 'Order created successfully', 201);
 
         } catch (error) {
             // Rollback transaction on error
@@ -194,7 +194,7 @@ const getAllOrders = async (req, res, next) => {
             'SELECT COUNT(*) as total FROM orders WHERE user_id = ?',
             [userId]
         );
-        const total = countResult[0].total;
+        const total = countResult.total;
 
         // Get orders with pagination
         const orders = await query(
@@ -214,7 +214,7 @@ const getAllOrders = async (req, res, next) => {
             order.items = items;
         }
 
-        sendSuccess(res, 200, 'Orders retrieved successfully', {
+        sendSuccess(res, {
             orders,
             pagination: {
                 currentPage: page,
@@ -222,7 +222,7 @@ const getAllOrders = async (req, res, next) => {
                 total,
                 totalPages: Math.ceil(total / limit)
             }
-        });
+        }, 'Orders retrieved successfully');
 
     } catch (error) {
         next(error);
@@ -265,7 +265,7 @@ const getOrderById = async (req, res, next) => {
 
         order.items = items;
 
-        sendSuccess(res, 200, 'Order retrieved successfully', { order });
+        sendSuccess(res, { order }, 'Order retrieved successfully');
 
     } catch (error) {
         next(error);
@@ -285,7 +285,7 @@ const getAllOrdersAdmin = async (req, res, next) => {
 
         // Get total count
         const [countResult] = await query('SELECT COUNT(*) as total FROM orders');
-        const total = countResult[0].total;
+        const total = countResult.total;
 
         // Get all orders with user information
         const orders = await query(
@@ -306,7 +306,7 @@ const getAllOrdersAdmin = async (req, res, next) => {
             order.items = items;
         }
 
-        sendSuccess(res, 200, 'All orders retrieved successfully', {
+        sendSuccess(res, {
             orders,
             pagination: {
                 currentPage: page,
@@ -314,7 +314,7 @@ const getAllOrdersAdmin = async (req, res, next) => {
                 total,
                 totalPages: Math.ceil(total / limit)
             }
-        });
+        }, 'All orders retrieved successfully');
 
     } catch (error) {
         next(error);
@@ -360,9 +360,9 @@ const updateOrderStatus = async (req, res, next) => {
 
         updatedOrder.items = items;
 
-        sendSuccess(res, 200, 'Order status updated successfully', {
+        sendSuccess(res, {
             order: updatedOrder
-        });
+        }, 'Order status updated successfully');
 
     } catch (error) {
         next(error);
