@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { ApiService } from '../../services/api.service';
 import { AlertService } from '../../services/alert.service';
+import { ToastService } from '../../services/toast.service';
 
 @Component({
     selector: 'app-design-list',
@@ -20,7 +21,8 @@ export class DesignListComponent implements OnInit {
         private api: ApiService,
         private router: Router,
         private cd: ChangeDetectorRef,
-        private alertService: AlertService // Add injection
+        private alertService: AlertService,
+        private toastService: ToastService
     ) { }
 
     ngOnInit() {
@@ -83,11 +85,12 @@ export class DesignListComponent implements OnInit {
                 if (design) {
                     design.status = status;
                     this.cd.detectChanges();
+                    this.toastService.success('Status updated successfully');
                 }
             })
             .catch(err => {
                 console.error("Failed to update status", err);
-                this.alertService.error('Action Failed', "Failed to update status");
+                this.toastService.error("Failed to update status");
             });
     }
 

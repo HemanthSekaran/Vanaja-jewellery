@@ -3,13 +3,19 @@ import axios from 'axios';
 import { environment } from '../../environments/environment';
 import { Router } from '@angular/router';
 import { TokenService } from './token.service';
+import { ToastService } from './toast.service';
+
 
 @Injectable({
     providedIn: 'root'
 })
 export class ApiService {
 
-    constructor(private tokenService: TokenService, private router: Router) {
+    constructor(
+        private tokenService: TokenService,
+        private router: Router,
+        private toastService: ToastService
+    ) {
         const baseUrl = environment.baseUrl;
         axios.defaults.baseURL = baseUrl;
 
@@ -23,9 +29,17 @@ export class ApiService {
         }, (err: any) => Promise.reject(err));
 
         axios.interceptors.response.use((response: any) => response, (err: any) => {
-            if (err.response && err.response.status == 401 && this.router.url != "/login") {
-                this.router.navigateByUrl("/login");
+            const errorMessage = err.response?.data?.message || err.message || 'Something went wrong';
+
+            if (err.response && err.response.status == 401) {
+                this.toastService.show('Session expired. Redirecting...', 'error');
+                setTimeout(() => {
+                    window.location.href = '/';
+                }, 100);
+            } else {
+                this.toastService.show(errorMessage, 'error');
             }
+
             return Promise.reject(err);
         });
     }

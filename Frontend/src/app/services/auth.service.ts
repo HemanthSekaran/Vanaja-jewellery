@@ -16,6 +16,7 @@ export interface User {
 })
 export class AuthService {
     currentUser = signal<User | null>(null);
+    isLoggingOut = signal<boolean>(false);
 
     constructor(
         private apiService: ApiService,
@@ -110,10 +111,16 @@ export class AuthService {
     }
 
     logout() {
+        this.isLoggingOut.set(true);
         this.currentUser.set(null);
         sessionStorage.removeItem('user');
         this.tokenService.removeToken();
         this.toastService.show('Logged out successfully', 'success');
+
+        // Redirect to home and reload to clear application state
+        setTimeout(() => {
+            window.location.href = '/';
+        }, 100);
     }
 
     private setCurrentUser(user: User) {

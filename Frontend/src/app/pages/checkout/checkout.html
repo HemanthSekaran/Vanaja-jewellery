@@ -18,8 +18,8 @@
             @for (item of items(); track item.product.id) {
             <div class="flex gap-4 py-4 border-b border-border last:border-0">
                 <div class="w-20 h-20 bg-muted rounded overflow-hidden flex-shrink-0">
-                    <img [src]="getImageUrl(item.product.images?.[0])" [alt]="item.product.name"
-                        class="w-full h-full object-cover">
+                    <img [src]="getImageUrl(item.product.images && item.product.images.length > 0 ? item.product.images[0] : undefined)"
+                        [alt]="item.product.name" class="w-full h-full object-cover">
                 </div>
                 <div class="flex-1">
                     <h3 class="font-bold text-secondary">{{ item.product.name }}</h3>

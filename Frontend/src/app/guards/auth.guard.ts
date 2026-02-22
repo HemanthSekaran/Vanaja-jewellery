@@ -13,7 +13,12 @@ export const authGuard: CanActivateFn = (route, state) => {
     }
 
     toastService.show('Please login to access this page', 'error');
-    router.navigate(['/login']);
+
+    // Redirect to home and reload
+    setTimeout(() => {
+        window.location.href = '/';
+    }, 100);
+
     return false;
 };
 

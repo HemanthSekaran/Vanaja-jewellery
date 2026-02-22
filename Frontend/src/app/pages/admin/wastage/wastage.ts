@@ -55,7 +55,7 @@ export class WastageComponent implements OnInit {
                 this.wastages.set(body.wastages);
             }
         } catch (error) {
-            this.toastService.show('Failed to load wastages', 'error');
+            this.toastService.error('Failed to load wastages');
         } finally {
             this.isLoading.set(false);
         }
@@ -88,7 +88,7 @@ export class WastageComponent implements OnInit {
 
     async saveWastage() {
         if (!this.jewelType() || !this.wastageValue()) {
-            this.toastService.show('Please fill all fields', 'error');
+            this.toastService.error('Please fill all fields');
             return;
         }
 
@@ -100,16 +100,16 @@ export class WastageComponent implements OnInit {
 
             if (this.isEditing() && this.currentId()) {
                 await this.apiService.updateWastage(this.currentId()!, data);
-                this.toastService.show('Wastage updated successfully', 'success');
+                this.toastService.success('Wastage updated successfully');
             } else {
                 await this.apiService.createWastage(data);
-                this.toastService.show('Wastage added successfully', 'success');
+                this.toastService.success('Wastage added successfully');
             }
 
             this.closeModal();
             this.loadWastages();
         } catch (error: any) {
-            this.toastService.show(error.message || 'Operation failed', 'error');
+            this.toastService.error(error.message || 'Operation failed');
         }
     }
 
@@ -127,10 +127,10 @@ export class WastageComponent implements OnInit {
 
         try {
             await this.apiService.deleteWastage(id);
-            this.toastService.show('Wastage deleted successfully', 'success');
+            this.toastService.success('Wastage deleted successfully');
             this.loadWastages();
         } catch (error: any) {
-            this.toastService.show(error.message || 'Delete failed', 'error');
+            this.toastService.error(error.message || 'Delete failed');
         }
     }
 }

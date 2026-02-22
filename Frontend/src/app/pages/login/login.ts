@@ -1,8 +1,8 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
-import { AlertService } from '../../services/alert.service';
+import { ToastService } from '../../services/toast.service';
 
 @Component({
     selector: 'app-login',
@@ -13,9 +13,14 @@ import { AlertService } from '../../services/alert.service';
 export class Login {
     email = '';
     password = '';
+    showPassword = signal(false);
     authService = inject(AuthService);
     router = inject(Router);
-    alertService = inject(AlertService);
+    toastService = inject(ToastService);
+
+    togglePassword() {
+        this.showPassword.set(!this.showPassword());
+    }
 
     async onSubmit() {
         if (this.email && this.password) {
@@ -23,7 +28,7 @@ export class Login {
             if (success) {
                 this.router.navigate(['/']);
             } else {
-                this.alertService.error("Login Failed", "Invalid credentials. Please try again.");
+                this.toastService.error("Invalid credentials. Please try again.");
             }
         }
     }

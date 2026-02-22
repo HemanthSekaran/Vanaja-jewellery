@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ApiService } from '../../services/api.service';
-import { AlertService } from '../../services/alert.service';
+import { ToastService } from '../../services/toast.service';
 
 @Component({
     selector: 'app-customization',
@@ -32,7 +32,7 @@ export class CustomizationComponent {
         private api: ApiService,
         private route: ActivatedRoute, // Injected ActivatedRoute
         public router: Router, // Injected Router
-        private alertService: AlertService
+        private toastService: ToastService
     ) {
         this.customizationForm = this.fb.group({
             design_name: ['', Validators.required],
@@ -74,7 +74,7 @@ export class CustomizationComponent {
             }
         }).catch(err => {
             console.error('Failed to load design', err);
-            this.alertService.error('Error', 'Failed to load design details');
+            this.toastService.error('Failed to load design details');
         });
     }
 
@@ -100,14 +100,14 @@ export class CustomizationComponent {
     handleFiles(files: FileList) {
         // Limit total number of images to 3
         if (this.imageDetails.length + files.length > 3) {
-            this.alertService.error('Limit Exceeded', 'You can only upload a maximum of 3 images.');
+            this.toastService.error('You can only upload a maximum of 3 images.');
             return;
         }
 
         Array.from(files).forEach(file => {
             // Check file size (5MB limit)
             if (file.size > 5 * 1024 * 1024) {
-                this.alertService.error('File Too Large', `File "${file.name}" is too large. Maximum size is 5MB.`);
+                this.toastService.error(`File "${file.name}" is too large. Maximum size is 5MB.`);
                 return;
             }
 
@@ -168,7 +168,7 @@ export class CustomizationComponent {
 
         promise
             .then(async () => {
-                await this.alertService.success('Success', this.editMode ? 'Design updated successfully!' : 'Design request submitted successfully!');
+                this.toastService.success(this.editMode ? 'Design updated successfully!' : 'Design request submitted successfully!');
                 if (!this.editMode) {
                     this.customizationForm.reset();
                     this.imageDetails = [];
@@ -179,7 +179,7 @@ export class CustomizationComponent {
             })
             .catch(err => {
                 console.error(err);
-                this.alertService.error('Error', this.editMode ? 'Failed to update design' : 'Failed to submit design request');
+                this.toastService.error(this.editMode ? 'Failed to update design' : 'Failed to submit design request');
             })
             .finally(() => {
                 this.isSubmitting = false;

@@ -4,6 +4,7 @@ import { RouterModule, Router } from '@angular/router';
 import { ApiService } from '../../services/api.service';
 import { AlertService } from '../../services/alert.service';
 import { AuthService } from '../../services/auth.service';
+import { ToastService } from '../../services/toast.service';
 
 @Component({
   selector: 'app-my-orders',
@@ -23,6 +24,7 @@ export class MyOrdersComponent implements OnInit {
   private cd = inject(ChangeDetectorRef);
   private authService = inject(AuthService);
   private alertService = inject(AlertService);
+  private toastService = inject(ToastService);
 
   ngOnInit() {
     this.checkUserRole();
@@ -97,12 +99,12 @@ export class MyOrdersComponent implements OnInit {
             order.order_status = status;
           }
           this.cd.detectChanges();
-          this.alertService.success('Success', 'Order status updated successfully');
+          this.toastService.success('Order status updated successfully');
         }
       })
       .catch((err: any) => {
         console.error("Failed to update status", err);
-        this.alertService.error('Action Failed', "Failed to update status");
+        this.toastService.error("Failed to update status");
       });
   }
 }

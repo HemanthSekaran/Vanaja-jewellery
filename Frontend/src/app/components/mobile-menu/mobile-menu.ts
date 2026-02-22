@@ -42,22 +42,6 @@ export class MobileMenu {
             ]
         },
 
-        {
-            title: 'Silver',
-            isOpen: false,
-            items: [
-                { label: 'Silver Anklets', link: '/products', queryParams: { category: 'anklets', metalType: 'Silver' } },
-                { label: 'Silver Chains', link: '/products', queryParams: { category: 'necklaces', metalType: 'Silver' } }
-            ]
-        },
-        {
-            title: 'Coins',
-            isOpen: false,
-            items: [
-                { label: 'Gold Coins', link: '/products', queryParams: { category: 'coins', metalType: 'Gold' } },
-                { label: 'Silver Coins', link: '/products', queryParams: { category: 'coins', metalType: 'Silver' } }
-            ]
-        }
     ];
 
 

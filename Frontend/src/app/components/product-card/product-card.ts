@@ -77,11 +77,11 @@ export class ProductCard {
 
     try {
       await this.productService.updateProductStatus(this.product.id, payload).toPromise();
-      this.toastService.show(`Product ${newValue ? 'marked as' : 'removed from'} Featured`, 'success');
+      this.toastService.success(`Product ${newValue ? 'marked as' : 'removed from'} Featured`);
     } catch (error) {
       // Revert on failure
       this.product.featured = originalValue;
-      this.toastService.show('Failed to update featured status', 'error');
+      this.toastService.error('Failed to update featured status');
     }
   }
 
@@ -100,11 +100,11 @@ export class ProductCard {
 
     try {
       await this.productService.updateProductStatus(this.product.id, payload).toPromise();
-      this.toastService.show(`Product ${newValue ? 'marked as' : 'removed from'} Best Selling`, 'success');
+      this.toastService.success(`Product ${newValue ? 'marked as' : 'removed from'} Best Selling`);
     } catch (error) {
       // Revert on failure
       this.product.bestseller = originalValue;
-      this.toastService.show('Failed to update best selling status', 'error');
+      this.toastService.error('Failed to update best selling status');
     }
   }
 
@@ -122,12 +122,12 @@ export class ProductCard {
     if (confirmed) {
       this.productService.deleteProduct(this.product.id).subscribe({
         next: () => {
-          this.toastService.show('Product deleted successfully', 'success');
+          this.toastService.success('Product deleted successfully');
           // Optional: wait a bit or just reload
           window.location.reload();
         },
         error: () => {
-          this.toastService.show('Failed to delete product', 'error');
+          this.toastService.error('Failed to delete product');
         }
       });
     }

@@ -1,8 +1,8 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
-import { AlertService } from '../../services/alert.service';
+import { ToastService } from '../../services/toast.service';
 
 @Component({
     selector: 'app-signup',
@@ -17,24 +17,29 @@ export class Signup {
     phone = '';
     address = '';
     password = '';
+    showPassword = signal(false);
 
     authService = inject(AuthService);
     router = inject(Router);
-    alertService = inject(AlertService);
+    toastService = inject(ToastService);
+
+    togglePassword() {
+        this.showPassword.set(!this.showPassword());
+    }
 
     async onSubmit() {
         if (!this.name.trim()) {
-            this.alertService.error("Validation Error", "Name is required");
+            this.toastService.error("Name is required");
             return;
         }
 
         if (!this.email.trim()) {
-            this.alertService.error("Validation Error", "Email is required");
+            this.toastService.error("Email is required");
             return;
         }
 
         if (!this.password.trim()) {
-            this.alertService.error("Validation Error", "Password is required");
+            this.toastService.error("Password is required");
             return;
         }
 
@@ -49,12 +54,12 @@ export class Signup {
 
         try {
             await this.authService.signup(user);
-            await this.alertService.success("Success", "Registration successful! Please login.");
+            this.toastService.success("Registration successful! Please login.");
             this.router.navigate(['/login']);
 
         } catch (error: any) {
             console.error("Signup Error:", error);
-            this.alertService.error("Registration Failed", "An error occurred during registration. Please try again.");
+            this.toastService.error("An error occurred during registration. Please try again.");
         }
     }
 }

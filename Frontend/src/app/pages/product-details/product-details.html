@@ -38,7 +38,8 @@
 					</div>
 					<span class="text-sm text-muted-foreground">({{ product.reviewCount }} reviews)</span>
 				</div>
-				<p class="text-xl font-bold mt-3 text-secondary">{{ selectedVariant?.price || product.price | currency
+				<p class="text-xl font-bold mt-3 text-secondary">{{ selectedVariant?.price || product.price |
+					currency:'INR'
 					}}</p>
 			</div>
 

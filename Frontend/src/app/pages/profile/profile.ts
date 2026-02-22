@@ -4,7 +4,7 @@ import { Location } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
 import { ApiService } from '../../services/api.service';
-import { AlertService } from '../../services/alert.service';
+import { ToastService } from '../../services/toast.service';
 
 @Component({
     selector: 'app-profile',
@@ -19,7 +19,7 @@ export class Profile implements OnInit {
     router = inject(Router);
     fb = inject(FormBuilder);
     location = inject(Location);
-    alertService = inject(AlertService);
+    toastService = inject(ToastService);
 
     profileForm: FormGroup;
     isSubmitting = false;
@@ -77,10 +77,10 @@ export class Profile implements OnInit {
             this.authService.currentUser.set(userData);
             sessionStorage.setItem('user', JSON.stringify(userData));
 
-            await this.alertService.success("Success", "Profile updated successfully!");
+            this.toastService.success("Profile updated successfully!");
         } catch (error) {
             console.error("Profile Update Error:", error);
-            this.alertService.error("Update Failed", "Failed to update profile.");
+            this.toastService.error("Failed to update profile.");
         } finally {
             this.isSubmitting = false;
         }
