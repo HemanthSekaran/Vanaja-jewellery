@@ -979,3 +979,340 @@ http://localhost:5000/uploads/products/filename.jpg
   "message": "Product not found"
 }
 ```
+
+---
+
+## Order Endpoints
+
+### Create Order (Checkout)
+
+**POST** `/orders/checkout`
+
+**Access**: Private (Authenticated users)
+
+**Headers**:
+```
+Authorization: Bearer <token>
+```
+
+**Description**: Creates a new order with multiple products. Calculates and stores complete price details for each product at the time of order creation.
+
+**Request Body**:
+```json
+{
+  "productIds": [1, 3, 5]
+}
+```
+
+**Validation Rules**:
+- `productIds`: Non-empty array of positive integers
+
+**Success Response** (201):
+```json
+{
+  "success": true,
+  "message": "Order created successfully",
+  "data": {
+    "order": {
+      "order_id": 1,
+      "user_id": 2,
+      "total_amount": 45000.00,
+      "total_gst": 1350.00,
+      "grand_total": 46350.00,
+      "order_status": "pending",
+      "created_at": "2026-02-16T06:14:33.000Z",
+      "updated_at": "2026-02-16T06:14:33.000Z",
+      "items": [
+        {
+          "item_id": 1,
+          "order_id": 1,
+          "product_id": 1,
+          "product_name": "ANTIQUE MAANGA FLOWER SET",
+          "product_category": "ANTIQUE SET",
+          "metal": "Gold",
+          "metal_purity": "22K",
+          "weight": 1.500,
+          "wastage_percentage": 10.00,
+          "wastage_weight": 0.150,
+          "total_weight": 1.650,
+          "metal_rate_per_gram": 7000.00,
+          "metal_value": 10500.00,
+          "wastage_value": 1050.00,
+          "base_price": 11550.00,
+          "gst_percentage": 3.00,
+          "gst_amount": 346.50,
+          "final_price": 11896.50,
+          "created_at": "2026-02-16T06:14:33.000Z"
+        }
+      ]
+    }
+  }
+}
+```
+
+**Error Response** (400):
+```json
+{
+  "success": false,
+  "message": "Product \"Diamond Necklace\" is not available"
+}
+```
+
+**Error Response** (404):
+```json
+{
+  "success": false,
+  "message": "Product with ID 99 not found"
+}
+```
+
+---
+
+### Get User's Orders
+
+**GET** `/orders`
+
+**Access**: Private (Authenticated users)
+
+**Headers**:
+```
+Authorization: Bearer <token>
+```
+
+**Query Parameters**:
+- `page` (integer, optional): Page number (default: 1)
+- `limit` (integer, optional): Items per page (default: 10)
+
+**Description**: Retrieves all orders for the authenticated user with pagination.
+
+**Success Response** (200):
+```json
+{
+  "success": true,
+  "message": "Orders retrieved successfully",
+  "data": {
+    "orders": [
+      {
+        "order_id": 1,
+        "user_id": 2,
+        "total_amount": 45000.00,
+        "total_gst": 1350.00,
+        "grand_total": 46350.00,
+        "order_status": "pending",
+        "created_at": "2026-02-16T06:14:33.000Z",
+        "updated_at": "2026-02-16T06:14:33.000Z",
+        "items": [...]
+      }
+    ],
+    "pagination": {
+      "currentPage": 1,
+      "perPage": 10,
+      "total": 5,
+      "totalPages": 1
+    }
+  }
+}
+```
+
+---
+
+### Get Order by ID
+
+**GET** `/orders/:id`
+
+**Access**: Private (User can view own orders, Admin can view all)
+
+**Headers**:
+```
+Authorization: Bearer <token>
+```
+
+**URL Parameters**:
+- `id` (integer): Order ID
+
+**Description**: Retrieves a specific order with all product details. Users can only view their own orders unless they are admin.
+
+**Success Response** (200):
+```json
+{
+  "success": true,
+  "message": "Order retrieved successfully",
+  "data": {
+    "order": {
+      "order_id": 1,
+      "user_id": 2,
+      "total_amount": 45000.00,
+      "total_gst": 1350.00,
+      "grand_total": 46350.00,
+      "order_status": "pending",
+      "created_at": "2026-02-16T06:14:33.000Z",
+      "updated_at": "2026-02-16T06:14:33.000Z",
+      "items": [
+        {
+          "item_id": 1,
+          "order_id": 1,
+          "product_id": 1,
+          "product_name": "ANTIQUE MAANGA FLOWER SET",
+          "product_category": "ANTIQUE SET",
+          "metal": "Gold",
+          "metal_purity": "22K",
+          "weight": 1.500,
+          "wastage_percentage": 10.00,
+          "wastage_weight": 0.150,
+          "total_weight": 1.650,
+          "metal_rate_per_gram": 7000.00,
+          "metal_value": 10500.00,
+          "wastage_value": 1050.00,
+          "base_price": 11550.00,
+          "gst_percentage": 3.00,
+          "gst_amount": 346.50,
+          "final_price": 11896.50,
+          "created_at": "2026-02-16T06:14:33.000Z"
+        }
+      ]
+    }
+  }
+}
+```
+
+**Error Response** (404):
+```json
+{
+  "success": false,
+  "message": "Order not found"
+}
+```
+
+**Error Response** (403):
+```json
+{
+  "success": false,
+  "message": "Not authorized to view this order"
+}
+```
+
+---
+
+### Get All Orders (Admin)
+
+**GET** `/orders/admin/all`
+
+**Access**: Private (Admin only)
+
+**Headers**:
+```
+Authorization: Bearer <admin_token>
+```
+
+**Query Parameters**:
+- `page` (integer, optional): Page number (default: 1)
+- `limit` (integer, optional): Items per page (default: 10)
+
+**Description**: Retrieves all orders from all users with user information. Admin only endpoint.
+
+**Success Response** (200):
+```json
+{
+  "success": true,
+  "message": "All orders retrieved successfully",
+  "data": {
+    "orders": [
+      {
+        "order_id": 1,
+        "user_id": 2,
+        "user_name": "John Doe",
+        "user_email": "john@example.com",
+        "user_phone": "1234567890",
+        "total_amount": 45000.00,
+        "total_gst": 1350.00,
+        "grand_total": 46350.00,
+        "order_status": "pending",
+        "created_at": "2026-02-16T06:14:33.000Z",
+        "updated_at": "2026-02-16T06:14:33.000Z",
+        "items": [...]
+      }
+    ],
+    "pagination": {
+      "currentPage": 1,
+      "perPage": 10,
+      "total": 25,
+      "totalPages": 3
+    }
+  }
+}
+```
+
+---
+
+## Error Codes
+
+| Code | Description |
+|------|-------------|
+| 200 | Success |
+| 201 | Created |
+| 400 | Bad Request - Validation Error |
+| 401 | Unauthorized - Invalid/Missing Token |
+| 403 | Forbidden - Insufficient Permissions |
+| 404 | Not Found |
+| 500 | Internal Server Error |
+
+---
+
+### Update Order Status (Admin)
+
+**PUT** `/orders/:id/status`
+
+**Access**: Private (Admin Only)
+
+**Headers**:
+```
+Authorization: Bearer <admin_token>
+```
+
+**URL Parameters**:
+- `id` (integer): Order ID
+
+**Request Body**:
+```json
+{
+  "status": "Acknowledge"
+}
+```
+
+**Valid Status Values**: `Pending`, `Acknowledge`, `Completed`, `Rejected`
+
+**Success Response** (200):
+```json
+{
+  "success": true,
+  "message": "Order status updated successfully",
+  "data": {
+    "order": {
+      "order_id": 1,
+      "user_id": 2,
+      "total_amount": 45000.00,
+      "total_gst": 1350.00,
+      "grand_total": 46350.00,
+      "order_status": "Acknowledge",
+      "created_at": "2026-02-16T06:14:33.000Z",
+      "updated_at": "2026-02-16T07:14:33.000Z",
+      "items": [...]
+    }
+  }
+}
+```
+
+**Error Response** (400):
+```json
+{
+  "success": false,
+  "message": "Validation failed",
+  "errors": [
+    {
+      "msg": "Status must be one of: Pending, Acknowledge, Completed, Rejected",
+      "param": "status",
+      "location": "body"
+    }
+  ]
+}
+```

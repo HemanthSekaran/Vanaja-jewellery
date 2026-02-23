@@ -22,7 +22,7 @@ router.get('/', protect, getAllOrders);
 router.get('/admin/all', protect, authorize('admin'), getAllOrdersAdmin);
 router.put('/:id/status', protect, authorize('admin'), validateId, validateOrderStatusUpdate, updateOrderStatus);
 
-// Get single order - must come after specific routes
+// Get single order by order_id - must come after specific routes
 router.get('/:id', protect, validateId, getOrderById);
 
 module.exports = router;
