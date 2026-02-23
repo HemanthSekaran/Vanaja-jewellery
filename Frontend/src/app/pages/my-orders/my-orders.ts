@@ -54,8 +54,8 @@ export class MyOrdersComponent implements OnInit {
 
     fetchPromise
       .then((res: any) => {
-        // Handle different response structures gracefully
-        if (res.data && res.data.success && res.data.data && Array.isArray(res.data.data.orders)) {
+        // Updated to handle backend response format: res.data.data.orders
+        if (res.data && res.data.data && Array.isArray(res.data.data.orders)) {
           this.orders = res.data.data.orders;
         } else if (res.data && res.data.orders && Array.isArray(res.data.orders)) {
           this.orders = res.data.orders;

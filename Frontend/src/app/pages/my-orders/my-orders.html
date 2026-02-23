@@ -31,49 +31,61 @@
                     <tr>
                         <th class="px-4 py-3">Order ID</th>
                         <th class="px-4 py-3">Date</th>
-                        @if(isAdmin) { <th class="px-4 py-3">User</th> }
-                        <th class="px-4 py-3">Items</th>
-                        <th class="px-4 py-3">Total Amount</th>
-                        <th class="px-4 py-3">Status</th>
+                        @if(isAdmin) { <th class="px-4 py-3">Customer</th> }
+                        <th class="px-4 py-3">Product Details</th>
+                        <th class="px-4 py-3 text-right">Price</th>
+                        <th class="px-4 py-3 text-center">Status</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-border">
                     @for (order of orders; track order.order_id) {
                     <tr class="hover:bg-muted/30 transition-colors">
                         <td class="px-4 py-3 font-medium text-foreground">#{{ order.order_id }}</td>
-                        <td class="px-4 py-3">{{ order.created_at | date:'mediumDate' }}</td>
+                        <td class="px-4 py-3 text-muted-foreground">{{ order.created_at | date:'mediumDate' }}</td>
                         @if(isAdmin) {
                         <td class="px-4 py-3">
                             <div class="flex flex-col">
-                                <span class="font-medium">{{ order.user_id }}</span>
-                                <!-- Replace with user name if available -->
+                                <span class="font-medium">{{ order.user_name || 'Anonymous' }}</span>
+                                <span class="text-xs text-muted-foreground">{{ order.user_email }}</span>
                             </div>
                         </td>
                         }
                         <td class="px-4 py-3">
-                            {{ order.items?.length || 0 }} items
-                            <!-- Ideally show names or summary -->
+                            <div class="flex flex-col">
+                                <span class="font-semibold text-secondary">{{ order.product_name }}</span>
+                                <span class="text-xs text-muted-foreground">
+                                    {{ order.metal }} {{ order.metal_purity }} • {{ order.weight }}g
+                                    @if(order.wastage_percentage > 0) {
+                                    (+{{ order.wastage_percentage }}% waste)
+                                    }
+                                </span>
+                            </div>
                         </td>
-                        <td class="px-4 py-3 font-bold text-primary">
-                            {{ order.grand_total | currency:'INR' }}
+                        <td class="px-4 py-3 font-bold text-primary text-right">
+                            {{ order.final_price | currency:'INR' }}
                         </td>
-                        <td class="px-4 py-3">
+                        <td class="px-4 py-3 text-center">
                             @if(isAdmin) {
                             <select [value]="order.order_status"
                                 (change)="updateStatus(order.order_id, $any($event.target).value)"
                                 class="h-8 rounded-md border border-input bg-background px-2 py-1 text-xs font-medium focus:outline-none focus:ring-1 focus:ring-primary">
-                                <option value="Pending">Pending</option>
-                                <option value="Acknowledge">Acknowledge</option>
-                                <option value="Completed">Completed</option>
-                                <option value="Rejected">Rejected</option>
+                                <option value="pending">Pending</option>
+                                <option value="acknowledge">Acknowledge</option>
+                                <option value="completed">Completed</option>
+                                <option value="rejected">Rejected</option>
                             </select>
                             } @else {
-                            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium 
-                                    {{ order.order_status === 'Completed' || order.order_status === 'Delivered' ? 'bg-green-100 text-green-700' : 
-                                       order.order_status === 'Rejected' || order.order_status === 'Cancelled' ? 'bg-red-100 text-red-700' : 
-                                       order.order_status === 'Acknowledge' ? 'bg-blue-100 text-blue-700' :
-                                       'bg-yellow-100 text-yellow-700' }}">
-                                {{ order.order_status | titlecase }}
+                            <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold
+                                    {{ order.order_status === 'completed' ? 'bg-green-100 text-green-700' : 
+                                       order.order_status === 'rejected' ? 'bg-red-100 text-red-700' : 
+                                       order.order_status === 'acknowledge' ? 'bg-blue-100 text-blue-700' :
+                                       'bg-amber-100 text-amber-700' }}">
+                                <span class="w-1.5 h-1.5 rounded-full mr-1.5
+                                    {{ order.order_status === 'completed' ? 'bg-green-500' : 
+                                       order.order_status === 'rejected' ? 'bg-red-500' : 
+                                       order.order_status === 'acknowledge' ? 'bg-blue-500' :
+                                       'bg-amber-500' }}"></span>
+                                {{ (order.order_status || 'pending') | titlecase }}
                             </span>
                             }
                         </td>

@@ -119,9 +119,7 @@ const createOrder = async (req, res, next) => {
                 createdOrderIds
             );
 
-            sendSuccess(res, 201, 'Order placed successfully', {
-                orders: createdItems
-            });
+            sendSuccess(res, { orders: createdItems }, 'Order placed successfully', 201);
 
         } catch (error) {
             await connection.rollback();
@@ -143,11 +141,11 @@ const createOrder = async (req, res, next) => {
 const getAllOrders = async (req, res, next) => {
     try {
         const userId = req.user.id;
-        const page   = parseInt(req.query.page)  || 1;
-        const limit  = parseInt(req.query.limit) || 10;
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 10;
         const offset = (page - 1) * limit;
 
-        const [countResult] = await query(
+        const countResult = await query(
             'SELECT COUNT(*) AS total FROM order_items WHERE user_id = ?',
             [userId]
         );
@@ -161,15 +159,15 @@ const getAllOrders = async (req, res, next) => {
             [userId, limit, offset]
         );
 
-        sendSuccess(res, 200, 'Orders retrieved successfully', {
+        sendSuccess(res, {
             orders,
             pagination: {
                 currentPage: page,
-                perPage:     limit,
+                perPage: limit,
                 total,
-                totalPages:  Math.ceil(total / limit)
+                totalPages: Math.ceil(total / limit)
             }
-        });
+        }, 'Orders retrieved successfully');
 
     } catch (error) {
         next(error);
@@ -184,10 +182,10 @@ const getAllOrders = async (req, res, next) => {
 const getOrderById = async (req, res, next) => {
     try {
         const orderId = req.params.id;
-        const userId  = req.user.id;
+        const userId = req.user.id;
         const isAdmin = req.user.role === 'admin';
 
-        const [orders] = await query(
+        const orders = await query(
             'SELECT * FROM order_items WHERE order_id = ?',
             [orderId]
         );
@@ -202,7 +200,7 @@ const getOrderById = async (req, res, next) => {
             return next(new AppError('Not authorized to view this order', 403));
         }
 
-        sendSuccess(res, 200, 'Order retrieved successfully', { order });
+        sendSuccess(res, { order }, 'Order retrieved successfully');
 
     } catch (error) {
         next(error);
@@ -216,11 +214,11 @@ const getOrderById = async (req, res, next) => {
  */
 const getAllOrdersAdmin = async (req, res, next) => {
     try {
-        const page   = parseInt(req.query.page)  || 1;
-        const limit  = parseInt(req.query.limit) || 10;
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 10;
         const offset = (page - 1) * limit;
 
-        const [countResult] = await query(
+        const countResult = await query(
             'SELECT COUNT(*) AS total FROM order_items'
         );
         const total = countResult[0].total;
@@ -234,15 +232,15 @@ const getAllOrdersAdmin = async (req, res, next) => {
             [limit, offset]
         );
 
-        sendSuccess(res, 200, 'All orders retrieved successfully', {
+        sendSuccess(res, {
             orders,
             pagination: {
                 currentPage: page,
-                perPage:     limit,
+                perPage: limit,
                 total,
-                totalPages:  Math.ceil(total / limit)
+                totalPages: Math.ceil(total / limit)
             }
-        });
+        }, 'All orders retrieved successfully');
 
     } catch (error) {
         next(error);
@@ -259,7 +257,7 @@ const updateOrderStatus = async (req, res, next) => {
         const orderId = req.params.id;
         const { status } = req.body;
 
-        const [orders] = await query(
+        const orders = await query(
             'SELECT * FROM order_items WHERE order_id = ?',
             [orderId]
         );
@@ -273,14 +271,14 @@ const updateOrderStatus = async (req, res, next) => {
             [status, orderId]
         );
 
-        const [updatedOrders] = await query(
+        const updatedOrders = await query(
             'SELECT * FROM order_items WHERE order_id = ?',
             [orderId]
         );
 
-        sendSuccess(res, 200, 'Order status updated successfully', {
+        sendSuccess(res, {
             order: updatedOrders[0]
-        });
+        }, 'Order status updated successfully');
 
     } catch (error) {
         next(error);

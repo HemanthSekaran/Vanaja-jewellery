@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectorRef, ViewChild, ElementRef, OnDestroy } from '@angular/core';
 import { HeroSection } from '../../components/hero-section/hero-section';
 import { ProductCard } from '../../components/product-card/product-card';
 import { CollectionCarousel } from '../../components/ui-custom/collection-carousel/collection-carousel';
@@ -26,7 +26,10 @@ import { ApiService } from '../../services/api.service';
   templateUrl: './home.html',
   styleUrl: './home.css'
 })
-export class Home implements OnInit {
+export class Home implements OnInit, OnDestroy {
+  @ViewChild('bestSellersScroll') bestSellersScroll!: ElementRef;
+  @ViewChild('featuredScroll') featuredScroll!: ElementRef;
+
   productService = inject(ProductService);
   apiService = inject(ApiService);
   cdr = inject(ChangeDetectorRef);
@@ -37,7 +40,10 @@ export class Home implements OnInit {
   isLoadingBestSellers = true;
   isLoadingFeatured = true;
 
+  private scrollInterval: any;
+
   ngOnInit() {
+    this.startAutoScroll();
     this.getTopSellingProducts({ limit: 20 }).subscribe({
       next: (response) => {
         console.log('Home: Top Selling Loaded', response);
@@ -90,5 +96,73 @@ export class Home implements OnInit {
         return of(this.productService.getEmptyResponse());
       })
     );
+  }
+
+  ngOnDestroy() {
+    if (this.scrollInterval) {
+      clearInterval(this.scrollInterval);
+    }
+  }
+
+  private startAutoScroll() {
+    this.stopAutoScroll();
+    this.scrollInterval = setInterval(() => {
+      this.rotateForward('best', true);
+      this.rotateForward('featured', true);
+    }, 5000);
+  }
+
+  private stopAutoScroll() {
+    if (this.scrollInterval) {
+      clearInterval(this.scrollInterval);
+      this.scrollInterval = null;
+    }
+  }
+
+  rotateForward(type: 'best' | 'featured', isAuto: boolean = false) {
+    if (!isAuto) this.startAutoScroll(); // Restart timer on manual interaction
+
+    if (type === 'best' && this.bestSellers.length > 0) {
+      const container = this.bestSellersScroll.nativeElement;
+      this.performRotation(container, () => {
+        this.bestSellers = [...this.bestSellers.slice(1), this.bestSellers[0]];
+      });
+    } else if (type === 'featured' && this.featuredProducts.length > 0) {
+      const container = this.featuredScroll.nativeElement;
+      this.performRotation(container, () => {
+        this.featuredProducts = [...this.featuredProducts.slice(1), this.featuredProducts[0]];
+      });
+    }
+  }
+
+  rotateBackward(type: 'best' | 'featured') {
+    this.startAutoScroll(); // Restart timer on manual interaction
+
+    if (type === 'best' && this.bestSellers.length > 0) {
+      const container = this.bestSellersScroll.nativeElement;
+      this.bestSellers = [this.bestSellers[this.bestSellers.length - 1], ...this.bestSellers.slice(0, -1)];
+      this.cdr.detectChanges();
+    } else if (type === 'featured' && this.featuredProducts.length > 0) {
+      const container = this.featuredScroll.nativeElement;
+      this.featuredProducts = [this.featuredProducts[this.featuredProducts.length - 1], ...this.featuredProducts.slice(0, -1)];
+      this.cdr.detectChanges();
+    }
+  }
+
+  private performRotation(container: HTMLElement, updateArray: () => void) {
+    const firstItem = container.firstElementChild as HTMLElement;
+    if (!firstItem) return;
+
+    const itemWidth = firstItem.offsetWidth;
+    const gap = 24;
+    const scrollStep = itemWidth + gap;
+
+    container.scrollBy({ left: scrollStep, behavior: 'smooth' });
+
+    setTimeout(() => {
+      updateArray();
+      container.scrollTo({ left: 0, behavior: 'auto' });
+      this.cdr.detectChanges();
+    }, 600); // Slightly shorter for snappier feel
   }
 }

@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { CartService } from '../../services/cart.service';
 import { ApiService } from '../../services/api.service';
+import { AlertService } from '../../services/alert.service';
 import { CartItem } from '../../models/product.model';
 import { environment } from '../../../environments/environment';
 
@@ -15,6 +16,7 @@ import { environment } from '../../../environments/environment';
 export class Checkout implements OnInit {
     cartService = inject(CartService);
     apiService = inject(ApiService);
+    alertService = inject(AlertService);
     route = inject(ActivatedRoute);
     router = inject(Router);
 
@@ -98,8 +100,8 @@ export class Checkout implements OnInit {
 
             this.items.set([item]);
             this.total.set(variant.price * quantity);
-        } catch (error) {
-            console.error('Failed to load product', error);
+        } catch (err: any) {
+            console.error('Failed to load product', err);
             // Handle error, maybe redirect back
         } finally {
             this.loading.set(false);
@@ -135,12 +137,18 @@ export class Checkout implements OnInit {
 
             // Redirect to success or home
             // Ideally show a success message first
-            alert('Order placed successfully!');
+            await this.alertService.success(
+                'Order Placed!',
+                'Your order placed successfully and our representative will contact you shortly. Thank you!'
+            );
             this.router.navigate(['/']);
 
-        } catch (error) {
-            console.error('Order failed', error);
-            alert('Failed to place order. Please try again.');
+        } catch (err: any) {
+            console.error('Order failed', err);
+            await this.alertService.error(
+                'Order Failed',
+                'Failed to place order. Please try again.'
+            );
         } finally {
             this.processing.set(false);
         }
