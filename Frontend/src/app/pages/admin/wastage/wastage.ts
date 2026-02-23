@@ -88,7 +88,12 @@ export class WastageComponent implements OnInit {
 
     async saveWastage() {
         if (!this.jewelType() || !this.wastageValue()) {
-            this.toastService.error('Please fill all fields');
+            this.toastService.error('Please fill all mandatory fields');
+            return;
+        }
+
+        if (isNaN(parseFloat(this.wastageValue()))) {
+            this.toastService.error('Wastage must be a valid number');
             return;
         }
 

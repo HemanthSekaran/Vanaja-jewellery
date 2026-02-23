@@ -19,6 +19,23 @@ const { use } = require('react');
 const register = async (req, res, next) => {
     try {
         const { name, email, phone, address, password } = req.body;
+
+        // Validation
+        if (!name || !email || !password || !phone || !address) {
+            return next(new AppError('Name, email, password, phone, and address are required', 400));
+        }
+
+        // Basic email format validation
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            return next(new AppError('Please provide a valid email address', 400));
+        }
+
+        // Password length validation
+        if (password.length < 6) {
+            return next(new AppError('Password must be at least 6 characters long', 400));
+        }
+
         console.log(req.body);
         // Check if user already exists
         const existingUsers = await query(

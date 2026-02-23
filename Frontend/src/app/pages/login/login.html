@@ -5,22 +5,28 @@
             <p class="text-muted-foreground">Enter your email to sign in to your account</p>
         </div>
 
-        <form (ngSubmit)="onSubmit()" class="space-y-6">
+        <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="space-y-6">
             <div class="space-y-2">
                 <label for="email"
-                    class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Email</label>
-                <input type="email" id="email" [(ngModel)]="email" name="email" required
+                    class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Email
+                    <span class="text-red-500">*</span></label>
+                <input type="email" id="email" formControlName="email"
                     class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                    [class.border-red-500]="loginForm.get('email')?.invalid && loginForm.get('email')?.touched"
                     placeholder="name@example.com">
+                @if (loginForm.get('email')?.invalid && loginForm.get('email')?.touched) {
+                <p class="text-xs text-red-500">Please enter a valid email address</p>
+                }
             </div>
 
             <div class="space-y-2">
                 <label for="password"
-                    class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Password</label>
+                    class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Password
+                    <span class="text-red-500">*</span></label>
                 <div class="relative">
-                    <input [type]="showPassword() ? 'text' : 'password'" id="password" [(ngModel)]="password"
-                        name="password" required
-                        class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 pr-10">
+                    <input [type]="showPassword() ? 'text' : 'password'" id="password" formControlName="password"
+                        class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 pr-10"
+                        [class.border-red-500]="loginForm.get('password')?.invalid && loginForm.get('password')?.touched">
                     <button type="button" (click)="togglePassword()"
                         class="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent focus:outline-none text-muted-foreground">
                         @if (showPassword()) {
@@ -41,11 +47,14 @@
                         }
                     </button>
                 </div>
+                @if (loginForm.get('password')?.invalid && loginForm.get('password')?.touched) {
+                <p class="text-xs text-red-500">Password must be at least 6 characters</p>
+                }
             </div>
 
-            <button type="submit"
+            <button type="submit" [disabled]="isSubmitting"
                 class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 w-full">
-                Sign In
+                {{ isSubmitting ? 'Signing In...' : 'Sign In' }}
             </button>
         </form>
 

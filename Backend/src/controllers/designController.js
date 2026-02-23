@@ -19,6 +19,15 @@ const createDesign = async (req, res, next) => {
         const { design_name, material_preference, approximate_weight, description } = req.body;
         const userId = req.user.id;
 
+        // Validation
+        if (!design_name || !material_preference || !approximate_weight || !description) {
+            return next(new AppError('Design name, material preference, weight, and description are required', 400));
+        }
+
+        if (isNaN(parseFloat(approximate_weight)) || parseFloat(approximate_weight) <= 0) {
+            return next(new AppError('Please provide a valid approximate weight', 400));
+        }
+
         // Get uploaded file names if exists (multiple images)
         const reference_images = req.files ? req.files.map(f => f.filename) : [];
 

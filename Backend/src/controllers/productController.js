@@ -195,6 +195,15 @@ const createProduct = async (req, res, next) => {
             description,
             availability
         } = req.body;
+
+        // Validation
+        if (!name || !waste_id || !metal || !weight) {
+            return next(new AppError('Product name, wastage type, metal, and weight are required', 400));
+        }
+
+        if (isNaN(parseFloat(weight)) || parseFloat(weight) <= 0) {
+            return next(new AppError('Please provide a valid weight', 400));
+        }
         // Get uploaded image filenames (multiple files)
         const images = req.files ? req.files.map(file => file.filename) : [];
         const imageJson = JSON.stringify(images);

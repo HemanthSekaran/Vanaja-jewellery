@@ -146,6 +146,7 @@ export class AdminProduct implements OnInit {
 
   product: Product = this.getEmptyProduct();
   isEditMode = false;
+  isSubmitting = false;
 
   imageDetails: { name: string, size: string }[] = [];
   selectedImageFiles: File[] = [];
@@ -331,6 +332,19 @@ export class AdminProduct implements OnInit {
   }
 
   onSubmit() {
+    if (!this.product.name || !this.product.category || !this.product.weight || !this.product.metal || !this.product.metal_purity) {
+      this.toastService.show('Please fill all mandatory fields marked with *', 'error');
+      return;
+    }
+
+    if (this.product.weight <= 0) {
+      this.toastService.show('Weight must be greater than 0', 'error');
+      return;
+    }
+
+    if (this.isSubmitting) return;
+    this.isSubmitting = true;
+
     const action = this.isEditMode
       ? this.productService.updateProduct(this.product.id, this.product, this.selectedImageFiles)
       : this.productService.addProduct(this.product, this.selectedImageFiles);
@@ -342,10 +356,12 @@ export class AdminProduct implements OnInit {
           'success'
         );
         this.router.navigate(['/products']);
+        this.isSubmitting = false;
       },
       error: (err) => {
         console.error('Error saving product:', err);
         this.toastService.show('Failed to save product', 'error');
+        this.isSubmitting = false;
       }
     });
   }

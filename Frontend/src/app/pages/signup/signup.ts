@@ -1,54 +1,56 @@
 import { Component, inject, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import { FormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
 import { ToastService } from '../../services/toast.service';
+import { CommonModule } from '@angular/common';
 
 @Component({
     selector: 'app-signup',
     standalone: true,
-    imports: [RouterLink, FormsModule],
+    imports: [RouterLink, ReactiveFormsModule, CommonModule],
     templateUrl: './signup.html',
 })
 export class Signup {
 
-    name = '';
-    email = '';
-    phone = '';
-    address = '';
-    password = '';
-    showPassword = signal(false);
-
+    fb = inject(FormBuilder);
     authService = inject(AuthService);
     router = inject(Router);
     toastService = inject(ToastService);
+
+    signupForm: FormGroup;
+    showPassword = signal(false);
+    isSubmitting = false;
+
+    constructor() {
+        this.signupForm = this.fb.group({
+            name: ['', [Validators.required, Validators.minLength(2)]],
+            email: ['', [Validators.required, Validators.email]],
+            password: ['', [Validators.required, Validators.minLength(6)]],
+            phone: ['', [Validators.required, Validators.pattern(/^[0-9]{10}$/)]],
+            address: ['', [Validators.required]]
+        });
+    }
 
     togglePassword() {
         this.showPassword.set(!this.showPassword());
     }
 
     async onSubmit() {
-        if (!this.name.trim()) {
-            this.toastService.error("Name is required");
+        if (this.signupForm.invalid) {
+            this.signupForm.markAllAsTouched();
             return;
         }
 
-        if (!this.email.trim()) {
-            this.toastService.error("Email is required");
-            return;
-        }
-
-        if (!this.password.trim()) {
-            this.toastService.error("Password is required");
-            return;
-        }
+        this.isSubmitting = true;
+        const formValue = this.signupForm.value;
 
         const user = {
-            name: this.name.trim(),
-            email: this.email.trim(),
-            password: this.password.trim(),
-            phone: this.phone?.trim() || '',
-            address: this.address?.trim() || '',
+            name: formValue.name.trim(),
+            email: formValue.email.trim(),
+            password: formValue.password.trim(),
+            phone: formValue.phone?.trim() || '',
+            address: formValue.address?.trim() || '',
             role: 'user'
         };
 
@@ -59,7 +61,9 @@ export class Signup {
 
         } catch (error: any) {
             console.error("Signup Error:", error);
-            this.toastService.error("An error occurred during registration. Please try again.");
+            this.toastService.error(error.error?.message || "An error occurred during registration. Please try again.");
+        } finally {
+            this.isSubmitting = false;
         }
     }
 }
