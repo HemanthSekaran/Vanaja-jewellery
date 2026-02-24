@@ -1,9 +1,10 @@
-import { Injectable } from '@angular/core';
+import { Injectable, Injector } from '@angular/core';
 import axios from 'axios';
 import { environment } from '../../environments/environment';
 import { Router } from '@angular/router';
 import { TokenService } from './token.service';
 import { ToastService } from './toast.service';
+import { AuthService } from './auth.service';
 
 
 @Injectable({
@@ -14,7 +15,8 @@ export class ApiService {
     constructor(
         private tokenService: TokenService,
         private router: Router,
-        private toastService: ToastService
+        private toastService: ToastService,
+        private injector: Injector
     ) {
         const baseUrl = environment.baseUrl;
         axios.defaults.baseURL = baseUrl;
@@ -22,6 +24,13 @@ export class ApiService {
         axios.interceptors.request.use(async (request: any) => {
             const token = await this.tokenService.getToken();
             if (token) {
+                if (this.tokenService.isTokenExpired(token)) {
+                    // Trigger logout but don't reject yet to allow synchronous flow
+                    // Actually best to reject so the actual call doesn't happen
+                    const authService = this.injector.get(AuthService);
+                    authService.logout();
+                    return Promise.reject(new Error('Token expired'));
+                }
                 request.headers = request.headers || {};
                 request.headers.Authorization = `Bearer ${token}`;
             }
@@ -32,11 +41,9 @@ export class ApiService {
             const errorMessage = err.response?.data?.message || err.message || 'Something went wrong';
 
             if (err.response && err.response.status == 401) {
-                this.toastService.show('Session expired. Redirecting...', 'error');
-                setTimeout(() => {
-                    window.location.href = '/';
-                }, 100);
-            } else {
+                const authService = this.injector.get(AuthService);
+                authService.logout();
+            } else if (errorMessage !== 'Token expired') {
                 this.toastService.show(errorMessage, 'error');
             }
 

@@ -1,5 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { RouterLink, RouterLinkActive } from '@angular/router';
+import { RouterLink, RouterLinkActive, Router } from '@angular/router';
 import { CartService } from '../../services/cart.service';
 import { WishlistService } from '../../services/wishlist.service';
 import { LayoutService } from '../../services/layout.service';
@@ -18,6 +18,7 @@ export class Header {
   wishlistService = inject(WishlistService);
   layoutService = inject(LayoutService);
   authService = inject(AuthService);
+  router = inject(Router);
 
   isUserMenuOpen = false;
 
@@ -49,5 +50,9 @@ export class Header {
   get customizationLink(): string {
     const user = this.authService.currentUser();
     return user?.role === 'admin' ? '/customization/list' : '/customization';
+  }
+
+  get isHomePage(): boolean {
+    return this.router.url === '/';
   }
 }

@@ -294,8 +294,8 @@ const validateOrderStatusUpdate = [
     body('status')
         .trim()
         .notEmpty().withMessage('Status is required')
-        .isIn(['Pending', 'Acknowledge', 'Completed', 'Rejected'])
-        .withMessage('Status must be one of: Pending, Acknowledge, Completed, Rejected'),
+        .isIn(['pending', 'acknowledge', 'completed', 'rejected'])
+        .withMessage('Status must be one of: pending, acknowledge, completed, rejected'),
 
     handleValidationErrors
 ];

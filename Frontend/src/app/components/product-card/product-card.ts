@@ -139,9 +139,22 @@ export class ProductCard {
     this.router.navigate(['/admin/product/edit', this.product.id]);
   }
 
-  addToCart(event: Event) {
+  async addToCart(event: Event) {
     event.stopPropagation();
     event.preventDefault();
+
+    if (!this.authService.isLoggedIn()) {
+      const confirmed = await this.alertService.confirm(
+        'Login Required',
+        'Please login to add items to your cart.',
+        'Sign In',
+        'Cancel'
+      );
+      if (confirmed) {
+        this.router.navigate(['/login']);
+      }
+      return;
+    }
 
     if (this.product.variants && this.product.variants.length > 0) {
       const variant = this.product.variants[0];
@@ -156,6 +169,11 @@ export class ProductCard {
     event.stopPropagation();
     event.preventDefault();
 
+    if (!this.authService.isLoggedIn()) {
+      this.router.navigate(['/login']);
+      return;
+    }
+
     this.router.navigate(['/checkout'], {
       queryParams: {
         productId: this.product.id,
@@ -164,9 +182,22 @@ export class ProductCard {
     });
   }
 
-  toggleWishlist(event: Event) {
+  async toggleWishlist(event: Event) {
     event.stopPropagation();
     event.preventDefault();
+
+    if (!this.authService.isLoggedIn()) {
+      const confirmed = await this.alertService.confirm(
+        'Login Required',
+        'Please login to save items to your wishlist.',
+        'Sign In',
+        'Cancel'
+      );
+      if (confirmed) {
+        this.router.navigate(['/login']);
+      }
+      return;
+    }
 
     if (this.isInWishlist) {
       this.wishlistService.removeFromWishlist(this.product.id);

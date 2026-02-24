@@ -2,6 +2,7 @@ import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { CartService } from '../../services/cart.service';
+import { WishlistService } from '../../services/wishlist.service';
 import { AuthService } from '../../services/auth.service';
 
 @Component({
@@ -16,6 +17,7 @@ export class MobileMenu {
     @Output() close = new EventEmitter<void>();
 
     cartService = inject(CartService);
+    wishlistService = inject(WishlistService);
     authService = inject(AuthService);
 
     get userName(): string {

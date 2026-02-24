@@ -17,7 +17,7 @@ export const authGuard: CanActivateFn = (route, state) => {
     // Redirect to home and reload
     setTimeout(() => {
         window.location.href = '/';
-    }, 100);
+    }, 2000);
 
     return false;
 };

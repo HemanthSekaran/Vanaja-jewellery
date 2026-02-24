@@ -4,6 +4,7 @@ import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angula
 import { ActivatedRoute, Router } from '@angular/router';
 import { ApiService } from '../../services/api.service';
 import { ToastService } from '../../services/toast.service';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
     selector: 'app-customization',
@@ -32,7 +33,8 @@ export class CustomizationComponent {
         private api: ApiService,
         private route: ActivatedRoute, // Injected ActivatedRoute
         public router: Router, // Injected Router
-        private toastService: ToastService
+        private toastService: ToastService,
+        public auth: AuthService
     ) {
         this.customizationForm = this.fb.group({
             design_name: ['', Validators.required],

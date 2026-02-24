@@ -1,7 +1,8 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { RouterLink, Router } from '@angular/router';
 import { CartService } from '../../services/cart.service';
+import { AuthService } from '../../services/auth.service';
 
 import { environment } from '../../../environments/environment';
 
@@ -13,6 +14,8 @@ import { environment } from '../../../environments/environment';
 })
 export class Cart {
     cartService = inject(CartService);
+    auth = inject(AuthService);
+    router = inject(Router);
 
     getImageUrl(image: string): string {
         if (!image) return 'https://via.placeholder.com/400x400?text=No+Image';

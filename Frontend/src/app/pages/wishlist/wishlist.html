@@ -1,3 +1,4 @@
+@if (auth.isLoggedIn()) {
 <div class="container mx-auto px-4 py-8 md:py-16">
     <h1 class="text-2xl md:text-3xl font-bold mb-6 md:mb-8 font-serif">My Wishlist</h1>
 
@@ -33,3 +34,43 @@
     </div>
     }
 </div>
+} @else {
+<!-- Login Required View -->
+<div class="container mx-auto px-4 py-24 flex items-center justify-center">
+    <div
+        class="bg-card max-w-xl w-full rounded-2xl border border-border/50 shadow-2xl p-12 text-center relative overflow-hidden">
+        <div class="absolute inset-0 bg-gradient-to-b from-primary/5 to-transparent"></div>
+
+        <div class="relative z-10">
+            <div
+                class="w-24 h-24 bg-primary/10 text-primary rounded-full flex items-center justify-center mx-auto mb-8 scale-110">
+                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path
+                        d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" />
+                </svg>
+            </div>
+
+            <h2 class="text-4xl font-serif font-bold text-secondary mb-4">Your Dream Collection</h2>
+            <p class="text-muted-foreground mb-10 text-lg leading-relaxed">
+                Log in to curate your personal wishlist, save your favorite pieces, and never miss out on what you love.
+            </p>
+
+            <div class="flex flex-col gap-4 max-w-sm mx-auto">
+                <button (click)="router.navigate(['/login'])"
+                    class="w-full bg-primary text-primary-foreground py-4 rounded-xl font-bold uppercase tracking-widest hover:bg-primary/90 transition-all shadow-xl shadow-primary/20 hover:-translate-y-0.5">
+                    Sign In to Save
+                </button>
+                <button (click)="router.navigate(['/signup'])"
+                    class="w-full bg-transparent text-foreground py-4 rounded-xl font-semibold hover:bg-muted/50 transition-all">
+                    New to Vanaja? Create Account
+                </button>
+            </div>
+        </div>
+
+        <!-- Decorative Blurs -->
+        <div class="absolute -bottom-20 -left-20 w-64 h-64 bg-primary/10 rounded-full blur-3xl"></div>
+        <div class="absolute -top-20 -right-20 w-64 h-64 bg-secondary/10 rounded-full blur-3xl"></div>
+    </div>
+</div>
+}

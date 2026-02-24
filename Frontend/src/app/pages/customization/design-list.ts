@@ -4,6 +4,7 @@ import { RouterModule, Router } from '@angular/router';
 import { ApiService } from '../../services/api.service';
 import { AlertService } from '../../services/alert.service';
 import { ToastService } from '../../services/toast.service';
+import { ExportService } from '../../services/export.service';
 
 @Component({
     selector: 'app-design-list',
@@ -22,7 +23,8 @@ export class DesignListComponent implements OnInit {
         private router: Router,
         private cd: ChangeDetectorRef,
         private alertService: AlertService,
-        private toastService: ToastService
+        private toastService: ToastService,
+        private exportService: ExportService
     ) { }
 
     ngOnInit() {
@@ -106,5 +108,34 @@ export class DesignListComponent implements OnInit {
         if (!filename) return '';
         if (filename.startsWith('http')) return filename;
         return `http://localhost:5000/uploads/designs/${filename}`;
+    }
+
+    exportToExcel() {
+        const exportData = this.designs.map(design => ({
+            'Design ID': design.id,
+            'Name': design.design_name,
+            'Customer': this.isAdmin ? (design.user_name || 'Anonymous') : 'Me',
+            'Material': design.material_preference,
+            'Est. Weight (g)': design.approximate_weight,
+            'Status': design.status,
+            'Created At': new Date(design.created_at).toLocaleDateString()
+        }));
+
+        this.exportService.exportToExcel(exportData, `Customizations_${this.isAdmin ? 'Admin' : 'User'}_${new Date().getTime()}`);
+    }
+
+    exportToPDF() {
+        const headers = ['ID', 'Name', 'Material', 'Weight', 'Status', 'Date'];
+        const data = this.designs.map(design => [
+            `#${design.id}`,
+            design.design_name,
+            design.material_preference,
+            `${design.approximate_weight}g`,
+            design.status,
+            new Date(design.created_at).toLocaleDateString()
+        ]);
+
+        const title = this.isAdmin ? 'All Customizations Report' : 'My Customizations Report';
+        this.exportService.exportToPDF(headers, data, `Customizations_${this.isAdmin ? 'Admin' : 'User'}_${new Date().getTime()}`, title);
     }
 }

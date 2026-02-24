@@ -1,14 +1,39 @@
 <div class="container mx-auto px-4 py-12">
-    <div class="flex justify-between items-center mb-8">
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
         <h1 class="text-3xl font-serif font-bold text-secondary">
             @if(isAdmin) { All Custom Designs } @else { My Designs }
         </h1>
-        @if(!isAdmin) {
-        <button (click)="createNew()"
-            class="bg-primary text-primary-foreground px-6 py-2 rounded-md font-medium hover:bg-primary/90 transition-colors">
-            Create New Design
-        </button>
-        }
+        <div class="flex flex-wrap gap-2">
+            <button (click)="exportToExcel()" [disabled]="loading || designs.length === 0"
+                class="flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2">
+                    <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" />
+                    <polyline points="14 2 14 8 20 8" />
+                    <line x1="8" y1="13" x2="16" y2="13" />
+                    <line x1="8" y1="17" x2="16" y2="17" />
+                    <line x1="8" y1="9" x2="10" y2="9" />
+                </svg>
+                Export Excel
+            </button>
+            <button (click)="exportToPDF()" [disabled]="loading || designs.length === 0"
+                class="flex items-center px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2">
+                    <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" />
+                    <polyline points="14 2 14 8 20 8" />
+                    <path d="M12 18v-6" />
+                    <path d="m9 15 3 3 3-3" />
+                </svg>
+                Export PDF
+            </button>
+            @if(!isAdmin) {
+            <button (click)="createNew()"
+                class="bg-primary text-primary-foreground px-6 py-2 rounded-md font-medium hover:bg-primary/90 transition-colors shadow-sm">
+                Create New Design
+            </button>
+            }
+        </div>
     </div>
 
     @if (errorMessage) {

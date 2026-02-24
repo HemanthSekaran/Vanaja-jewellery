@@ -57,9 +57,13 @@ export class AuthService {
                 }
 
                 this.setCurrentUser(userData);
-            } catch (e) {
+            } catch (e: any) {
                 console.error('Failed to restore user session', e);
-                this.logout();
+                // Only logout if it's an authentication error (401)
+                // If it's a 429 or network error, we keep the stored user for UI stability
+                if (e.response && e.response.status === 401) {
+                    this.logout();
+                }
             }
         }
     }

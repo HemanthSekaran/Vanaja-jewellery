@@ -4,6 +4,8 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { ProductService } from '../../services/product.service';
 import { CartService } from '../../services/cart.service';
 import { WishlistService } from '../../services/wishlist.service';
+import { AuthService } from '../../services/auth.service';
+import { AlertService } from '../../services/alert.service';
 import { Product, ProductVariant } from '../../models/product.model';
 import { FormsModule } from '@angular/forms';
 
@@ -19,6 +21,8 @@ export class ProductDetails implements OnInit {
   private wishlistService = inject(WishlistService);
   private cd = inject(ChangeDetectorRef);
   private router = inject(Router);
+  private authService = inject(AuthService);
+  private alertService = inject(AlertService);
 
   product: Product | undefined;
   selectedImage: string = '';
@@ -91,8 +95,22 @@ export class ProductDetails implements OnInit {
 
   showAddedMessage = false;
 
-  toggleCart() {
+  async toggleCart() {
     console.log('Toggle Cart called', { product: this.product, variant: this.selectedVariant, isInCart: this.isInCart });
+
+    if (!this.authService.isLoggedIn()) {
+      const confirmed = await this.alertService.confirm(
+        'Login Required',
+        'Please login to add items to your cart.',
+        'Sign In',
+        'Cancel'
+      );
+      if (confirmed) {
+        this.router.navigate(['/login']);
+      }
+      return;
+    }
+
     if (this.product && this.selectedVariant) {
       // Ensure variant has the correct calculated price
       if (this.priceDetails) {
@@ -118,6 +136,12 @@ export class ProductDetails implements OnInit {
 
   buyNow() {
     if (this.product && this.selectedVariant) {
+
+      if (!this.authService.isLoggedIn()) {
+        this.router.navigate(['/login']);
+        return;
+      }
+
       // Navigate to checkout with query params
       this.router.navigate(['/checkout'], {
         queryParams: {
@@ -128,8 +152,22 @@ export class ProductDetails implements OnInit {
     }
   }
 
-  toggleWishlist() {
+  async toggleWishlist() {
     console.log('Toggle Wishlist called');
+
+    if (!this.authService.isLoggedIn()) {
+      const confirmed = await this.alertService.confirm(
+        'Login Required',
+        'Please login to save items to your wishlist.',
+        'Sign In',
+        'Cancel'
+      );
+      if (confirmed) {
+        this.router.navigate(['/login']);
+      }
+      return;
+    }
+
     if (this.product) {
       if (this.isInWishlist) {
         this.wishlistService.removeFromWishlist(this.product.id);
