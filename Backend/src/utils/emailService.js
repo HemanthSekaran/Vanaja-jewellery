@@ -181,7 +181,95 @@ const getTimeElapsed = (createdAt) => {
     return `${diffHours} hour(s) ${diffMinutes} minute(s)`;
 };
 
+/**
+ * Send order notification to SHOP_EMAIL and OWNER_EMAIL when a new order is placed.
+ * @param {Array}  orderItems  - Array of order_items rows just inserted
+ * @param {Object} user        - Authenticated user object { id, name, email, phone }
+ */
+const sendOrderNotification = async (orderItems, user) => {
+    try {
+        if (!orderItems || orderItems.length === 0) return;
+
+        const transporter = createTransporter();
+
+        const totalFinalPrice = orderItems
+            .reduce((sum, item) => sum + parseFloat(item.final_price || 0), 0)
+            .toFixed(2);
+
+        const orderRowsHtml = orderItems.map((item, idx) => `
+            <tr style="background: ${idx % 2 === 0 ? '#f9f9f9' : '#fff'}">
+                <td style="padding:8px 12px; border:1px solid #ddd;">${item.order_id}</td>
+                <td style="padding:8px 12px; border:1px solid #ddd;">${item.product_name}</td>
+                <td style="padding:8px 12px; border:1px solid #ddd;">${item.metal || '-'} ${item.metal_purity || ''}</td>
+                <td style="padding:8px 12px; border:1px solid #ddd;">${parseFloat(item.weight).toFixed(3)} g</td>
+                <td style="padding:8px 12px; border:1px solid #ddd;">₹${parseFloat(item.metal_rate_per_gram).toFixed(2)}/g</td>
+                <td style="padding:8px 12px; border:1px solid #ddd;">₹${parseFloat(item.final_price).toFixed(2)}</td>
+            </tr>
+        `).join('');
+
+        const htmlBody = `
+            <div style="font-family: Arial, sans-serif; max-width: 680px; margin: 0 auto; color:#333;">
+                <h2 style="color:#b8860b;">🛒 New Order Placed – Vanaja Jewellery</h2>
+
+                <div style="background:#fff8e1; padding:16px; border-radius:6px; margin-bottom:20px;">
+                    <h3 style="margin-top:0; color:#555;">Customer Details</h3>
+                    <p><strong>Name:</strong> ${user.name}</p>
+                    <p><strong>Email:</strong> ${user.email}</p>
+                    <p><strong>Phone:</strong> ${user.phone || 'N/A'}</p>
+                    <p><strong>User ID:</strong> ${user.id}</p>
+                    <p><strong>Order Date:</strong> ${new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })}</p>
+                </div>
+
+                <h3 style="color:#555;">Order Items (${orderItems.length})</h3>
+                <table style="border-collapse:collapse; width:100%; font-size:14px;">
+                    <thead>
+                        <tr style="background:#b8860b; color:#fff;">
+                            <th style="padding:8px 12px; border:1px solid #ddd; text-align:left;">Order ID</th>
+                            <th style="padding:8px 12px; border:1px solid #ddd; text-align:left;">Product</th>
+                            <th style="padding:8px 12px; border:1px solid #ddd; text-align:left;">Metal</th>
+                            <th style="padding:8px 12px; border:1px solid #ddd; text-align:left;">Weight</th>
+                            <th style="padding:8px 12px; border:1px solid #ddd; text-align:left;">Metal Rate</th>
+                            <th style="padding:8px 12px; border:1px solid #ddd; text-align:left;">Final Price</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${orderRowsHtml}
+                    </tbody>
+                    <tfoot>
+                        <tr style="background:#f0f0f0; font-weight:bold;">
+                            <td colspan="5" style="padding:8px 12px; border:1px solid #ddd; text-align:right;">Grand Total</td>
+                            <td style="padding:8px 12px; border:1px solid #ddd;">₹${totalFinalPrice}</td>
+                        </tr>
+                    </tfoot>
+                </table>
+
+                <div style="margin-top:30px; padding-top:16px; border-top:1px solid #ddd;">
+                    <p style="color:#888; font-size:12px;">This is an automated notification from Vanaja Jewellery E-commerce System.</p>
+                </div>
+            </div>
+        `;
+
+        const recipients = [
+            process.env.SHOP_EMAIL,
+            process.env.OWNER_EMAIL,
+        ].filter(Boolean).join(',');
+
+        await transporter.sendMail({
+            from:    process.env.SMTP_FROM || process.env.SMTP_USER,
+            to:      recipients,
+            subject: `🛒 New Order – ${user.name} | ${orderItems.length} item(s) | ₹${totalFinalPrice}`,
+            html:    htmlBody,
+        });
+
+        logger.info(`Order notification email sent for ${orderItems.length} item(s) placed by user ${user.id}`);
+    } catch (error) {
+        logger.error('Error sending order notification email:', error);
+        // Do NOT throw – email failure must not break order creation
+    }
+};
+
 module.exports = {
     sendDesignCreatedNotification,
-    sendUnacknowledgedDesignAlert
+    sendUnacknowledgedDesignAlert,
+    sendOrderNotification,
 };

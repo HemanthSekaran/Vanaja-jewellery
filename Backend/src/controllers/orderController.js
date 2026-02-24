@@ -10,6 +10,7 @@ const { sendSuccess } = require('../utils/helpers');
 const { AppError } = require('../middleware/errorHandler');
 const { calculatePrice } = require('../utils/priceCalculator');
 const { getMetalPriceForProduct, getGSTPercentage } = require('../utils/metalPriceHelper');
+const { sendOrderNotification } = require('../utils/emailService');
 
 /**
  * @desc    Create order (Checkout)
@@ -118,6 +119,9 @@ const createOrder = async (req, res, next) => {
                 `SELECT * FROM order_items WHERE order_id IN (${placeholders}) ORDER BY order_id ASC`,
                 createdOrderIds
             );
+
+            // Send notification email to shop + owner (fire-and-forget)
+            sendOrderNotification(createdItems, req.user).catch(() => {});
 
             sendSuccess(res, { orders: createdItems }, 'Order placed successfully', 201);
 
