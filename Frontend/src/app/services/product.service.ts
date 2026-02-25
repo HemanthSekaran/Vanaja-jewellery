@@ -22,15 +22,28 @@ export class ProductService {
     getProducts(params?: {
         page?: number;
         limit?: number;
-        filterType?: 'category' | 'metal' | 'metalPurity' | 'weight';
-        filterValue?: string;
+        categories?: string[];
+        metals?: string[];
+        purities?: string[];
+        weightRanges?: any[];
+        search?: string;
         availability?: string;
     }): Observable<PaginatedProductResponse> {
-        return from(this.apiService.getProducts(params)).pipe(
+        return from(this.apiService.getProducts(params as any)).pipe(
             map((response: any) => this.processProductResponse(response, params)),
             catchError(error => {
                 console.error('Error fetching products:', error);
                 return of(this.getEmptyResponse());
+            })
+        );
+    }
+
+    getFilterOptions(): Observable<any> {
+        return from(this.apiService.getFilterOptions()).pipe(
+            map((response: any) => response.data?.data || response.data),
+            catchError(error => {
+                console.error('Error fetching filter options:', error);
+                return of({ categories: [], metals: [], purities: [] });
             })
         );
     }

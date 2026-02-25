@@ -38,19 +38,25 @@ const getAllProducts = async (req, res, next) => {
     try {
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 10;
-        const filterType = req.query.filterType;
-        const filterValue = req.query.filterValue;
+
+        // Multi-filter support
+        const categories = req.query.categories ? (Array.isArray(req.query.categories) ? req.query.categories : [req.query.categories]) : [];
+        const metals = req.query.metals ? (Array.isArray(req.query.metals) ? req.query.metals : [req.query.metals]) : [];
+        const purities = req.query.purities ? (Array.isArray(req.query.purities) ? req.query.purities : [req.query.purities]) : [];
         const availability = req.query.availability;
+        const search = req.query.search;
+
+        // Weight ranges
+        let weightRanges = [];
+        if (req.query.weightRanges) {
+            try {
+                weightRanges = JSON.parse(req.query.weightRanges);
+            } catch (e) {
+                weightRanges = Array.isArray(req.query.weightRanges) ? req.query.weightRanges : [req.query.weightRanges];
+            }
+        }
 
         const { limit: queryLimit, offset } = getPagination(page, limit);
-
-        // Map filterType to actual database column names
-        const columnMapping = {
-            'category': 'category',
-            'metal': 'metal',
-            'metalPurity': 'metal_purity',
-            'weight': 'weight'
-        };
 
         // Build query with JOIN to wastage table
         let sql = `SELECT p.*, w.jewel_type, w.wastage 
@@ -59,30 +65,63 @@ const getAllProducts = async (req, res, next) => {
                    WHERE 1=1`;
         const params = [];
 
-        // Apply filter only if filterType, filterValue exist and filterValue is not 'All'
-        if (filterType && filterValue && filterValue.toUpperCase() !== 'ALL') {
-            const columnName = columnMapping[filterType];
-            if (columnName) {
-                // Special handling for weight range (e.g., "0-2" means between 0 and 2)
-                if (filterType === 'weight' && filterValue.includes('-')) {
-                    const [minWeight, maxWeight] = filterValue.split('-').map(v => parseFloat(v.trim()));
-                    if (!isNaN(minWeight) && !isNaN(maxWeight)) {
-                        sql += ` AND CAST(p.${columnName} AS DECIMAL(10,2)) BETWEEN ? AND ?`;
-                        params.push(minWeight, maxWeight);
-                    }
-                } else {
-                    // Exact match for other filters
-                    sql += ` AND p.${columnName} = ?`;
-                    params.push(filterValue);
-                }
-            }
+        // Apply Search
+        if (search) {
+            sql += ` AND (p.name LIKE ? OR p.description LIKE ?)`;
+            params.push(`%${search}%`, `%${search}%`);
         }
 
-        // Apply availability filter if provided and not 'All'
+        // Apply Categories (from wastage table jewel_type)
+        if (categories.length > 0) {
+            const placeholders = categories.map(() => '?').join(',');
+            sql += ` AND w.jewel_type IN (${placeholders})`;
+            params.push(...categories);
+        }
+
+        // Apply Metals
+        if (metals.length > 0) {
+            const placeholders = metals.map(() => '?').join(',');
+            sql += ` AND p.metal IN (${placeholders})`;
+            params.push(...metals);
+        }
+
+        // Apply Purities
+        if (purities.length > 0) {
+            const placeholders = purities.map(() => '?').join(',');
+            sql += ` AND p.metal_purity IN (${placeholders})`;
+            params.push(...purities);
+        }
+
+        // Apply Weight Ranges
+        if (weightRanges.length > 0) {
+            sql += ' AND (';
+            const rangeConditions = weightRanges.map(range => {
+                if (typeof range === 'string' && range.includes('-')) {
+                    const [min, max] = range.split('-').map(Number);
+                    params.push(min, max);
+                    return `CAST(p.weight AS DECIMAL(10,2)) BETWEEN ? AND ?`;
+                } else if (range.min !== undefined && range.max !== undefined) {
+                    params.push(range.min, range.max);
+                    return `CAST(p.weight AS DECIMAL(10,2)) BETWEEN ? AND ?`;
+                }
+                return '1=0';
+            });
+            sql += rangeConditions.join(' OR ') + ')';
+        }
+
+        // Apply availability filter
         if (availability && availability.toUpperCase() !== 'ALL') {
             sql += ' AND p.availability = ?';
             params.push(availability);
         }
+
+        // For Count Query
+        let countSql = `SELECT COUNT(*) as total 
+                        FROM products p 
+                        LEFT JOIN wastage w ON p.waste_id = w.waste_id 
+                        WHERE 1=1`;
+        const countParams = [...params]; // Copy params before adding limit/offset
+        countSql += sql.split('WHERE 1=1')[1].split('ORDER BY')[0];
 
         sql += ' ORDER BY p.created_at DESC LIMIT ? OFFSET ?';
         params.push(queryLimit, offset);
@@ -90,37 +129,7 @@ const getAllProducts = async (req, res, next) => {
         // Get products
         const products = await query(sql, params);
 
-        // Get total count with same filters
-        let countSql = `SELECT COUNT(*) as total 
-                        FROM products p 
-                        LEFT JOIN wastage w ON p.waste_id = w.waste_id 
-                        WHERE 1=1`;
-        const countParams = [];
-
-        // Apply same filters for count
-        if (filterType && filterValue && filterValue.toUpperCase() !== 'ALL') {
-            const columnName = columnMapping[filterType];
-            if (columnName) {
-                // Special handling for weight range
-                if (filterType === 'weight' && filterValue.includes('-')) {
-                    const [minWeight, maxWeight] = filterValue.split('-').map(v => parseFloat(v.trim()));
-                    if (!isNaN(minWeight) && !isNaN(maxWeight)) {
-                        countSql += ` AND CAST(p.${columnName} AS DECIMAL(10,2)) BETWEEN ? AND ?`;
-                        countParams.push(minWeight, maxWeight);
-                    }
-                } else {
-                    // Exact match for other filters
-                    countSql += ` AND p.${columnName} = ?`;
-                    countParams.push(filterValue);
-                }
-            }
-        }
-
-        if (availability && availability.toUpperCase() !== 'ALL') {
-            countSql += ' AND p.availability = ?';
-            countParams.push(availability);
-        }
-
+        // Get total count
         const countResult = await query(countSql, countParams);
         const total = countResult[0].total;
 
@@ -128,19 +137,17 @@ const getAllProducts = async (req, res, next) => {
         const metalPriceMap = await fetchMetalPrices();
         const gstPercentage = getGSTPercentage();
 
-        // Parse images and add price calculation to all products
+        // Parse images and add price calculation
         const productsWithImagesAndPrice = products.map(product => {
             const productWithImages = {
                 ...product,
                 images: parseImages(product.image)
             };
-            // Get metal price for this specific product
             const metalRate = getMetalPriceForProduct(productWithImages, metalPriceMap);
             return addPriceToProduct(productWithImages, metalRate, gstPercentage);
         });
 
         const response = formatPaginatedResponse(productsWithImagesAndPrice, page, limit, total);
-
         sendSuccess(res, response, 'Products retrieved successfully');
     } catch (error) {
         logger.error('Get all products error:', error);
@@ -436,6 +443,27 @@ const deleteProduct = async (req, res, next) => {
 };
 
 /**
+ * @desc    Get dynamic filter options
+ * @access  Public
+ */
+const getFilterOptions = async (req, res, next) => {
+    try {
+        const categories = await query('SELECT DISTINCT jewel_type FROM wastage ORDER BY jewel_type');
+        const metals = await query('SELECT DISTINCT metal FROM products WHERE metal IS NOT NULL AND metal != "" ORDER BY metal');
+        const purities = await query('SELECT DISTINCT metal_purity FROM products WHERE metal_purity IS NOT NULL AND metal_purity != "" ORDER BY metal_purity');
+
+        sendSuccess(res, {
+            categories: categories.map(c => c.jewel_type),
+            metals: metals.map(m => m.metal),
+            purities: purities.map(p => p.metal_purity)
+        }, 'Filter options retrieved successfully');
+    } catch (error) {
+        logger.error('Get filter options error:', error);
+        next(error);
+    }
+};
+
+/**
  * @desc    Get product categories
  * @route   GET /api/products/categories/list
  * @access  Public
@@ -713,9 +741,11 @@ module.exports = {
     createProduct,
     updateProduct,
     deleteProduct,
+    getFilterOptions,
     getCategories,
     getTopSellingProducts,
     getFeaturedProducts,
     getUserCartProducts,
     getUserWishlistProducts
 };
+

@@ -69,6 +69,7 @@ export class ApiService {
     getTopSellingProducts = (params?: { page?: number; limit?: number }) => axios.get("/products/top-selling", { params });
     getFeaturedProducts = (params?: { page?: number; limit?: number }) => axios.get("/products/featured", { params });
     getCategories = () => axios.get("/products/categories/list");
+    getFilterOptions = () => axios.get("/products/filter-options");
     getProductById = (id: string) => axios.get(`/products/${id}`);
     createProduct = (formData: FormData) => axios.post("/products", formData, {
         headers: { 'Content-Type': 'multipart/form-data' }

@@ -7,6 +7,7 @@ const {
     createProduct,
     updateProduct,
     deleteProduct,
+    getFilterOptions,
     getCategories,
     getTopSellingProducts,
     getFeaturedProducts,
@@ -36,6 +37,7 @@ const memoryUpload = multer({
 
 // Public routes
 router.get('/', getAllProducts);
+router.get('/filter-options', getFilterOptions);
 router.get('/categories/list', getCategories);
 router.get('/top-selling', getTopSellingProducts);
 router.get('/featured', getFeaturedProducts);
@@ -46,7 +48,7 @@ router.get('/user/wishlist', protect, getUserWishlistProducts);
 
 // Admin bulk-upload routes (must also come before /:id)
 router.get('/bulk/template', protect, authorize('admin'), downloadTemplate);
-router.post('/bulk/upload',  protect, authorize('admin'), memoryUpload.single('file'), uploadProductsFromExcel);
+router.post('/bulk/upload', protect, authorize('admin'), memoryUpload.single('file'), uploadProductsFromExcel);
 
 router.get('/:id', validateId, getProduct);
 

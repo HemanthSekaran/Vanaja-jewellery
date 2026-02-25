@@ -1,7 +1,11 @@
 <div class="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
     <!-- Header -->
-    <div class="p-5 border-b border-gray-100 bg-gray-50/50">
+    <div class="p-5 border-b border-gray-100 bg-gray-50/50 flex justify-between items-center">
         <h2 class="text-xl font-serif font-bold text-gray-900 tracking-wide">Filters</h2>
+        <button (click)="clearFilters()"
+            class="text-xs text-primary hover:underline font-medium uppercase tracking-wider">
+            Clear All
+        </button>
     </div>
 
     <!-- Search -->
@@ -32,7 +36,7 @@
         </div>
     </div>
 
-    <!-- Category (Pills) -->
+    <!-- Category (Checkboxes) -->
     <div class="border-b border-gray-100">
         <button
             class="w-full px-5 py-4 flex items-center justify-between bg-white hover:bg-gray-50 transition-colors group"
@@ -47,31 +51,37 @@
             </span>
         </button>
         <div class="px-5 pb-5" [class.hidden]="!openSections['category']">
-            <div class="flex flex-wrap gap-2">
+            <div class="space-y-3">
                 @for (category of categories; track category) {
-                <button (click)="selectedCategory = category; onFilterChange()"
-                    class="px-4 py-2 text-sm rounded-full transition-all duration-200 border"
-                    [class.bg-primary]="selectedCategory === category"
-                    [class.text-white]="selectedCategory === category"
-                    [class.border-primary]="selectedCategory === category"
-                    [class.bg-white]="selectedCategory !== category"
-                    [class.text-gray-600]="selectedCategory !== category"
-                    [class.border-gray-200]="selectedCategory !== category"
-                    [class.hover:border-primary]="selectedCategory !== category"
-                    [class.hover:text-primary]="selectedCategory !== category">
-                    {{ category }}
-                </button>
+                <div class="flex items-center group cursor-pointer"
+                    (click)="selectedCategories[category] = !selectedCategories[category]; onFilterChange()">
+                    <div class="w-5 h-5 border rounded flex items-center justify-center transition-colors"
+                        [class.bg-primary]="selectedCategories[category]"
+                        [class.border-primary]="selectedCategories[category]"
+                        [class.border-gray-300]="!selectedCategories[category]"
+                        [class.group-hover:border-primary]="!selectedCategories[category]">
+                        <svg *ngIf="selectedCategories[category]" xmlns="http://www.w3.org/2000/svg" width="14"
+                            height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="20 6 9 17 4 12" />
+                        </svg>
+                    </div>
+                    <label
+                        class="ml-3 text-sm text-gray-600 cursor-pointer group-hover:text-primary transition-colors select-none">
+                        {{ category }}
+                    </label>
+                </div>
                 }
             </div>
         </div>
     </div>
 
-    <!-- Metal Color (Pills) -->
+    <!-- Metal Color (Checkboxes) -->
     <div class="border-b border-gray-100">
         <button
             class="w-full px-5 py-4 flex items-center justify-between bg-white hover:bg-gray-50 transition-colors group"
             (click)="toggleSection('metalType')">
-            <h3 class="text-sm font-bold text-gray-900 uppercase tracking-widest">Metal Color</h3>
+            <h3 class="text-sm font-bold text-gray-900 uppercase tracking-widest">Metal</h3>
             <span class="text-gray-400 text-lg transition-transform duration-300"
                 [class.rotate-180]="openSections['metalType']">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
@@ -81,20 +91,25 @@
             </span>
         </button>
         <div class="px-5 pb-5" [class.hidden]="!openSections['metalType']">
-            <div class="flex flex-wrap gap-2">
-                @for (metalType of metalTypes; track metalType) {
-                <button (click)="selectedMetalType = metalType; onFilterChange()"
-                    class="px-4 py-2 text-sm rounded-full transition-all duration-200 border"
-                    [class.bg-primary]="selectedMetalType === metalType"
-                    [class.text-white]="selectedMetalType === metalType"
-                    [class.border-primary]="selectedMetalType === metalType"
-                    [class.bg-white]="selectedMetalType !== metalType"
-                    [class.text-gray-600]="selectedMetalType !== metalType"
-                    [class.border-gray-200]="selectedMetalType !== metalType"
-                    [class.hover:border-primary]="selectedMetalType !== metalType"
-                    [class.hover:text-primary]="selectedMetalType !== metalType">
-                    {{ metalType }}
-                </button>
+            <div class="space-y-3">
+                @for (metal of metals; track metal) {
+                <div class="flex items-center group cursor-pointer"
+                    (click)="selectedMetals[metal] = !selectedMetals[metal]; onFilterChange()">
+                    <div class="w-5 h-5 border rounded flex items-center justify-center transition-colors"
+                        [class.bg-primary]="selectedMetals[metal]" [class.border-primary]="selectedMetals[metal]"
+                        [class.border-gray-300]="!selectedMetals[metal]"
+                        [class.group-hover:border-primary]="!selectedMetals[metal]">
+                        <svg *ngIf="selectedMetals[metal]" xmlns="http://www.w3.org/2000/svg" width="14" height="14"
+                            viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round"
+                            stroke-linejoin="round">
+                            <polyline points="20 6 9 17 4 12" />
+                        </svg>
+                    </div>
+                    <label
+                        class="ml-3 text-sm text-gray-600 cursor-pointer group-hover:text-primary transition-colors select-none">
+                        {{ metal }}
+                    </label>
+                </div>
                 }
             </div>
         </div>
@@ -105,7 +120,7 @@
         <button
             class="w-full px-5 py-4 flex items-center justify-between bg-white hover:bg-gray-50 transition-colors group"
             (click)="toggleSection('purity')">
-            <h3 class="text-sm font-bold text-gray-900 uppercase tracking-widest">Metal Purity</h3>
+            <h3 class="text-sm font-bold text-gray-900 uppercase tracking-widest">Purity</h3>
             <span class="text-gray-400 text-lg transition-transform duration-300"
                 [class.rotate-180]="openSections['purity']">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
@@ -178,6 +193,4 @@
             </div>
         </div>
     </div>
-
-
 </div>
