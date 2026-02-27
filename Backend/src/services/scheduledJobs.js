@@ -27,7 +27,7 @@ const checkUnacknowledgedDesigns = cron.schedule('0 * * * *', async () => {
             FROM custom_designs cd
             JOIN users u ON cd.user_id = u.id
             WHERE cd.created_at <= ?
-            AND cd.status != 'acknowledge'
+            AND cd.request = 'Not Viewed'
             AND cd.alert_sent = FALSE
             ORDER BY cd.created_at ASC`,
             [threeHoursAgo]

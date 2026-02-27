@@ -1,18 +1,34 @@
 /**
- * Authentication Routes
+ * Authentication Routes – OTP-based (no passwords)
  */
 
 const express = require('express');
 const router = express.Router();
-const { register, login, getMe, updateProfile } = require('../controllers/authController');
-const { validateRegister, validateLogin, validateUpdateProfile } = require('../middleware/validators');
+const {
+    register,
+    verifyRegisterOtp,
+    login,
+    verifyLoginOtp,
+    getMe,
+    updateProfile
+} = require('../controllers/authController');
+const {
+    validateRegister,
+    validateVerifyOtp,
+    validateLoginEmail,
+    validateUpdateProfile
+} = require('../middleware/validators');
 const { protect } = require('../middleware/auth');
 
-// Public routes
+// ------ Registration (2-step) ------
 router.post('/register', validateRegister, register);
-router.post('/login', validateLogin, login);
+router.post('/register/verify', validateVerifyOtp, verifyRegisterOtp);
 
-// Protected routes
+// ------ Login (2-step) ------
+router.post('/login', validateLoginEmail, login);
+router.post('/login/verify', validateVerifyOtp, verifyLoginOtp);
+
+// ------ Protected ------
 router.get('/me', protect, getMe);
 router.put('/profile', protect, validateUpdateProfile, updateProfile);
 

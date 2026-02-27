@@ -1,6 +1,10 @@
 /**
  * Custom Design Controller
- * Handles custom jewelry design requests
+ * Handles custom jewelry design requests.
+ *
+ * Status model (two columns):
+ *   request     : 'Not Viewed' | 'Accepted' | 'Rejected'
+ *   work_status : 'Pending' | 'On Progress' | 'Completed'
  */
 
 const { query } = require('../config/database');
@@ -19,7 +23,6 @@ const createDesign = async (req, res, next) => {
         const { design_name, material_preference, approximate_weight, description } = req.body;
         const userId = req.user.id;
 
-        // Validation
         if (!design_name || !material_preference || !approximate_weight || !description) {
             return next(new AppError('Design name, material preference, weight, and description are required', 400));
         }
@@ -28,43 +31,38 @@ const createDesign = async (req, res, next) => {
             return next(new AppError('Please provide a valid approximate weight', 400));
         }
 
-        // Get uploaded file names if exists (multiple images)
         const reference_images = req.files ? req.files.map(f => f.filename) : [];
 
-        // Insert design request
         const result = await query(
-            `INSERT INTO custom_designs 
-            (user_id, design_name, material_preference, approximate_weight, description, reference_images, status) 
-            VALUES (?, ?, ?, ?, ?, ?, ?)`,
-            [userId, design_name, material_preference, approximate_weight, description || null, JSON.stringify(reference_images), 'pending']
+            `INSERT INTO custom_designs
+             (user_id, design_name, material_preference, approximate_weight,
+              description, reference_images, request, work_status)
+             VALUES (?, ?, ?, ?, ?, ?, 'Not Viewed', 'Pending')`,
+            [
+                userId,
+                design_name,
+                material_preference,
+                approximate_weight,
+                description || null,
+                JSON.stringify(reference_images)
+            ]
         );
 
-        // Get created design
-        const designs = await query(
-            'SELECT * FROM custom_designs WHERE id = ?',
-            [result.insertId]
-        );
-
-        // Parse JSON for response
+        const designs = await query('SELECT * FROM custom_designs WHERE id = ?', [result.insertId]);
         const design = designs[0];
+
         if (design.reference_images) {
             design.reference_images = JSON.parse(design.reference_images);
         }
 
-        logger.info(`Custom design created by user ${userId}: ${design_name} with ${reference_images.length} images`);
+        logger.info(`Custom design created by user ${userId}: ${design_name} (${reference_images.length} images)`);
 
-        // Send email notification to admin
         const users = await query('SELECT * FROM users WHERE id = ?', [userId]);
         if (users.length > 0) {
-            await sendDesignCreatedNotification(design, users[0]);
+            sendDesignCreatedNotification(design, users[0]).catch(() => {});
         }
 
-        sendSuccess(
-            res,
-            { design },
-            'Custom design request submitted successfully',
-            201
-        );
+        sendSuccess(res, { design }, 'Custom design request submitted successfully', 201);
     } catch (error) {
         logger.error('Create design error:', error);
         next(error);
@@ -72,7 +70,7 @@ const createDesign = async (req, res, next) => {
 };
 
 /**
- * @desc    Get all designs for logged in user
+ * @desc    Get all designs for logged-in user
  * @route   GET /api/designs
  * @access  Private (User)
  */
@@ -85,7 +83,6 @@ const getUserDesigns = async (req, res, next) => {
             [userId]
         );
 
-        // Parse JSON fields
         designs.forEach(design => {
             if (design.reference_images) {
                 design.reference_images = JSON.parse(design.reference_images);
@@ -102,7 +99,7 @@ const getUserDesigns = async (req, res, next) => {
 /**
  * @desc    Get single design
  * @route   GET /api/designs/:id
- * @access  Private (User - own designs, Admin - all)
+ * @access  Private (User – own; Admin – all)
  */
 const getDesign = async (req, res, next) => {
     try {
@@ -110,10 +107,7 @@ const getDesign = async (req, res, next) => {
         const userId = req.user.id;
         const userRole = req.user.role;
 
-        const designs = await query(
-            'SELECT * FROM custom_designs WHERE id = ?',
-            [designId]
-        );
+        const designs = await query('SELECT * FROM custom_designs WHERE id = ?', [designId]);
 
         if (designs.length === 0) {
             return next(new AppError('Design not found', 404));
@@ -121,12 +115,10 @@ const getDesign = async (req, res, next) => {
 
         const design = designs[0];
 
-        // Check authorization - user can only see their own designs, admin can see all
         if (userRole !== 'admin' && design.user_id !== userId) {
             return next(new AppError('Not authorized to access this design', 403));
         }
 
-        // Parse JSON fields
         if (design.reference_images) {
             design.reference_images = JSON.parse(design.reference_images);
         }
@@ -146,13 +138,12 @@ const getDesign = async (req, res, next) => {
 const getAllDesigns = async (req, res, next) => {
     try {
         const designs = await query(
-            `SELECT cd.*, u.name as user_name, u.email as user_email 
-            FROM custom_designs cd 
-            JOIN users u ON cd.user_id = u.id 
-            ORDER BY cd.created_at DESC`
+            `SELECT cd.*, u.name AS user_name, u.email AS user_email
+             FROM custom_designs cd
+             JOIN users u ON cd.user_id = u.id
+             ORDER BY cd.created_at DESC`
         );
 
-        // Parse JSON fields
         designs.forEach(design => {
             if (design.reference_images) {
                 design.reference_images = JSON.parse(design.reference_images);
@@ -167,52 +158,72 @@ const getAllDesigns = async (req, res, next) => {
 };
 
 /**
- * @desc    Update design status (Admin only)
+ * @desc    Update design request and/or work_status (Admin only)
  * @route   PUT /api/designs/:id/status
  * @access  Private (Admin)
+ *
+ * Body:
+ *   request     (optional): 'Not Viewed' | 'Accepted' | 'Rejected'
+ *   work_status (optional): 'Pending' | 'On Progress' | 'Completed'
+ *
+ * When request === 'Accepted', alert_sent is reset to FALSE so future alerts
+ * restart cleanly.
  */
 const updateDesignStatus = async (req, res, next) => {
     try {
         const designId = req.params.id;
-        const { status } = req.body;
+        const { request, work_status } = req.body;
 
-        // Validate status
-        const validStatuses = ['pending', 'completed', 'rejected', 'acknowledge'];
-        if (!validStatuses.includes(status)) {
-            return next(new AppError('Invalid status value', 400));
+        const VALID_REQUEST    = ['Not Viewed', 'Accepted', 'Rejected'];
+        const VALID_WORK_STATUS = ['Pending', 'On Progress', 'Completed'];
+
+        if (request !== undefined && !VALID_REQUEST.includes(request)) {
+            return next(new AppError(`request must be one of: ${VALID_REQUEST.join(', ')}`, 400));
+        }
+        if (work_status !== undefined && !VALID_WORK_STATUS.includes(work_status)) {
+            return next(new AppError(`work_status must be one of: ${VALID_WORK_STATUS.join(', ')}`, 400));
+        }
+        if (request === undefined && work_status === undefined) {
+            return next(new AppError('Please provide request and/or work_status to update', 400));
         }
 
-        // If status is being set to 'acknowledge', reset the alert_sent flag
-        if (status === 'acknowledge') {
-            await query(
-                'UPDATE custom_designs SET status = ?, alert_sent = FALSE WHERE id = ?',
-                [status, designId]
-            );
-        } else {
-            await query(
-                'UPDATE custom_designs SET status = ? WHERE id = ?',
-                [status, designId]
-            );
-        }
-
-        const designs = await query(
-            'SELECT * FROM custom_designs WHERE id = ?',
-            [designId]
-        );
-
-        if (designs.length === 0) {
+        // Check design exists
+        const existing = await query('SELECT id FROM custom_designs WHERE id = ?', [designId]);
+        if (existing.length === 0) {
             return next(new AppError('Design not found', 404));
         }
 
-        logger.info(`Design ${designId} status updated to ${status}`);
+        const updates = [];
+        const values = [];
 
-        sendSuccess(res, { design: designs[0] }, 'Design status updated successfully');
+        if (request !== undefined) {
+            updates.push('request = ?');
+            values.push(request);
+            // Reset alert_sent whenever admin makes a decision
+            updates.push('alert_sent = FALSE');
+        }
+        if (work_status !== undefined) {
+            updates.push('work_status = ?');
+            values.push(work_status);
+        }
+
+        values.push(designId);
+        await query(`UPDATE custom_designs SET ${updates.join(', ')} WHERE id = ?`, values);
+
+        const designs = await query('SELECT * FROM custom_designs WHERE id = ?', [designId]);
+        const design = designs[0];
+        if (design.reference_images) {
+            design.reference_images = JSON.parse(design.reference_images);
+        }
+
+        logger.info(`Design ${designId} updated – request: ${request ?? '(unchanged)'}, work_status: ${work_status ?? '(unchanged)'}`);
+
+        sendSuccess(res, { design }, 'Design status updated successfully');
     } catch (error) {
         logger.error('Update design status error:', error);
         next(error);
     }
 };
-
 
 module.exports = {
     createDesign,
@@ -221,4 +232,3 @@ module.exports = {
     getAllDesigns,
     updateDesignStatus
 };
-

@@ -120,6 +120,16 @@ The server will start on `http://localhost:5000`
 | PUT | `/api/products/:id` | Admin | Update product |
 | DELETE | `/api/products/:id` | Admin | Delete product |
 
+### Orders
+
+| Method | Endpoint | Access | Description |
+|--------|----------|--------|-------------|
+| POST | `/api/orders/checkout` | User | Create order with multiple products |
+| GET | `/api/orders` | User | Get user's orders |
+| GET | `/api/orders/:id` | User/Admin | Get single order |
+| GET | `/api/orders/admin/all` | Admin | Get all orders |
+| PUT | `/api/orders/:id/status` | Admin | Update order status |
+
 ## 🔐 Authentication
 
 All protected routes require a JWT token in the Authorization header:

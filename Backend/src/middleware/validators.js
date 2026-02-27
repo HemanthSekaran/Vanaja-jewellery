@@ -36,26 +36,42 @@ const validateRegister = [
         .notEmpty().withMessage('Phone number is required')
         .matches(/^[0-9]{10}$/).withMessage('Phone number must be 10 digits'),
 
-    body('password')
-        .notEmpty().withMessage('Password is required')
-        .isLength({ min: 6 }).withMessage('Password must be at least 6 characters long')
-        .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/).withMessage('Password must contain at least one uppercase letter, one lowercase letter, and one number'),
+    body('address')
+        .trim()
+        .notEmpty().withMessage('Address is required')
+        .isLength({ min: 5, max: 500 }).withMessage('Address must be between 5 and 500 characters'),
 
     handleValidationErrors
 ];
 
 /**
- * User Login Validation
+ * Login – only email needed (OTP will be sent)
  */
-const validateLogin = [
+const validateLoginEmail = [
     body('email')
         .trim()
         .notEmpty().withMessage('Email is required')
         .isEmail().withMessage('Please provide a valid email')
         .normalizeEmail(),
 
-    body('password')
-        .notEmpty().withMessage('Password is required'),
+    handleValidationErrors
+];
+
+/**
+ * OTP Verification Validation (used for both register/verify and login/verify)
+ */
+const validateVerifyOtp = [
+    body('email')
+        .trim()
+        .notEmpty().withMessage('Email is required')
+        .isEmail().withMessage('Please provide a valid email')
+        .normalizeEmail(),
+
+    body('otp')
+        .trim()
+        .notEmpty().withMessage('OTP is required')
+        .isLength({ min: 6, max: 6 }).withMessage('OTP must be exactly 6 digits')
+        .isNumeric().withMessage('OTP must contain only digits'),
 
     handleValidationErrors
 ];
@@ -284,14 +300,57 @@ const validateCheckout = [
             return true;
         }),
 
+    // Optional: per-product user-supplied weights (grams)
+    body('weights')
+        .optional()
+        .isArray().withMessage('weights must be an array')
+        .custom((weights, { req }) => {
+            for (const w of weights) {
+                if (w !== null && w !== undefined && (isNaN(parseFloat(w)) || parseFloat(w) <= 0)) {
+                    throw new Error('Each weight must be a positive number or null/undefined to use the product default');
+                }
+            }
+            return true;
+        }),
+
+    // Optional: per-product size strings (Bangles / Rings / Stone rings)
+    body('sizes')
+        .optional()
+        .isArray().withMessage('sizes must be an array')
+        .custom((sizes) => {
+            for (const s of sizes) {
+                if (s !== null && s !== undefined && typeof s !== 'string') {
+                    throw new Error('Each size must be a string or null/undefined');
+                }
+            }
+            return true;
+        }),
+
+    // Optional: per-product chain lengths in inches (Chains category)
+    // Valid values: 18, 20, 22, 24
+    body('chain_lengths')
+        .optional()
+        .isArray().withMessage('chain_lengths must be an array')
+        .custom((lengths) => {
+            const VALID = [18, 20, 22, 24];
+            for (const l of lengths) {
+                if (l !== null && l !== undefined && !VALID.includes(parseInt(l, 10))) {
+                    throw new Error('Each chain length must be 18, 20, 22, or 24 (inches), or null/undefined');
+                }
+            }
+            return true;
+        }),
+
     handleValidationErrors
 ];
 
 /**
- * Order Status Update Validation
+ * Order / Design Dual-Status Update Validation
+ * Accepts request and/or work_status in a single call.
  */
 const validateOrderStatusUpdate = [
-    body('status')
+    body('request')
+        .optional()
         .trim()
         .notEmpty().withMessage('Status is required')
         .isIn(['pending', 'acknowledge', 'completed', 'rejected'])
@@ -302,7 +361,8 @@ const validateOrderStatusUpdate = [
 
 module.exports = {
     validateRegister,
-    validateLogin,
+    validateLoginEmail,
+    validateVerifyOtp,
     validateCustomDesign,
     validateProduct,
     validateProductUpdate,
