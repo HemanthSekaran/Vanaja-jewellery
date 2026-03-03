@@ -108,6 +108,15 @@
                     }
                 </div>
 
+                <div class="flex flex-col items-center gap-2 py-2">
+                    <button type="button" (click)="resendOtp()" [disabled]="timer() > 0 || isSubmitting"
+                        class="text-xs font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                        [class.text-primary]="timer() === 0" [class.text-muted-foreground]="timer() > 0"
+                        [class.hover:underline]="timer() === 0" [class.cursor-pointer]="timer() === 0">
+                        Resend OTP {{ timer() > 0 ? '(' + timerDisplay() + ')' : '' }}
+                    </button>
+                </div>
+
                 <button type="submit" [disabled]="isSubmitting"
                     class="relative w-full h-10 bg-primary text-primary-foreground rounded-lg font-bold uppercase tracking-widest hover:bg-primary/95 transition-all shadow-lg shadow-primary/20 hover:-translate-y-0.5 disabled:opacity-50 disabled:translate-y-0 active:scale-95 group overflow-hidden mt-1">
                     <span class="relative z-10 flex items-center justify-center gap-2 text-sm">

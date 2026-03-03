@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Output, OnInit, inject } from '@angular/core';
+import { Component, EventEmitter, Output, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ProductService } from '../../services/product.service';
@@ -11,6 +11,7 @@ import { ProductService } from '../../services/product.service';
 })
 export class ProductFilters implements OnInit {
   private productService = inject(ProductService);
+  private cd = inject(ChangeDetectorRef);
   @Output() filterChange = new EventEmitter<any>();
 
   searchTerm: string = '';
@@ -49,6 +50,7 @@ export class ProductFilters implements OnInit {
       this.categories = options.categories || [];
       this.metals = options.metals || [];
       this.purities = options.purities || [];
+      this.cd.detectChanges();
     });
   }
 

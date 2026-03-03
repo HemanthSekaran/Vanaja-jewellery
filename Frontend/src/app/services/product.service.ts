@@ -40,7 +40,11 @@ export class ProductService {
 
     getFilterOptions(): Observable<any> {
         return from(this.apiService.getFilterOptions()).pipe(
-            map((response: any) => response.data?.data || response.data),
+            map((response: any) => {
+                const data = response.data?.data || response.data;
+                console.log('🔍 Filter Options Data mapped:', data);
+                return data;
+            }),
             catchError(error => {
                 console.error('Error fetching filter options:', error);
                 return of({ categories: [], metals: [], purities: [] });
