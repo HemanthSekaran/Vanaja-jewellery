@@ -2,57 +2,6 @@ import { Component } from '@angular/core';
 
 @Component({
   selector: 'app-about',
-  template: `
-    <div class="container mx-auto px-4 py-16 max-w-4xl">
-      <h1 class="text-4xl font-bold mb-8 text-center">About Sri Vanaja Jewellery</h1>
-      
-      <div class="prose prose-lg mx-auto dark:prose-invert">
-        <p class="lead text-xl text-muted-foreground mb-8 text-center">
-          Crafting timeless elegance since 1990. We believe every piece of jewelry tells a unique story.
-        </p>
-
-        <div class="grid md:grid-cols-2 gap-12 my-12">
-          <div class="bg-muted rounded-lg h-64 flex items-center justify-center">
-            <span class="text-muted-foreground">Workshop Image</span>
-          </div>
-          <div class="flex flex-col justify-center">
-            <h2 class="text-2xl font-bold mb-4">Our Craftsmanship</h2>
-            <p class="text-muted-foreground">
-              Each piece is meticulously handcrafted by our master artisans using only the finest materials. 
-              We combine traditional techniques with modern innovation to create jewelry that stands the test of time.
-            </p>
-          </div>
-        </div>
-
-        <div class="grid md:grid-cols-2 gap-12 my-12">
-          <div class="flex flex-col justify-center order-2 md:order-1">
-            <h2 class="text-2xl font-bold mb-4">Sustainable Luxury</h2>
-            <p class="text-muted-foreground">
-              We are committed to ethical sourcing and sustainability. We use recycled precious metals 
-              whenever possible to minimize our environmental impact.
-            </p>
-          </div>
-          <div class="bg-muted rounded-lg h-64 flex items-center justify-center order-1 md:order-2">
-            <span class="text-muted-foreground">Sourcing Image</span>
-          </div>
-        </div>
-        
-        <div class="bg-primary/5 p-8 rounded-lg mt-12 text-center">
-            <h2 class="text-2xl font-bold mb-4">Visit Our Store</h2>
-            <div class="space-y-4">
-                <div>
-                    <h3 class="font-semibold text-lg">Address</h3>
-                    <p class="text-muted-foreground">131 ,Subbarya Chetty street<br>Thirupapuliyur Cuddalore Tamil Nadu 607002</p>
-                </div>
-                <div>
-                    <h3 class="font-semibold text-lg">Contact</h3>
-                     <p class="text-muted-foreground">Email: srivanajajewellery@gmail.com</p>
-                    <p class="text-muted-foreground">Ph: 8220822776 / 8220374776</p>
-                </div>
-            </div>
-        </div>
-      </div>
-    </div>
-  `
+  templateUrl: './about.html'
 })
 export class About { }

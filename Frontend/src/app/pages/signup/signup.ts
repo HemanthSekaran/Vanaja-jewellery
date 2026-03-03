@@ -19,21 +19,21 @@ export class Signup {
     toastService = inject(ToastService);
 
     signupForm: FormGroup;
-    showPassword = signal(false);
+    otpForm: FormGroup;
+    showOtpStep = signal(false);
     isSubmitting = false;
 
     constructor() {
         this.signupForm = this.fb.group({
             name: ['', [Validators.required, Validators.minLength(2)]],
             email: ['', [Validators.required, Validators.email]],
-            password: ['', [Validators.required, Validators.minLength(6)]],
             phone: ['', [Validators.required, Validators.pattern(/^[0-9]{10}$/)]],
             address: ['', [Validators.required]]
         });
-    }
 
-    togglePassword() {
-        this.showPassword.set(!this.showPassword());
+        this.otpForm = this.fb.group({
+            otp: ['', [Validators.required, Validators.pattern(/^[0-9]{6}$/)]]
+        });
     }
 
     async onSubmit() {
@@ -48,22 +48,47 @@ export class Signup {
         const user = {
             name: formValue.name.trim(),
             email: formValue.email.trim(),
-            password: formValue.password.trim(),
             phone: formValue.phone?.trim() || '',
             address: formValue.address?.trim() || '',
             role: 'user'
         };
 
         try {
-            await this.authService.signup(user);
-            this.toastService.success("Registration successful! Please login.");
-            this.router.navigate(['/login']);
-
+            const success = await this.authService.signup(user);
+            if (success) {
+                this.showOtpStep.set(true);
+            }
         } catch (error: any) {
             console.error("Signup Error:", error);
-            this.toastService.error(error.error?.message || "An error occurred during registration. Please try again.");
+            this.toastService.error(error.error?.message || "An error occurred during registration.");
         } finally {
             this.isSubmitting = false;
         }
+    }
+
+    async onVerifyOtp() {
+        if (this.otpForm.invalid) {
+            this.otpForm.markAllAsTouched();
+            return;
+        }
+
+        this.isSubmitting = true;
+        const { email } = this.signupForm.value;
+        const { otp } = this.otpForm.value;
+
+        try {
+            const success = await this.authService.verifySignup(email, otp);
+            if (success) {
+                this.router.navigate(['/']);
+            }
+        } catch (error: any) {
+            this.toastService.error(error.error?.message || "Invalid OTP.");
+        } finally {
+            this.isSubmitting = false;
+        }
+    }
+
+    backToSignup() {
+        this.showOtpStep.set(false);
     }
 }

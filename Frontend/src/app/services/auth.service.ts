@@ -68,9 +68,20 @@ export class AuthService {
         }
     }
 
-    async login(email: string, password: string): Promise<boolean> {
+    async login(email: string): Promise<boolean> {
         try {
-            const response = await this.apiService.login({ email, password });
+            await this.apiService.login({ email });
+            this.toastService.show('OTP sent to your email', 'success');
+            return true;
+        } catch (error) {
+            console.error('Login request failed', error);
+            return false;
+        }
+    }
+
+    async verifyLogin(email: string, otp: string): Promise<boolean> {
+        try {
+            const response = await this.apiService.loginVerify({ email, otp });
 
             // Handle different response structures (direct object or wrapped in 'data')
             let responseData = response.data;
@@ -87,7 +98,6 @@ export class AuthService {
                 } else {
                     // Fallback to fetching profile
                     const profileResponse = await this.apiService.getProfile();
-                    // Handle profile response structure too
                     let profileData = profileResponse.data;
                     if (profileData && profileData.data) {
                         profileData = profileData.data;
@@ -99,7 +109,7 @@ export class AuthService {
             }
             return false;
         } catch (error) {
-            console.error('Login failed', error);
+            console.error('Login verification failed', error);
             return false;
         }
     }
@@ -107,10 +117,35 @@ export class AuthService {
     async signup(user: any): Promise<boolean> {
         try {
             await this.apiService.register(user);
+            this.toastService.show('OTP sent to your email', 'success');
             return true;
         } catch (error) {
             console.error('Signup failed', error);
             throw error; // Let component handle error message
+        }
+    }
+
+    async verifySignup(email: string, otp: string): Promise<boolean> {
+        try {
+            const response = await this.apiService.registerVerify({ email, otp });
+
+            let responseData = response.data;
+            if (responseData && responseData.data && !responseData.token) {
+                responseData = responseData.data;
+            }
+
+            if (responseData && responseData.token) {
+                this.tokenService.setToken(responseData.token);
+                if (responseData.user) {
+                    this.setCurrentUser(responseData.user);
+                }
+                this.toastService.show('Registration successful', 'success');
+                return true;
+            }
+            return false;
+        } catch (error) {
+            console.error('Registration verification failed', error);
+            throw error;
         }
     }
 

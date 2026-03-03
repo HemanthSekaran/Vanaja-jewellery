@@ -17,6 +17,7 @@ export class DesignListComponent implements OnInit {
     loading = true;
     errorMessage: string | null = null;
     isAdmin: boolean = false;
+    selectedImage: string | null = null;
 
     constructor(
         private api: ApiService,
@@ -40,7 +41,6 @@ export class DesignListComponent implements OnInit {
             })
             .catch(err => {
                 console.error("Failed to fetch profile", err);
-                // Fallback to normal user fetch if auth fails, though likely interceptor handles it
                 this.fetchDesigns();
             });
     }
@@ -61,7 +61,6 @@ export class DesignListComponent implements OnInit {
                     const possibleArray = Object.values(res.data.data || res.data).find(val => Array.isArray(val));
                     this.designs = (possibleArray as any[]) || [];
                 }
-                console.log('Designs loaded:', this.designs);
             })
             .catch(err => {
                 console.error("Failed to fetch designs", err);
@@ -82,7 +81,6 @@ export class DesignListComponent implements OnInit {
 
         this.api.updateDesignStatus(id, status)
             .then(() => {
-                // Update local state
                 const design = this.designs.find(d => d.id === id);
                 if (design) {
                     design.status = status;
@@ -100,14 +98,34 @@ export class DesignListComponent implements OnInit {
         this.router.navigate(['/customization']);
     }
 
-    editDesign(id: string) {
-        this.router.navigate(['/customization/edit', id]);
+    getImageUrl(filename: string): string {
+        if (!filename) return 'assets/images/placeholder-design.jpg';
+        if (filename.startsWith('http')) return filename;
+        // In local dev, backend might be on localhost:5000
+        return `http://localhost:5000/uploads/designs/${filename}`;
     }
 
-    getImageUrl(filename: string): string {
-        if (!filename) return '';
-        if (filename.startsWith('http')) return filename;
-        return `http://localhost:5000/uploads/designs/${filename}`;
+    onImageError(event: any) {
+        event.target.src = 'assets/images/placeholder-design.jpg';
+    }
+
+    openLightbox(imageUrl: string) {
+        this.selectedImage = imageUrl;
+        document.body.style.overflow = 'hidden';
+    }
+
+    closeLightbox() {
+        this.selectedImage = null;
+        document.body.style.overflow = 'auto';
+    }
+
+    downloadImage(imageUrl: string) {
+        const link = document.createElement('a');
+        link.href = imageUrl;
+        link.download = imageUrl.split('/').pop() || 'design-image.jpg';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
     }
 
     exportToExcel() {

@@ -53,8 +53,10 @@ export class ApiService {
 
 
     // Auth
-    login = (data: { email: string, password: string }) => axios.post("/auth/login", data);
+    login = (data: { email: string }) => axios.post("/auth/login", data);
+    loginVerify = (data: { email: string, otp: string }) => axios.post("/auth/login/verify", data);
     register = (data: any) => axios.post("/auth/register", data);
+    registerVerify = (data: { email: string, otp: string }) => axios.post("/auth/register/verify", data);
     getProfile = () => axios.get("/auth/me");
     updateProfile = (data: any) => axios.put("/auth/profile", data); // Keeping as placeholder if needed, or remove if not in list
 

@@ -67,7 +67,7 @@
                         <th class="px-4 py-3">Description</th>
                         <th class="px-4 py-3">Material</th>
                         <th class="px-4 py-3">Weight (g)</th>
-                        <th class="px-4 py-3">Image</th>
+                        <th class="px-4 py-3">Model Image</th>
                         <th class="px-4 py-3">Status</th>
                     </tr>
                 </thead>
@@ -89,15 +89,15 @@
                         </td>
                         <td class="px-4 py-3">{{ design.material_preference }}</td>
                         <td class="px-4 py-3">{{ design.approximate_weight }}</td>
-                        <td class="px-4 py-3 max-w-[150px]">
+                        <td class="px-4 py-3">
                             @if (design.reference_images && design.reference_images.length > 0) {
-                            <div class="flex flex-col gap-1">
+                            <div class="flex flex-wrap gap-2">
                                 @for (img of design.reference_images; track img) {
-                                <a [href]="getImageUrl(img)" target="_blank"
-                                    class="text-primary hover:underline text-xs truncate block font-medium"
-                                    [title]="img">
-                                    {{ img }}
-                                </a>
+                                <div class="w-12 h-12 rounded border border-border overflow-hidden cursor-pointer hover:opacity-80 transition-opacity"
+                                    (click)="openLightbox(getImageUrl(img))" [title]="'Click to view ' + img">
+                                    <img [src]="getImageUrl(img)" [alt]="img" (error)="onImageError($event)"
+                                        class="w-full h-full object-cover">
+                                </div>
                                 }
                             </div>
                             } @else {
@@ -129,6 +129,45 @@
                     }
                 </tbody>
             </table>
+        </div>
+    </div>
+    }
+
+    <!-- Lightbox Modal -->
+    @if (selectedImage) {
+    <div class="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 backdrop-blur-sm p-4 animate-in fade-in duration-200"
+        (click)="closeLightbox()">
+        <div class="relative max-w-5xl w-full h-full flex flex-col items-center justify-center"
+            (click)="$event.stopPropagation()">
+            <!-- Close Button -->
+            <button (click)="closeLightbox()"
+                class="absolute -top-12 right-0 text-white hover:text-gray-300 transition-colors p-2" title="Close">
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+
+            <!-- Main Image -->
+            <div class="w-full h-full flex items-center justify-center">
+                <img [src]="selectedImage" class="max-w-full max-h-full object-contain rounded-lg shadow-2xl"
+                    alt="Full screen design">
+            </div>
+
+            <!-- Footer / Download -->
+            <div class="absolute -bottom-16 left-0 right-0 flex justify-center">
+                <button (click)="downloadImage(selectedImage)"
+                    class="bg-white text-black px-6 py-2.5 rounded-full font-bold flex items-center gap-2 hover:bg-gray-200 transition-all shadow-xl active:scale-95">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v4"></path>
+                        <polyline points="7 10 12 15 17 10"></polyline>
+                        <line x1="12" y1="15" x2="12" y2="3"></line>
+                    </svg>
+                    Download Design
+                </button>
+            </div>
         </div>
     </div>
     }

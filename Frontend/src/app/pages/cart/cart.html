@@ -86,20 +86,29 @@
 
                 <div class="space-y-4 mb-6">
                     <div class="flex justify-between text-muted-foreground">
-                        <span>Subtotal ({{ cartService.count() }} items)</span>
-                        <span>{{ cartService.total() | currency:'INR' }}</span>
+                        <span>Metal Value</span>
+                        <span>{{ cartService.breakdown().metalValue | currency:'INR' }}</span>
+                    </div>
+                    <div class="flex justify-between text-muted-foreground">
+                        <span>Wastage / VA</span>
+                        <span>{{ cartService.breakdown().wastageValue | currency:'INR' }}</span>
+                    </div>
+                    <div class="flex justify-between pt-2 border-t border-dashed text-muted-foreground">
+                        <span class="font-medium">Taxable Amount</span>
+                        <span>{{ cartService.breakdown().basePrice | currency:'INR' }}</span>
+                    </div>
+                    <div class="flex justify-between text-muted-foreground">
+                        <span>GST (3%)</span>
+                        <span>{{ cartService.breakdown().gstAmount | currency:'INR' }}</span>
                     </div>
                     <div class="flex justify-between text-muted-foreground">
                         <span>Shipping</span>
                         <span class="text-green-600 font-medium">Free</span>
                     </div>
-                    <div class="flex justify-between text-muted-foreground">
-                        <span>Tax (Estimated)</span>
-                        <span>{{ 0 | currency:'INR' }}</span>
-                    </div>
                     <div class="border-t border-border pt-4 flex justify-between items-center">
                         <span class="text-lg font-bold text-secondary">Total</span>
-                        <span class="text-2xl font-bold text-primary">{{ cartService.total() | currency:'INR'
+                        <span class="text-2xl font-bold text-primary">{{ cartService.breakdown().finalPrice |
+                            currency:'INR'
                             }}</span>
                     </div>
                 </div>

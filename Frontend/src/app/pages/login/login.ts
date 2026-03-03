@@ -18,18 +18,18 @@ export class Login {
     fb = inject(FormBuilder);
 
     loginForm: FormGroup;
-    showPassword = signal(false);
+    otpForm: FormGroup;
+    showOtpStep = signal(false);
     isSubmitting = false;
 
     constructor() {
         this.loginForm = this.fb.group({
-            email: ['', [Validators.required, Validators.email]],
-            password: ['', [Validators.required, Validators.minLength(6)]]
+            email: ['', [Validators.required, Validators.email]]
         });
-    }
 
-    togglePassword() {
-        this.showPassword.set(!this.showPassword());
+        this.otpForm = this.fb.group({
+            otp: ['', [Validators.required, Validators.pattern(/^[0-9]{6}$/)]]
+        });
     }
 
     async onSubmit() {
@@ -39,19 +39,41 @@ export class Login {
         }
 
         this.isSubmitting = true;
-        const { email, password } = this.loginForm.value;
+        const { email } = this.loginForm.value;
 
         try {
-            const success = await this.authService.login(email, password);
+            const success = await this.authService.login(email);
             if (success) {
-                this.router.navigate(['/']);
-            } else {
-                this.toastService.error("Invalid credentials. Please try again.");
+                this.showOtpStep.set(true);
             }
-        } catch (error: any) {
-            this.toastService.error(error.error?.message || "An error occurred during login.");
         } finally {
             this.isSubmitting = false;
         }
+    }
+
+    async onVerifyOtp() {
+        if (this.otpForm.invalid) {
+            this.otpForm.markAllAsTouched();
+            return;
+        }
+
+        this.isSubmitting = true;
+        const { email } = this.loginForm.value;
+        const { otp } = this.otpForm.value;
+
+        try {
+            const success = await this.authService.verifyLogin(email, otp);
+            if (success) {
+                this.router.navigate(['/']);
+            } else {
+                this.toastService.error("Invalid OTP. Please try again.");
+            }
+        } finally {
+            this.isSubmitting = false;
+        }
+    }
+
+    backToEmail() {
+        this.showOtpStep.set(false);
     }
 }

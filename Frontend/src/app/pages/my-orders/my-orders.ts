@@ -21,6 +21,7 @@ export class MyOrdersComponent implements OnInit {
   loading = true;
   errorMessage: string | null = null;
   isAdmin = false;
+  selectedImage: string | null = null;
 
   private api = inject(ApiService);
   private router = inject(Router);
@@ -36,7 +37,6 @@ export class MyOrdersComponent implements OnInit {
   }
 
   checkUserRole() {
-    // Check role similar to ProductCard logic or design-list
     try {
       const storedUser = sessionStorage.getItem('user');
       if (storedUser) {
@@ -59,7 +59,6 @@ export class MyOrdersComponent implements OnInit {
 
     fetchPromise
       .then((res: any) => {
-        // Updated to handle backend response format: res.data.data.orders
         if (res.data && res.data.data && Array.isArray(res.data.data.orders)) {
           this.orders = res.data.data.orders;
         } else if (res.data && res.data.orders && Array.isArray(res.data.orders)) {
@@ -81,24 +80,15 @@ export class MyOrdersComponent implements OnInit {
       });
   }
 
-  viewOrder(id: string) {
-    // Navigate to order details if implemented, or just show alert for now
-    // this.router.navigate(['/orders', id]); 
-  }
-
   async updateStatus(orderId: string, status: string) {
     const confirmed = await this.alertService.confirm('Update Status', `Are you sure you want to change order #${orderId} status to ${status}?`);
-    if (!confirmed) return; // The UI select might need to be reset if cancelled, but standard select doesn't easily allow revert without binding. We'll accept this for now.
+    if (!confirmed) return;
 
     this.api.updateOrderStatus(orderId, status)
       .then((res: any) => {
-        // Update local state
         const order = this.orders.find(o => o.order_id === orderId);
         if (order) {
-          // DB returns the updated order object, usually. Or we just trust the input status.
-          // Based on orderController.js updateOrderStatus: sends { order: updatedOrder }
           if (res.data && res.data.data && res.data.data.order) {
-            // Full refresh of that order item preferable
             Object.assign(order, res.data.data.order);
           } else {
             order.order_status = status;
@@ -111,6 +101,35 @@ export class MyOrdersComponent implements OnInit {
         console.error("Failed to update status", err);
         this.toastService.error("Failed to update status");
       });
+  }
+
+  getImageUrl(filename: string): string {
+    if (!filename) return 'assets/images/placeholder.jpg';
+    if (filename.startsWith('http')) return filename;
+    return `http://localhost:5000/uploads/products/${filename}`;
+  }
+
+  onImageError(event: any) {
+    event.target.src = 'assets/images/placeholder.jpg';
+  }
+
+  openLightbox(imageUrl: string) {
+    this.selectedImage = imageUrl;
+    document.body.style.overflow = 'hidden';
+  }
+
+  closeLightbox() {
+    this.selectedImage = null;
+    document.body.style.overflow = 'auto';
+  }
+
+  downloadImage(imageUrl: string) {
+    const link = document.createElement('a');
+    link.href = imageUrl;
+    link.download = imageUrl.split('/').pop() || 'order-product.jpg';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   }
 
   exportToExcel() {

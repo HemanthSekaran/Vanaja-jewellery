@@ -19,6 +19,39 @@ export class CartService {
     public readonly count = computed(() => this.cartItems().reduce((acc, item) => acc + item.quantity, 0));
     public readonly total = computed(() => this.cartItems().reduce((acc, item) => acc + (item.variant.price * item.quantity), 0));
 
+    public readonly breakdown = computed(() => {
+        const items = this.cartItems();
+        let metalValue = 0;
+        let wastageValue = 0;
+        let basePrice = 0;
+        let gstAmount = 0;
+        let finalPrice = 0;
+
+        items.forEach(item => {
+            const qty = item.quantity;
+            const calc = item.product.priceCalculation;
+            if (calc) {
+                metalValue += (calc.metalValue || 0) * qty;
+                wastageValue += (calc.wastageValue || 0) * qty;
+                basePrice += (calc.basePrice || 0) * qty;
+                gstAmount += (calc.gstAmount || 0) * qty;
+                finalPrice += (calc.finalPrice || 0) * qty;
+            } else {
+                const price = item.variant.price * qty;
+                basePrice += price;
+                finalPrice += price;
+            }
+        });
+
+        return {
+            metalValue,
+            wastageValue,
+            basePrice,
+            gstAmount,
+            finalPrice
+        };
+    });
+
     constructor() {
         this.loadInitialCart();
     }
