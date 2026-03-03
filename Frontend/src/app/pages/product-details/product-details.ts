@@ -52,6 +52,7 @@ export class ProductDetails implements OnInit {
                 metalRate: calc.metalRatePerGram || 0,
                 metalValue: calc.metalValue || 0,
                 wastageAmount: calc.wastageValue || 0,
+                wastagePercentage: calc.wastagePercentage || product.wastage || 0,
                 makingCharges: 0,
                 stoneCharges: 0,
                 taxableValue: calc.basePrice || 0,
