@@ -26,6 +26,9 @@ const OTP_TTL_MINUTES = 10;
 const generateOtp = () =>
     String(Math.floor(100000 + crypto.randomInt(900000))).padStart(6, '0');
 
+/** Generate a new otp_version token (random hex) so stale OTPs from previous resend cycles are rejected */
+const generateOtpVersion = () => crypto.randomBytes(8).toString('hex');
+
 // ---------------------------------------------------------------------------
 // REGISTER  – step 1: create (or re-use) account, send OTP
 // ---------------------------------------------------------------------------
@@ -49,21 +52,36 @@ const register = async (req, res, next) => {
             return next(new AppError('An account with this email already exists. Please log in instead.', 400));
         }
 
+        // ── Phone uniqueness check ─────────────────────────────────────────────
+        // A verified user with the same phone number must not already exist
+        // (ignore the current unverified record for this email, if any)
+        const existingUserId = existingUsers.length > 0 ? existingUsers[0].id : null;
+        const phoneCheckQuery = existingUserId
+            ? 'SELECT id FROM users WHERE phone = ? AND is_verified = TRUE AND id != ?'
+            : 'SELECT id FROM users WHERE phone = ? AND is_verified = TRUE';
+        const phoneCheckParams = existingUserId ? [phone, existingUserId] : [phone];
+        const phoneUsers = await query(phoneCheckQuery, phoneCheckParams);
+        if (phoneUsers.length > 0) {
+            return next(new AppError('An account with this mobile number already exists.', 400));
+        }
+        // ──────────────────────────────────────────────────────────────────────
+
         const otp = generateOtp();
+        const otpVersion = generateOtpVersion();
         const expiresAt = new Date(Date.now() + OTP_TTL_MINUTES * 60 * 1000);
 
         if (existingUsers.length > 0) {
-            // Update the pending (unverified) record with fresh OTP
+            // Update the pending (unverified) record with a fresh OTP + new version
             await query(
-                'UPDATE users SET name = ?, phone = ?, otp_code = ?, otp_expires_at = ? WHERE email = ?',
-                [name, phone, otp, expiresAt, email]
+                'UPDATE users SET name = ?, phone = ?, otp_code = ?, otp_version = ?, otp_expires_at = ? WHERE email = ?',
+                [name, phone, otp, otpVersion, expiresAt, email]
             );
         } else {
             // Create new unverified user
             await query(
-                `INSERT INTO users (name, email, phone, address, role, is_verified, otp_code, otp_expires_at)
-                 VALUES (?, ?, ?, ?, 'user', FALSE, ?, ?)`,
-                [name, email, phone, address, otp, expiresAt]
+                `INSERT INTO users (name, email, phone, address, role, is_verified, otp_code, otp_version, otp_expires_at)
+                 VALUES (?, ?, ?, ?, 'user', FALSE, ?, ?, ?)`,
+                [name, email, phone, address, otp, otpVersion, expiresAt]
             );
         }
 
@@ -71,7 +89,8 @@ const register = async (req, res, next) => {
 
         logger.info(`Registration OTP sent to: ${email}`);
 
-        sendSuccess(res, { email }, 'OTP sent to your email. Please verify to complete registration.', 200);
+        // Return otpVersion so the client can include it in the verify request
+        sendSuccess(res, { email, otpVersion }, 'OTP sent to your email. Please verify to complete registration.', 200);
     } catch (error) {
         logger.error('Register error:', error);
         next(error);
@@ -83,14 +102,14 @@ const register = async (req, res, next) => {
 // ---------------------------------------------------------------------------
 const verifyRegisterOtp = async (req, res, next) => {
     try {
-        const { email, otp } = req.body;
+        const { email, otp, otpVersion } = req.body;
 
         if (!email || !otp) {
             return next(new AppError('Email and OTP are required', 400));
         }
 
         const users = await query(
-            'SELECT id, name, email, phone, role, otp_code, otp_expires_at, is_verified FROM users WHERE email = ?',
+            'SELECT id, name, email, phone, role, otp_code, otp_version, otp_expires_at, is_verified FROM users WHERE email = ?',
             [email]
         );
 
@@ -104,6 +123,11 @@ const verifyRegisterOtp = async (req, res, next) => {
             return next(new AppError('Account already verified. Please log in.', 400));
         }
 
+        // Reject if the OTP version doesn't match (user submitted an old OTP from a previous resend)
+        if (otpVersion && user.otp_version && user.otp_version !== otpVersion) {
+            return next(new AppError('This OTP is no longer valid. Please use the latest OTP sent to your email.', 400));
+        }
+
         if (!user.otp_code || user.otp_code !== String(otp)) {
             return next(new AppError('Invalid OTP', 400));
         }
@@ -112,9 +136,9 @@ const verifyRegisterOtp = async (req, res, next) => {
             return next(new AppError('OTP has expired. Please request a new one.', 400));
         }
 
-        // Mark user as verified, clear OTP
+        // Mark user as verified, clear OTP fields
         await query(
-            'UPDATE users SET is_verified = TRUE, otp_code = NULL, otp_expires_at = NULL WHERE id = ?',
+            'UPDATE users SET is_verified = TRUE, otp_code = NULL, otp_version = NULL, otp_expires_at = NULL WHERE id = ?',
             [user.id]
         );
 
@@ -152,18 +176,20 @@ const login = async (req, res, next) => {
         const user = users[0];
 
         const otp = generateOtp();
+        const otpVersion = generateOtpVersion(); // new version per resend — invalidates all previous OTPs
         const expiresAt = new Date(Date.now() + OTP_TTL_MINUTES * 60 * 1000);
 
         await query(
-            'UPDATE users SET otp_code = ?, otp_expires_at = ? WHERE id = ?',
-            [otp, expiresAt, user.id]
+            'UPDATE users SET otp_code = ?, otp_version = ?, otp_expires_at = ? WHERE id = ?',
+            [otp, otpVersion, expiresAt, user.id]
         );
 
         await sendOtpEmail(email, user.name, otp, 'login');
 
         logger.info(`Login OTP sent to: ${email}`);
 
-        sendSuccess(res, { email }, 'OTP sent to your email. Please verify to log in.', 200);
+        // Return otpVersion so the client can include it in the verify request
+        sendSuccess(res, { email, otpVersion }, 'OTP sent to your email. Please verify to log in.', 200);
     } catch (error) {
         logger.error('Login error:', error);
         next(error);
@@ -175,14 +201,14 @@ const login = async (req, res, next) => {
 // ---------------------------------------------------------------------------
 const verifyLoginOtp = async (req, res, next) => {
     try {
-        const { email, otp } = req.body;
+        const { email, otp, otpVersion } = req.body;
 
         if (!email || !otp) {
             return next(new AppError('Email and OTP are required', 400));
         }
 
         const users = await query(
-            'SELECT id, name, email, phone, role, otp_code, otp_expires_at FROM users WHERE email = ? AND is_verified = TRUE',
+            'SELECT id, name, email, phone, role, otp_code, otp_version, otp_expires_at FROM users WHERE email = ? AND is_verified = TRUE',
             [email]
         );
 
@@ -191,6 +217,11 @@ const verifyLoginOtp = async (req, res, next) => {
         }
 
         const user = users[0];
+
+        // Reject if the OTP version doesn't match (user is submitting a stale OTP from an earlier resend)
+        if (otpVersion && user.otp_version && user.otp_version !== otpVersion) {
+            return next(new AppError('This OTP is no longer valid. Please use the latest OTP sent to your email.', 400));
+        }
 
         if (!user.otp_code || user.otp_code !== String(otp)) {
             return next(new AppError('Invalid OTP', 400));
@@ -202,7 +233,7 @@ const verifyLoginOtp = async (req, res, next) => {
 
         // Clear OTP after successful verification
         await query(
-            'UPDATE users SET otp_code = NULL, otp_expires_at = NULL WHERE id = ?',
+            'UPDATE users SET otp_code = NULL, otp_version = NULL, otp_expires_at = NULL WHERE id = ?',
             [user.id]
         );
 
