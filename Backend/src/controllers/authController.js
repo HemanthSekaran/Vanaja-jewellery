@@ -36,8 +36,8 @@ const register = async (req, res, next) => {
     try {
         const { name, email, phone, address } = req.body;
 
-        if (!name || !email || !phone || !address) {
-            return next(new AppError('Name, email, phone, and address are required', 400));
+        if (!name || !email) {
+            return next(new AppError('Name and email are required', 400));
         }
 
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;

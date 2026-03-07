@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Output, OnInit, inject, ChangeDetectorRef } from '@angular/core';
+import { Component, EventEmitter, Output, OnInit, inject, ChangeDetectorRef, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ProductService } from '../../services/product.service';
@@ -13,6 +13,8 @@ export class ProductFilters implements OnInit {
   private productService = inject(ProductService);
   private cd = inject(ChangeDetectorRef);
   @Output() filterChange = new EventEmitter<any>();
+  @Input() resetTrigger: number = 0;
+  @Input() externalFilters: any = null;
 
   searchTerm: string = '';
   selectedCategories: { [key: string]: boolean } = {};
@@ -45,6 +47,44 @@ export class ProductFilters implements OnInit {
     this.loadFilterOptions();
   }
 
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes['resetTrigger'] && !changes['resetTrigger'].firstChange) {
+      this.syncWithExternalFilters();
+    }
+  }
+
+  syncWithExternalFilters() {
+    if (!this.externalFilters) return;
+
+    this.searchTerm = this.externalFilters.search || '';
+
+    // Reset all
+    this.selectedCategories = {};
+    this.selectedMetals = {};
+    this.selectedPurities = {};
+    this.selectedWeightRanges = {};
+
+    // Re-apply
+    if (this.externalFilters.categories) {
+      this.externalFilters.categories.forEach((c: string) => this.selectedCategories[c] = true);
+    }
+    if (this.externalFilters.metals) {
+      this.externalFilters.metals.forEach((m: string) => this.selectedMetals[m] = true);
+    }
+    if (this.externalFilters.purities) {
+      this.externalFilters.purities.forEach((p: string) => this.selectedPurities[p] = true);
+    }
+    if (this.externalFilters.weightRanges) {
+      this.weightRanges.forEach(r => {
+        const rangeStr = `${r.min}-${r.max}`;
+        if (this.externalFilters.weightRanges.includes(rangeStr)) {
+          this.selectedWeightRanges[r.label] = true;
+        }
+      });
+    }
+    this.cd.detectChanges();
+  }
+
   loadFilterOptions() {
     this.productService.getFilterOptions().subscribe(options => {
       this.categories = options.categories || [];
@@ -56,6 +96,21 @@ export class ProductFilters implements OnInit {
 
   toggleSection(section: string) {
     this.openSections[section] = !this.openSections[section];
+  }
+
+  getActiveCount(section: string): number {
+    switch (section) {
+      case 'category':
+        return Object.values(this.selectedCategories).filter(v => v).length;
+      case 'metalType':
+        return Object.values(this.selectedMetals).filter(v => v).length;
+      case 'purity':
+        return Object.values(this.selectedPurities).filter(v => v).length;
+      case 'weight':
+        return Object.values(this.selectedWeightRanges).filter(v => v).length;
+      default:
+        return 0;
+    }
   }
 
   onFilterChange() {

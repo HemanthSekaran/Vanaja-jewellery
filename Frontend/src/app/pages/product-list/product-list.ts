@@ -24,6 +24,8 @@ export class ProductList implements OnInit {
   filteredProducts: Product[] = [];
   isMobileFilterOpen = false;
 
+  activeFilters: { type: string, value: string, label: string }[] = [];
+
   // Pagination state
   currentPage = 1;
   totalPages = 1;
@@ -74,9 +76,60 @@ export class ProductList implements OnInit {
 
   onFilterChange(filters: any) {
     this.currentFilters = filters;
+    this.updateActiveFilters();
     this.currentPage = 1; // Reset to first page when filters change
     this.loadProducts();
   }
+
+  updateActiveFilters() {
+    this.activeFilters = [];
+
+    if (this.currentFilters.categories) {
+      this.currentFilters.categories.forEach((v: string) =>
+        this.activeFilters.push({ type: 'category', value: v, label: v }));
+    }
+    if (this.currentFilters.metals) {
+      this.currentFilters.metals.forEach((v: string) =>
+        this.activeFilters.push({ type: 'metal', value: v, label: v }));
+    }
+    if (this.currentFilters.purities) {
+      this.currentFilters.purities.forEach((v: string) =>
+        this.activeFilters.push({ type: 'purity', value: v, label: v }));
+    }
+    if (this.currentFilters.weightRanges) {
+      this.currentFilters.weightRanges.forEach((v: string) =>
+        this.activeFilters.push({ type: 'weight', value: v, label: `Weight: ${v}` }));
+    }
+    if (this.currentFilters.search) {
+      this.activeFilters.push({ type: 'search', value: this.currentFilters.search, label: `"${this.currentFilters.search}"` });
+    }
+  }
+
+  removeFilter(filter: any) {
+    // This is tricky because we need to update the child component's state
+    // For now, we'll just implement the logic to clear it in currentFilters
+    // and we'll need a way to notify the child.
+
+    if (filter.type === 'search') {
+      this.currentFilters.search = '';
+    } else if (filter.type === 'category') {
+      this.currentFilters.categories = this.currentFilters.categories.filter((v: string) => v !== filter.value);
+    } else if (filter.type === 'metal') {
+      this.currentFilters.metals = this.currentFilters.metals.filter((v: string) => v !== filter.value);
+    } else if (filter.type === 'purity') {
+      this.currentFilters.purities = this.currentFilters.purities.filter((v: string) => v !== filter.value);
+    } else if (filter.type === 'weight') {
+      this.currentFilters.weightRanges = this.currentFilters.weightRanges.filter((v: string) => v !== filter.value);
+    }
+
+    this.updateActiveFilters();
+    this.loadProducts();
+
+    // Trigger child update - we'll add a signal for this
+    this.filtersResetTrigger = Date.now();
+  }
+
+  filtersResetTrigger = 0;
 
   loadProducts() {
     this.loading = true;
@@ -130,6 +183,13 @@ export class ProductList implements OnInit {
       this.currentPage = page;
       this.loadProducts();
     }
+  }
+
+  clearAllFilters() {
+    this.currentFilters = {};
+    this.activeFilters = [];
+    this.filtersResetTrigger = Date.now();
+    this.loadProducts();
   }
 
   get pageNumbers(): number[] {

@@ -13,6 +13,7 @@
                 </p>
             </div>
 
+            @if (auth.isLoggedIn()) {
             <button (click)="router.navigate(['/customization/list'])"
                 class="group flex items-center gap-2 px-5 py-2.5 rounded-full bg-white border border-border hover:border-primary/50 hover:bg-primary/5 text-foreground hover:text-primary transition-all duration-300 shadow-sm hover:shadow-md">
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
@@ -23,6 +24,7 @@
                 </svg>
                 <span class="font-medium">My Designs</span>
             </button>
+            }
         </div>
 
         <!-- Content Area -->

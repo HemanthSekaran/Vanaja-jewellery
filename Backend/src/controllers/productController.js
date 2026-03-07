@@ -633,22 +633,31 @@ const getUserCartProducts = async (req, res, next) => {
         const metalPriceMap = await fetchMetalPrices();
         const gstPercentage = getGSTPercentage();
 
-        // Attach images + price
-        const productsWithImagesAndPrice = products.map(product => {
+        // Match stored cart items with fetched product data
+        const productsWithDetails = cartItems.map(item => {
+            const product = products.find(p => String(p.id) === String(item.productId));
+            if (!product) return null;
+
             const productWithImages = {
                 ...product,
                 images: parseImages(product.image)
             };
-            // Get metal price for this specific product
+
             const metalRate = getMetalPriceForProduct(productWithImages, metalPriceMap);
-            return addPriceToProduct(productWithImages, metalRate, gstPercentage);
-        });
+            const productWithPrice = addPriceToProduct(productWithImages, metalRate, gstPercentage);
+
+            return {
+                ...productWithPrice,
+                variantId: item.variantId,
+                quantity: item.quantity || 1
+            };
+        }).filter(item => item !== null);
 
         return sendSuccess(
             res,
             {
-                products: productsWithImagesAndPrice,
-                count: productsWithImagesAndPrice.length
+                products: productsWithDetails,
+                count: productsWithDetails.reduce((acc, item) => acc + (item.quantity || 0), 0)
             },
             'Cart products retrieved successfully'
         );

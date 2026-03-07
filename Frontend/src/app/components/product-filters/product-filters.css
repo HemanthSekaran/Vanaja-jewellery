@@ -1,0 +1,44 @@
+:host {
+    display: block;
+}
+
+.bg-white {
+    transition: box-shadow 0.3s ease;
+}
+
+.bg-white:hover {
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+}
+
+/* Accordion Animation */
+.transition-all {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.hidden {
+    display: none;
+    opacity: 0;
+    max-height: 0;
+}
+
+/* Custom Checkbox */
+.w-5.h-5 {
+    border-radius: 4px;
+    transition: all 0.2s ease-in-out;
+}
+
+/* Section Hover */
+button.w-full:hover h3 {
+    color: var(--primary);
+}
+
+/* Count Badge Pulse (Subtle) */
+@keyframes badge-pop {
+    0% { transform: scale(0.9); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+span.bg-primary {
+    animation: badge-pop 0.3s ease-out;
+}

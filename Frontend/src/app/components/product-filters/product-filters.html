@@ -1,9 +1,24 @@
 <div class="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
     <!-- Header -->
     <div class="p-5 border-b border-gray-100 bg-gray-50/50 flex justify-between items-center">
-        <h2 class="text-xl font-serif font-bold text-gray-900 tracking-wide">Filters</h2>
+        <div class="flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                class="text-primary">
+                <line x1="4" y1="21" x2="4" y2="14"></line>
+                <line x1="4" y1="10" x2="4" y2="3"></line>
+                <line x1="12" y1="21" x2="12" y2="12"></line>
+                <line x1="12" y1="8" x2="12" y2="3"></line>
+                <line x1="20" y1="21" x2="20" y2="16"></line>
+                <line x1="20" y1="12" x2="20" y2="3"></line>
+                <line x1="1" y1="14" x2="7" y2="14"></line>
+                <line x1="9" y1="8" x2="15" y2="8"></line>
+                <line x1="17" y1="16" x2="23" y2="16"></line>
+            </svg>
+            <h2 class="text-xl font-serif font-bold text-gray-900 tracking-wide">Filters</h2>
+        </div>
         <button (click)="clearFilters()"
-            class="text-xs text-primary hover:underline font-medium uppercase tracking-wider">
+            class="text-xs text-primary hover:text-primary/80 font-bold uppercase tracking-wider transition-colors">
             Clear All
         </button>
     </div>
@@ -13,10 +28,18 @@
         <button
             class="w-full px-5 py-4 flex items-center justify-between bg-white hover:bg-gray-50 transition-colors group"
             (click)="toggleSection('search')">
-            <h3 class="text-sm font-bold text-gray-900 uppercase tracking-widest">Search</h3>
-            <span class="text-gray-400 text-lg transition-transform duration-300"
+            <div class="flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                    class="text-gray-400 group-hover:text-primary transition-colors">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+                <h3 class="text-sm font-bold text-gray-900 uppercase tracking-widest">Search</h3>
+            </div>
+            <span class="text-gray-300 text-lg transition-transform duration-300"
                 [class.rotate-180]="openSections['search']">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="m6 9 6 6 6-6" />
                 </svg>
@@ -41,10 +64,23 @@
         <button
             class="w-full px-5 py-4 flex items-center justify-between bg-white hover:bg-gray-50 transition-colors group"
             (click)="toggleSection('category')">
-            <h3 class="text-sm font-bold text-gray-900 uppercase tracking-widest">Category</h3>
-            <span class="text-gray-400 text-lg transition-transform duration-300"
+            <div class="flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                    class="text-gray-400 group-hover:text-primary transition-colors">
+                    <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"></path>
+                    <path d="M3 6h18"></path>
+                    <path d="M16 10a4 4 0 0 1-8 0"></path>
+                </svg>
+                <h3 class="text-sm font-bold text-gray-900 uppercase tracking-widest">Category</h3>
+                <span *ngIf="getActiveCount('category') > 0"
+                    class="ml-2 bg-primary text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">
+                    {{ getActiveCount('category') }}
+                </span>
+            </div>
+            <span class="text-gray-300 text-lg transition-transform duration-300"
                 [class.rotate-180]="openSections['category']">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="m6 9 6 6 6-6" />
                 </svg>
@@ -81,10 +117,24 @@
         <button
             class="w-full px-5 py-4 flex items-center justify-between bg-white hover:bg-gray-50 transition-colors group"
             (click)="toggleSection('metalType')">
-            <h3 class="text-sm font-bold text-gray-900 uppercase tracking-widest">Metal</h3>
-            <span class="text-gray-400 text-lg transition-transform duration-300"
+            <div class="flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                    class="text-gray-400 group-hover:text-primary transition-colors">
+                    <circle cx="12" cy="12" r="3"></circle>
+                    <path
+                        d="M12 2v2m0 16v2M4.93 4.93l1.41 1.41m11.32 11.32l1.41 1.41M2 12h2m16 0h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41">
+                    </path>
+                </svg>
+                <h3 class="text-sm font-bold text-gray-900 uppercase tracking-widest">Metal</h3>
+                <span *ngIf="getActiveCount('metalType') > 0"
+                    class="ml-2 bg-primary text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">
+                    {{ getActiveCount('metalType') }}
+                </span>
+            </div>
+            <span class="text-gray-300 text-lg transition-transform duration-300"
                 [class.rotate-180]="openSections['metalType']">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="m6 9 6 6 6-6" />
                 </svg>
@@ -120,10 +170,21 @@
         <button
             class="w-full px-5 py-4 flex items-center justify-between bg-white hover:bg-gray-50 transition-colors group"
             (click)="toggleSection('purity')">
-            <h3 class="text-sm font-bold text-gray-900 uppercase tracking-widest">Purity</h3>
-            <span class="text-gray-400 text-lg transition-transform duration-300"
+            <div class="flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                    class="text-gray-400 group-hover:text-primary transition-colors">
+                    <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path>
+                </svg>
+                <h3 class="text-sm font-bold text-gray-900 uppercase tracking-widest">Purity</h3>
+                <span *ngIf="getActiveCount('purity') > 0"
+                    class="ml-2 bg-primary text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">
+                    {{ getActiveCount('purity') }}
+                </span>
+            </div>
+            <span class="text-gray-300 text-lg transition-transform duration-300"
                 [class.rotate-180]="openSections['purity']">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="m6 9 6 6 6-6" />
                 </svg>
@@ -159,10 +220,23 @@
         <button
             class="w-full px-5 py-4 flex items-center justify-between bg-white hover:bg-gray-50 transition-colors group"
             (click)="toggleSection('weight')">
-            <h3 class="text-sm font-bold text-gray-900 uppercase tracking-widest">Weight</h3>
-            <span class="text-gray-400 text-lg transition-transform duration-300"
+            <div class="flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                    class="text-gray-400 group-hover:text-primary transition-colors">
+                    <path d="M20 12V8H6a2 2 0 0 1-2-2c0-1.1.9-2 2-2h12v4"></path>
+                    <path d="M4 6v12c0 1.1.9 2 2 2h14v-4"></path>
+                    <path d="M18 12a2 2 0 0 0-2 2c0 1.1.9 2 2 2h4v-4h-4z"></path>
+                </svg>
+                <h3 class="text-sm font-bold text-gray-900 uppercase tracking-widest">Weight</h3>
+                <span *ngIf="getActiveCount('weight') > 0"
+                    class="ml-2 bg-primary text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">
+                    {{ getActiveCount('weight') }}
+                </span>
+            </div>
+            <span class="text-gray-300 text-lg transition-transform duration-300"
                 [class.rotate-180]="openSections['weight']">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="m6 9 6 6 6-6" />
                 </svg>

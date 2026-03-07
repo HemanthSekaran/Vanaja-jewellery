@@ -32,8 +32,8 @@ export class Signup implements OnDestroy {
         this.signupForm = this.fb.group({
             name: ['', [Validators.required, Validators.minLength(2)]],
             email: ['', [Validators.required, Validators.email]],
-            phone: ['', [Validators.required, Validators.pattern(/^[0-9]{10}$/)]],
-            address: ['', [Validators.required]]
+            phone: ['', [Validators.pattern(/^[0-9]{10}$/)]],
+            address: ['']
         });
 
         this.otpForm = this.fb.group({
