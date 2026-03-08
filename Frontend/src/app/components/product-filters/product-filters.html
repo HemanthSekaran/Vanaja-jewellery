@@ -112,102 +112,52 @@
         </div>
     </div>
 
-    <!-- Metal Color (Checkboxes) -->
+    <!-- Wastage Range (Checkboxes) -->
     <div class="border-b border-gray-100">
         <button
             class="w-full px-5 py-4 flex items-center justify-between bg-white hover:bg-gray-50 transition-colors group"
-            (click)="toggleSection('metalType')">
+            (click)="toggleSection('wastage')">
             <div class="flex items-center gap-2">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
                     class="text-gray-400 group-hover:text-primary transition-colors">
-                    <circle cx="12" cy="12" r="3"></circle>
                     <path
-                        d="M12 2v2m0 16v2M4.93 4.93l1.41 1.41m11.32 11.32l1.41 1.41M2 12h2m16 0h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41">
+                        d="M11 2a2 2 0 0 0-2 2v5H4a2 2 0 0 0-2 2v2c0 1.1.9 2 2 2h5v5c0 1.1.9 2 2 2h2c1.1 0 2-.9 2-2v-5h5c1.1 0 2-.9 2-2v-2a2 2 0 0 0-2-2h-5V4a2 2 0 0 0-2-2h-2z">
                     </path>
                 </svg>
-                <h3 class="text-sm font-bold text-gray-900 uppercase tracking-widest">Metal</h3>
-                <span *ngIf="getActiveCount('metalType') > 0"
+                <h3 class="text-sm font-bold text-gray-900 uppercase tracking-widest">Wastage (%)</h3>
+                <span *ngIf="getActiveCount('wastage') > 0"
                     class="ml-2 bg-primary text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">
-                    {{ getActiveCount('metalType') }}
+                    {{ getActiveCount('wastage') }}
                 </span>
             </div>
             <span class="text-gray-300 text-lg transition-transform duration-300"
-                [class.rotate-180]="openSections['metalType']">
+                [class.rotate-180]="openSections['wastage']">
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="m6 9 6 6 6-6" />
                 </svg>
             </span>
         </button>
-        <div class="px-5 pb-5" [class.hidden]="!openSections['metalType']">
+        <div class="px-5 pb-5" [class.hidden]="!openSections['wastage']">
             <div class="space-y-3">
-                @for (metal of metals; track metal) {
+                @for (range of wastageRanges; track range.label) {
                 <div class="flex items-center group cursor-pointer"
-                    (click)="selectedMetals[metal] = !selectedMetals[metal]; onFilterChange()">
+                    (click)="selectedWastageRanges[range.label] = !selectedWastageRanges[range.label]; onFilterChange()">
                     <div class="w-5 h-5 border rounded flex items-center justify-center transition-colors"
-                        [class.bg-primary]="selectedMetals[metal]" [class.border-primary]="selectedMetals[metal]"
-                        [class.border-gray-300]="!selectedMetals[metal]"
-                        [class.group-hover:border-primary]="!selectedMetals[metal]">
-                        <svg *ngIf="selectedMetals[metal]" xmlns="http://www.w3.org/2000/svg" width="14" height="14"
-                            viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round"
-                            stroke-linejoin="round">
+                        [class.bg-primary]="selectedWastageRanges[range.label]"
+                        [class.border-primary]="selectedWastageRanges[range.label]"
+                        [class.border-gray-300]="!selectedWastageRanges[range.label]"
+                        [class.group-hover:border-primary]="!selectedWastageRanges[range.label]">
+                        <svg *ngIf="selectedWastageRanges[range.label]" xmlns="http://www.w3.org/2000/svg" width="14"
+                            height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"
+                            stroke-linecap="round" stroke-linejoin="round">
                             <polyline points="20 6 9 17 4 12" />
                         </svg>
                     </div>
                     <label
                         class="ml-3 text-sm text-gray-600 cursor-pointer group-hover:text-primary transition-colors select-none">
-                        {{ metal }}
-                    </label>
-                </div>
-                }
-            </div>
-        </div>
-    </div>
-
-    <!-- Purity (Checkboxes) -->
-    <div class="border-b border-gray-100">
-        <button
-            class="w-full px-5 py-4 flex items-center justify-between bg-white hover:bg-gray-50 transition-colors group"
-            (click)="toggleSection('purity')">
-            <div class="flex items-center gap-2">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                    class="text-gray-400 group-hover:text-primary transition-colors">
-                    <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path>
-                </svg>
-                <h3 class="text-sm font-bold text-gray-900 uppercase tracking-widest">Purity</h3>
-                <span *ngIf="getActiveCount('purity') > 0"
-                    class="ml-2 bg-primary text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">
-                    {{ getActiveCount('purity') }}
-                </span>
-            </div>
-            <span class="text-gray-300 text-lg transition-transform duration-300"
-                [class.rotate-180]="openSections['purity']">
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="m6 9 6 6 6-6" />
-                </svg>
-            </span>
-        </button>
-        <div class="px-5 pb-5" [class.hidden]="!openSections['purity']">
-            <div class="space-y-3">
-                @for (purity of purities; track purity) {
-                <div class="flex items-center group cursor-pointer"
-                    (click)="selectedPurities[purity] = !selectedPurities[purity]; onFilterChange()">
-                    <div class="w-5 h-5 border rounded flex items-center justify-center transition-colors"
-                        [class.bg-primary]="selectedPurities[purity]" [class.border-primary]="selectedPurities[purity]"
-                        [class.border-gray-300]="!selectedPurities[purity]"
-                        [class.group-hover:border-primary]="!selectedPurities[purity]">
-                        <svg *ngIf="selectedPurities[purity]" xmlns="http://www.w3.org/2000/svg" width="14" height="14"
-                            viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round"
-                            stroke-linejoin="round">
-                            <polyline points="20 6 9 17 4 12" />
-                        </svg>
-                    </div>
-                    <label
-                        class="ml-3 text-sm text-gray-600 cursor-pointer group-hover:text-primary transition-colors select-none">
-                        {{ purity }}
+                        {{ range.label }}
                     </label>
                 </div>
                 }

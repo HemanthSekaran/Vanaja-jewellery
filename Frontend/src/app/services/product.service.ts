@@ -23,8 +23,7 @@ export class ProductService {
         page?: number;
         limit?: number;
         categories?: string[];
-        metals?: string[];
-        purities?: string[];
+        wastageRanges?: string[];
         weightRanges?: any[];
         search?: string;
         availability?: string;

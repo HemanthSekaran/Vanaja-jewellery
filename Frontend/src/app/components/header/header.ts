@@ -4,12 +4,14 @@ import { CartService } from '../../services/cart.service';
 import { WishlistService } from '../../services/wishlist.service';
 import { LayoutService } from '../../services/layout.service';
 import { AuthService } from '../../services/auth.service';
+import { ProductService } from '../../services/product.service';
 import { MetalPriceBanner } from '../metal-price-banner/metal-price-banner';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [RouterLink, RouterLinkActive, MetalPriceBanner],
+  imports: [RouterLink, RouterLinkActive, MetalPriceBanner, CommonModule],
   templateUrl: './header.html',
   styleUrl: './header.css',
 })
@@ -18,9 +20,17 @@ export class Header {
   wishlistService = inject(WishlistService);
   layoutService = inject(LayoutService);
   authService = inject(AuthService);
+  productService = inject(ProductService);
   router = inject(Router);
 
   isUserMenuOpen = false;
+  categories: string[] = [];
+
+  ngOnInit() {
+    this.productService.getFilterOptions().subscribe(options => {
+      this.categories = options.categories || [];
+    });
+  }
 
   toggleMenu() {
     this.layoutService.toggleMobileMenu();

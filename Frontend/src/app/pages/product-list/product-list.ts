@@ -5,7 +5,7 @@ import { Product } from '../../models/product.model';
 import { ProductCard } from '../../components/product-card/product-card';
 import { ProductFilters } from '../../components/product-filters/product-filters';
 
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 
 @Component({
@@ -18,6 +18,7 @@ export class ProductList implements OnInit {
   productService = inject(ProductService);
   authService = inject(AuthService);
   router = inject(Router);
+  route = inject(ActivatedRoute);
   cd = inject(ChangeDetectorRef);
 
   allProducts: Product[] = [];
@@ -71,7 +72,13 @@ export class ProductList implements OnInit {
   }
 
   ngOnInit() {
-    this.loadProducts();
+    this.route.queryParams.subscribe(params => {
+      if (params['category']) {
+        this.currentFilters.categories = [params['category']];
+        this.updateActiveFilters();
+      }
+      this.loadProducts();
+    });
   }
 
   onFilterChange(filters: any) {
@@ -88,17 +95,13 @@ export class ProductList implements OnInit {
       this.currentFilters.categories.forEach((v: string) =>
         this.activeFilters.push({ type: 'category', value: v, label: v }));
     }
-    if (this.currentFilters.metals) {
-      this.currentFilters.metals.forEach((v: string) =>
-        this.activeFilters.push({ type: 'metal', value: v, label: v }));
-    }
-    if (this.currentFilters.purities) {
-      this.currentFilters.purities.forEach((v: string) =>
-        this.activeFilters.push({ type: 'purity', value: v, label: v }));
+    if (this.currentFilters.wastageRanges) {
+      this.currentFilters.wastageRanges.forEach((v: string) =>
+        this.activeFilters.push({ type: 'wastage', value: v, label: `Wastage: ${v}%` }));
     }
     if (this.currentFilters.weightRanges) {
       this.currentFilters.weightRanges.forEach((v: string) =>
-        this.activeFilters.push({ type: 'weight', value: v, label: `Weight: ${v}` }));
+        this.activeFilters.push({ type: 'weight', value: v, label: `Weight: ${v}g` }));
     }
     if (this.currentFilters.search) {
       this.activeFilters.push({ type: 'search', value: this.currentFilters.search, label: `"${this.currentFilters.search}"` });
@@ -114,10 +117,8 @@ export class ProductList implements OnInit {
       this.currentFilters.search = '';
     } else if (filter.type === 'category') {
       this.currentFilters.categories = this.currentFilters.categories.filter((v: string) => v !== filter.value);
-    } else if (filter.type === 'metal') {
-      this.currentFilters.metals = this.currentFilters.metals.filter((v: string) => v !== filter.value);
-    } else if (filter.type === 'purity') {
-      this.currentFilters.purities = this.currentFilters.purities.filter((v: string) => v !== filter.value);
+    } else if (filter.type === 'wastage') {
+      this.currentFilters.wastageRanges = this.currentFilters.wastageRanges.filter((v: string) => v !== filter.value);
     } else if (filter.type === 'weight') {
       this.currentFilters.weightRanges = this.currentFilters.weightRanges.filter((v: string) => v !== filter.value);
     }

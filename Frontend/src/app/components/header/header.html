@@ -26,8 +26,29 @@
             class="hidden md:flex flex-1 items-center justify-center space-x-8 text-sm font-medium uppercase tracking-wider">
             <a routerLink="/" routerLinkActive="text-[#FFF8DC]" [routerLinkActiveOptions]="{exact: true}"
                 class="transition-colors hover:text-[#FFF8DC]">Home</a>
-            <a routerLink="/products" routerLinkActive="text-[#FFF8DC]"
-                class="transition-colors hover:text-[#FFF8DC]">Products</a>
+            <div class="group py-8">
+                <a routerLink="/products" routerLinkActive="text-[#FFF8DC]"
+                    class="transition-colors hover:text-[#FFF8DC] flex items-center gap-1">
+                    Products
+                </a>
+                <!-- Mega Menu Dropdown -->
+                <div
+                    class="invisible group-hover:visible absolute left-1/2 -translate-x-1/2 top-full w-[95%] max-w-screen-xl bg-[#FFFBF0]/98 backdrop-blur-md text-gray-900 shadow-2xl border border-gray-100/50 opacity-0 group-hover:opacity-100 transition-all duration-300 z-[60] px-6 py-12 rounded-2xl mt-1">
+                    <div class="flex justify-center">
+                        <div
+                            class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-x-12 gap-y-6 text-center w-fit">
+                            @for (category of categories; track category) {
+                            <div class="flex flex-col items-center">
+                                <a [routerLink]="['/products']" [queryParams]="{category: category}"
+                                    class="text-sm font-medium hover:text-[#8B0000] transition-colors uppercase tracking-wide whitespace-nowrap">
+                                    {{ category }}
+                                </a>
+                            </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
             <a routerLink="/about" routerLinkActive="text-[#FFF8DC]"
                 class="transition-colors hover:text-[#FFF8DC]">About</a>
             <a routerLink="/contact" routerLinkActive="text-[#FFF8DC]"

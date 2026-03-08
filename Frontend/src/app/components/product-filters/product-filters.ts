@@ -18,8 +18,7 @@ export class ProductFilters implements OnInit {
 
   searchTerm: string = '';
   selectedCategories: { [key: string]: boolean } = {};
-  selectedMetals: { [key: string]: boolean } = {};
-  selectedPurities: { [key: string]: boolean } = {};
+  selectedWastageRanges: { [key: string]: boolean } = {};
   selectedWeightRanges: { [key: string]: boolean } = {};
 
   categories: string[] = [];
@@ -34,12 +33,19 @@ export class ProductFilters implements OnInit {
     { label: '20+ g', min: 20, max: 1000 }
   ];
 
+  wastageRanges = [
+    { label: '2 - 5 %', min: 2, max: 5 },
+    { label: '6 - 10 %', min: 6, max: 10 },
+    { label: '10 - 15 %', min: 10, max: 15 },
+    { label: '15 - 20 %', min: 15, max: 20 },
+    { label: '20+ %', min: 20, max: 100 }
+  ];
+
   // Accordion State
   openSections: { [key: string]: boolean } = {
     'search': true,
     'category': true,
-    'metalType': true,
-    'purity': true,
+    'wastage': true,
     'weight': true
   };
 
@@ -58,21 +64,17 @@ export class ProductFilters implements OnInit {
 
     this.searchTerm = this.externalFilters.search || '';
 
-    // Reset all
-    this.selectedCategories = {};
-    this.selectedMetals = {};
-    this.selectedPurities = {};
-    this.selectedWeightRanges = {};
-
     // Re-apply
     if (this.externalFilters.categories) {
       this.externalFilters.categories.forEach((c: string) => this.selectedCategories[c] = true);
     }
-    if (this.externalFilters.metals) {
-      this.externalFilters.metals.forEach((m: string) => this.selectedMetals[m] = true);
-    }
-    if (this.externalFilters.purities) {
-      this.externalFilters.purities.forEach((p: string) => this.selectedPurities[p] = true);
+    if (this.externalFilters.wastageRanges) {
+      this.wastageRanges.forEach(r => {
+        const rangeStr = `${r.min}-${r.max}`;
+        if (this.externalFilters.wastageRanges.includes(rangeStr)) {
+          this.selectedWastageRanges[r.label] = true;
+        }
+      });
     }
     if (this.externalFilters.weightRanges) {
       this.weightRanges.forEach(r => {
@@ -102,10 +104,8 @@ export class ProductFilters implements OnInit {
     switch (section) {
       case 'category':
         return Object.values(this.selectedCategories).filter(v => v).length;
-      case 'metalType':
-        return Object.values(this.selectedMetals).filter(v => v).length;
-      case 'purity':
-        return Object.values(this.selectedPurities).filter(v => v).length;
+      case 'wastage':
+        return Object.values(this.selectedWastageRanges).filter(v => v).length;
       case 'weight':
         return Object.values(this.selectedWeightRanges).filter(v => v).length;
       default:
@@ -117,8 +117,9 @@ export class ProductFilters implements OnInit {
     this.filterChange.emit({
       search: this.searchTerm,
       categories: Object.keys(this.selectedCategories).filter(k => this.selectedCategories[k]),
-      metals: Object.keys(this.selectedMetals).filter(k => this.selectedMetals[k]),
-      purities: Object.keys(this.selectedPurities).filter(k => this.selectedPurities[k]),
+      wastageRanges: this.wastageRanges
+        .filter(r => this.selectedWastageRanges[r.label])
+        .map(r => `${r.min}-${r.max}`),
       weightRanges: this.weightRanges
         .filter(r => this.selectedWeightRanges[r.label])
         .map(r => `${r.min}-${r.max}`)
@@ -128,8 +129,7 @@ export class ProductFilters implements OnInit {
   clearFilters() {
     this.searchTerm = '';
     this.selectedCategories = {};
-    this.selectedMetals = {};
-    this.selectedPurities = {};
+    this.selectedWastageRanges = {};
     this.selectedWeightRanges = {};
     this.onFilterChange();
   }
