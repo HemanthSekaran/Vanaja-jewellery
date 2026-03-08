@@ -1,5 +1,6 @@
-import { Component, signal, viewChild, ElementRef, effect } from '@angular/core';
+import { Component, signal, viewChild, ElementRef, effect, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import * as L from 'leaflet';
 
 interface ChatMessage {
   text: string;
@@ -31,7 +32,7 @@ interface QuickReply {
     .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
   `]
 })
-export class Contact {
+export class Contact implements AfterViewInit {
   scrollContainer = viewChild<ElementRef<HTMLDivElement>>('scrollContainer');
 
   messages = signal<ChatMessage[]>([
@@ -101,6 +102,34 @@ export class Contact {
       this.isTyping();
       this.scrollToBottom();
     });
+  }
+
+  ngAfterViewInit() {
+    this.initMap();
+  }
+
+  private initMap() {
+    const lat = 11.747282888783749;
+    const lng = 79.75259458901265;
+
+    const map = L.map('map').setView([lat, lng], 15);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+
+    const icon = L.icon({
+      iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+      shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+      iconSize: [25, 41],
+      iconAnchor: [12, 41],
+      popupAnchor: [1, -34],
+      shadowSize: [41, 41]
+    });
+
+    L.marker([lat, lng], { icon }).addTo(map)
+      .bindPopup('Sri Vanaja Jewellery')
+      .openPopup();
   }
 
   handleReply(reply: QuickReply) {

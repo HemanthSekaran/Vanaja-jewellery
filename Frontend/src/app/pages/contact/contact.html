@@ -1,11 +1,11 @@
 <div class="min-h-screen bg-[#FFFBF2]/50 font-sans">
     <div class="container mx-auto px-4 py-8 max-w-4xl">
-        <header class="text-center mb-8 relative">
-            <h1 class="text-2xl md:text-3xl font-bold mb-3 text-[#8B0000] tracking-tight">
-                Contact <span class="text-[#D4AF37]">Us</span>
+        <header class="text-center mb-10 relative">
+            <h1 class="text-3xl md:text-4xl font-serif font-bold mb-4 tracking-tight text-[#8B0000]">
+                Contact Us
             </h1>
-            <div class="w-12 h-1 bg-gradient-to-r from-[#8B0000] to-[#D4AF37] mx-auto mb-4 rounded-full"></div>
-            <p class="text-[#3D3D3D]/70 max-w-md mx-auto text-sm font-medium leading-relaxed">
+            <div class="w-16 h-1 bg-[#D4AF37] mx-auto mb-6 rounded-full opacity-90 shadow-sm"></div>
+            <p class="text-[#3D3D3D]/70 max-w-md mx-auto text-sm font-medium leading-relaxed italic">
                 Have a question? Text our team or visit our shop. We are here to help.
             </p>
         </header>
@@ -70,17 +70,9 @@
                     </div>
                 </div>
 
-                <!-- Shop Preview -->
-                <div class="relative h-48 rounded-2xl overflow-hidden shadow-sm border border-white/50">
-                    <img src="https://images.unsplash.com/photo-1573408301185-9146fe634ad0?auto=format&fit=crop&q=80&w=600"
-                        alt="Shop" class="absolute inset-0 w-full h-full object-cover">
-                    <div
-                        class="absolute inset-0 bg-gradient-to-t from-[#8B0000]/80 to-transparent flex flex-col items-center justify-end p-4 text-center">
-                        <h3 class="text-white text-lg font-bold">Our Store</h3>
-                        <button
-                            class="mt-3 px-6 py-2 bg-white text-[#8B0000] hover:bg-[#D4AF37] hover:text-white transition-all font-bold rounded-full text-[10px] uppercase tracking-widest shadow-lg">View
-                            Map</button>
-                    </div>
+                <!-- Shop Map -->
+                <div class="relative h-48 rounded-2xl overflow-hidden shadow-sm border border-[#E6DCC8] bg-white">
+                    <div id="map" class="w-full h-full z-0"></div>
                 </div>
             </div>
 
