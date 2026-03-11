@@ -239,26 +239,64 @@ const sendOrderNotification = async (orderItems, user) => {
     try {
         if (!orderItems || orderItems.length === 0) return;
 
+        const path = require('path');
         const transporter = createTransporter();
 
         const totalFinalPrice = orderItems
             .reduce((sum, item) => sum + parseFloat(item.final_price || 0), 0)
             .toFixed(2);
 
-        const orderRowsHtml = orderItems.map((item, idx) => `
+        // Build CID attachments from each order item's product images
+        const attachments = [];
+        const cidMap = {}; // productImageFilename -> cid
+
+        orderItems.forEach((item, idx) => {
+            const images = Array.isArray(item.product_images) ? item.product_images : [];
+            if (images.length > 0) {
+                const firstImage = images[0];
+                if (!cidMap[firstImage]) {
+                    const cid = `product_img_${idx}@vanajajewellery`;
+                    cidMap[firstImage] = cid;
+                    attachments.push({
+                        filename: firstImage,
+                        path: path.join(process.cwd(), 'uploads', 'products', firstImage),
+                        cid
+                    });
+                }
+            }
+        });
+
+        // Build order rows with inline product image
+        const orderRowsHtml = orderItems.map((item, idx) => {
+            const images = Array.isArray(item.product_images) ? item.product_images : [];
+            const firstImage = images.length > 0 ? images[0] : null;
+            const cid = firstImage && cidMap[firstImage] ? cidMap[firstImage] : null;
+
+            const imageHtml = cid
+                ? `<img src="cid:${cid}" alt="${item.product_name}" style="width:60px; height:60px; object-fit:cover; border-radius:4px; border:1px solid #ddd; display:block; margin:auto;" />`
+                : `<span style="color:#aaa; font-size:11px;">No image</span>`;
+
+            const weightCell = item.required_grams
+                ? `${parseFloat(item.weight).toFixed(3)} g<br><em style="color:#c0392b; font-size:11px;">Requested: ${parseFloat(item.required_grams).toFixed(3)} g</em>`
+                : (item.user_weight
+                    ? `${parseFloat(item.weight).toFixed(3)} g<br><em style="color:#888; font-size:11px;">Custom: ${parseFloat(item.user_weight).toFixed(3)} g</em>`
+                    : `${parseFloat(item.weight).toFixed(3)} g`);
+
+            return `
             <tr style="background: ${idx % 2 === 0 ? '#f9f9f9' : '#fff'}">
+                <td style="padding:8px 12px; border:1px solid #ddd; text-align:center; width:70px;">${imageHtml}</td>
                 <td style="padding:8px 12px; border:1px solid #ddd;">${item.product_name}</td>
                 <td style="padding:8px 12px; border:1px solid #ddd;">${item.metal || '-'} ${item.metal_purity || ''}</td>
-                <td style="padding:8px 12px; border:1px solid #ddd;">${parseFloat(item.weight).toFixed(3)} g${item.user_weight ? ` <em style="color:#888;">(custom: ${parseFloat(item.user_weight).toFixed(3)} g)</em>` : ''}</td>
+                <td style="padding:8px 12px; border:1px solid #ddd;">${weightCell}</td>
                 <td style="padding:8px 12px; border:1px solid #ddd;">${item.size || '—'}</td>
                 <td style="padding:8px 12px; border:1px solid #ddd;">${item.chain_length ? `${item.chain_length}"` : '—'}</td>
                 <td style="padding:8px 12px; border:1px solid #ddd;">₹${parseFloat(item.metal_rate_per_gram).toFixed(2)}/g</td>
                 <td style="padding:8px 12px; border:1px solid #ddd;">₹${parseFloat(item.final_price).toFixed(2)}</td>
-            </tr>
-        `).join('');
+            </tr>`;
+        }).join('');
 
         const htmlBody = `
-            <div style="font-family: Arial, sans-serif; max-width: 680px; margin: 0 auto; color:#333;">
+            <div style="font-family: Arial, sans-serif; max-width: 760px; margin: 0 auto; color:#333;">
                 <h2 style="color:#b8860b;">🛒 New Order Placed – Vanaja Jewellery</h2>
 
                 <div style="background:#fff8e1; padding:16px; border-radius:6px; margin-bottom:20px;">
@@ -273,6 +311,7 @@ const sendOrderNotification = async (orderItems, user) => {
                 <table style="border-collapse:collapse; width:100%; font-size:14px;">
                     <thead>
                         <tr style="background:#b8860b; color:#fff;">
+                            <th style="padding:8px 12px; border:1px solid #ddd; text-align:center;">Image</th>
                             <th style="padding:8px 12px; border:1px solid #ddd; text-align:left;">Product</th>
                             <th style="padding:8px 12px; border:1px solid #ddd; text-align:left;">Metal</th>
                             <th style="padding:8px 12px; border:1px solid #ddd; text-align:left;">Weight</th>
@@ -287,7 +326,7 @@ const sendOrderNotification = async (orderItems, user) => {
                     </tbody>
                     <tfoot>
                         <tr style="background:#f0f0f0; font-weight:bold;">
-                            <td colspan="6" style="padding:8px 12px; border:1px solid #ddd; text-align:right;">Grand Total</td>
+                            <td colspan="7" style="padding:8px 12px; border:1px solid #ddd; text-align:right;">Grand Total</td>
                             <td style="padding:8px 12px; border:1px solid #ddd;">₹${totalFinalPrice}</td>
                         </tr>
                     </tfoot>
@@ -305,10 +344,11 @@ const sendOrderNotification = async (orderItems, user) => {
         ].filter(Boolean).join(',');
 
         await transporter.sendMail({
-            from:    process.env.SMTP_FROM || process.env.SMTP_USER,
-            to:      recipients,
-            subject: `🛒 New Order – ${user.name} | ${orderItems.length} item(s) | ₹${totalFinalPrice}`,
-            html:    htmlBody,
+            from:        process.env.SMTP_FROM || process.env.SMTP_USER,
+            to:          recipients,
+            subject:     `🛒 New Order – ${user.name} | ${orderItems.length} item(s) | ₹${totalFinalPrice}`,
+            html:        htmlBody,
+            attachments  // inline CID product images
         });
 
         logger.info(`Order notification email sent for ${orderItems.length} item(s) placed by user ${user.email}`);

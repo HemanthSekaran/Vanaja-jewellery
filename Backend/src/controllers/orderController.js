@@ -5,10 +5,11 @@
  * own unique order_id (auto-increment integer).
  *
  * Checkout body:
- *   productIds    : number[]           – required
- *   weights       : (number|null)[]    – optional per-product user-supplied weight (g)
- *   sizes         : (string|null)[]    – optional size for Bangles / Rings / Stone rings
- *   chain_lengths : (number|null)[]    – optional chain length (18|20|22|24) for Chains
+ *   productIds      : number[]           – required
+ *   weights         : (number|null)[]    – optional per-product user-supplied weight (g) used for pricing
+ *   required_grams  : (number|null)[]    – optional per-product grams explicitly entered by customer
+ *   sizes           : (string|null)[]    – optional size for Bangles / Rings / Stone rings
+ *   chain_lengths   : (number|null)[]    – optional chain length (18|20|22|24) for Chains
  */
 
 const { query } = require('../config/database');
@@ -40,7 +41,7 @@ const createOrder = async (req, res, next) => {
     let connection;
 
     try {
-        const { productIds, weights = [], sizes = [], chain_lengths = [] } = req.body;
+        const { productIds, weights = [], required_grams = [], sizes = [], chain_lengths = [] } = req.body;
         const userId = req.user.id;
 
         if (!productIds || !Array.isArray(productIds) || productIds.length === 0) {
@@ -61,9 +62,13 @@ const createOrder = async (req, res, next) => {
             for (let i = 0; i < productIds.length; i++) {
                 const productId = productIds[i];
 
-                // Optional per-product weight
+                // Optional per-product weight (used for price calculation)
                 const userWeight = (weights[i] != null && !isNaN(parseFloat(weights[i])) && parseFloat(weights[i]) > 0)
                     ? parseFloat(weights[i]) : null;
+
+                // Optional required grams explicitly entered by customer (stored as-is for admin visibility)
+                const requiredGrams = (required_grams[i] != null && !isNaN(parseFloat(required_grams[i])) && parseFloat(required_grams[i]) > 0)
+                    ? parseFloat(required_grams[i]) : null;
 
                 // Optional size (Bangles / Rings / Stone rings)
                 const userSize = (sizes[i] != null && String(sizes[i]).trim() !== '')
@@ -128,8 +133,8 @@ const createOrder = async (req, res, next) => {
                         weight, wastage_percentage, wastage_weight, total_weight,
                         metal_rate_per_gram, metal_value, wastage_value, base_price,
                         gst_percentage, gst_amount, final_price,
-                        user_weight, size, chain_length
-                    ) VALUES (?, 'Not Viewed', 'Pending', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                        user_weight, required_grams, size, chain_length
+                    ) VALUES (?, 'Not Viewed', 'Pending', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
                     [
                         userId,
                         product.id,
@@ -149,6 +154,7 @@ const createOrder = async (req, res, next) => {
                         priceCalc.gstAmount,
                         priceCalc.finalPrice,
                         userWeight,
+                        requiredGrams,
                         userSize,
                         chainLength
                     ]
