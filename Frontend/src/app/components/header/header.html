@@ -1,5 +1,7 @@
-<header class="sticky top-0 z-50 w-full border-b bg-sidebar text-sidebar-foreground"
-    style="background-color: #8B0000; color: #FFFFFF; padding-top: env(safe-area-inset-top); padding-top: constant(safe-area-inset-top);">
+<header class="sticky top-0 z-50 w-full transition-all duration-500 border-b border-white/5"
+    [class.bg-[#8B0000]]="!isScrolled" [class.bg-[#8B0000]/80]="isScrolled" [class.backdrop-blur-xl]="isScrolled"
+    [class.shadow-xl]="isScrolled" [class.h-20]="isScrolled" [class.h-24]="!isScrolled"
+    style="color: #FFFFFF; padding-top: env(safe-area-inset-top); padding-top: constant(safe-area-inset-top);">
     <div class="container relative flex h-24 items-center px-4">
         <!-- Left Section: Mobile Menu & Logo -->
         <div class="flex items-center flex-1 md:flex-none">

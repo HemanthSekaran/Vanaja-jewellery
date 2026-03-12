@@ -40,48 +40,51 @@
     </div>
 
     <!-- Login Area (Right Side) -->
-    <div class="w-full lg:w-1/2 flex items-center justify-center p-4 sm:p-8 lg:p-10 bg-background min-h-screen">
-        <div class="w-full max-w-md space-y-4 h-fit my-auto">
-            <div class="lg:hidden text-center mb-5">
-                <span class="text-3xl font-serif font-bold text-primary">Vanaja Jewellery</span>
+    <div class="w-full lg:w-1/2 flex items-center justify-center p-4 sm:p-8 lg:p-10 bg-muted/30 min-h-screen">
+        <div class="w-full max-w-md bg-white p-8 sm:p-10 rounded-2xl border border-border shadow-2xl space-y-6 h-fit my-auto relative overflow-hidden">
+            <!-- Decorative accent -->
+            <div class="absolute top-0 right-0 w-32 h-32 bg-secondary/5 rounded-full -mr-16 -mt-16 blur-2xl"></div>
+            
+            <div class="lg:hidden text-center mb-6">
+                <span class="text-3xl font-serif font-bold text-primary">Sri Vanaja Jewellery</span>
+                <div class="w-12 h-0.5 bg-secondary mx-auto mt-2 opacity-60"></div>
             </div>
 
             <div class="space-y-1">
-                <h1 class="text-2xl font-serif font-bold text-secondary tracking-tight">
+                <h1 class="text-3xl font-serif font-bold text-secondary tracking-tight">
                     {{ showOtpStep() ? 'Verify OTP' : 'Welcome Back' }}
                 </h1>
-                <p class="text-muted-foreground text-sm">
+                <p class="text-muted-foreground text-sm font-medium">
                     {{ showOtpStep() ? 'Enter the 6-digit code sent to ' + loginForm.get('email')?.value : 'Please sign
                     in to your account' }}
                 </p>
             </div>
 
             @if (!showOtpStep()) {
-            <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="space-y-3">
+            <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="space-y-4">
                 <!-- Email Field -->
-                <div class="space-y-1.5">
-                    <label for="email" class="text-xs font-semibold text-secondary uppercase tracking-wider">Email
+                <div class="space-y-2">
+                    <label for="email" class="text-[10px] font-bold text-secondary uppercase tracking-[0.2em]">Email
                         Address</label>
                     <div class="relative group">
                         <input type="email" id="email" formControlName="email"
-                            class="flex h-11 w-full rounded-lg border border-input bg-card/50 px-4 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 transition-all group-hover:border-primary/50"
+                            class="flex h-12 w-full rounded-xl border border-input bg-muted/30 px-4 py-2 text-sm ring-offset-background placeholder:text-muted-foreground/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-0 transition-all group-hover:border-primary/50"
                             [class.border-red-500]="loginForm.get('email')?.invalid && loginForm.get('email')?.touched"
                             placeholder="your@email.com">
                     </div>
                     @if (loginForm.get('email')?.invalid && loginForm.get('email')?.touched) {
-                    <p class="text-[10px] text-red-500 animate-in fade-in slide-in-from-top-1">Please enter a valid
-                        email
-                        address</p>
+                    <p class="text-[10px] text-red-500 font-medium animate-in fade-in slide-in-from-top-1">Please enter a valid
+                        email address</p>
                     }
                 </div>
 
                 <button type="submit" [disabled]="isSubmitting"
-                    class="relative w-full h-10 bg-primary text-primary-foreground rounded-lg font-bold uppercase tracking-widest hover:bg-primary/95 transition-all shadow-lg shadow-primary/20 hover:-translate-y-0.5 disabled:opacity-50 disabled:translate-y-0 active:scale-95 group overflow-hidden mt-1">
-                    <span class="relative z-10 flex items-center justify-center gap-2 text-sm">
+                    class="relative w-full h-12 bg-primary text-primary-foreground rounded-xl font-bold uppercase tracking-[0.2em] hover:bg-primary/95 transition-all shadow-lg shadow-primary/20 hover:-translate-y-0.5 disabled:opacity-50 disabled:translate-y-0 active:scale-95 group overflow-hidden">
+                    <span class="relative z-10 flex items-center justify-center gap-2 text-xs">
                         {{ isSubmitting ? 'Sending...' : 'Send OTP' }}
                         @if (!isSubmitting) {
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
-                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                            stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
                             class="transition-transform group-hover:translate-x-1">
                             <path d="M5 12h14" />
                             <path d="m12 5 7 7-7 7" />
@@ -91,39 +94,39 @@
                 </button>
             </form>
             } @else {
-            <form [formGroup]="otpForm" (ngSubmit)="onVerifyOtp()" class="space-y-3">
+            <form [formGroup]="otpForm" (ngSubmit)="onVerifyOtp()" class="space-y-4">
                 <!-- OTP Field -->
-                <div class="space-y-1.5">
-                    <label for="otp" class="text-xs font-semibold text-secondary uppercase tracking-wider">Verification
+                <div class="space-y-2">
+                    <label for="otp" class="text-[10px] font-bold text-secondary uppercase tracking-[0.2em]">Verification
                         Code</label>
                     <div class="relative group">
                         <input type="text" id="otp" formControlName="otp" maxlength="6"
-                            class="flex h-11 w-full rounded-lg border border-input bg-card/50 px-4 py-2 text-center text-lg font-bold tracking-[1em] ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 transition-all group-hover:border-primary/50"
+                            class="flex h-12 w-full rounded-xl border border-input bg-muted/30 px-4 py-2 text-center text-xl font-bold tracking-[1em] ring-offset-background placeholder:text-muted-foreground/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-0 transition-all group-hover:border-primary/50"
                             [class.border-red-500]="otpForm.get('otp')?.invalid && otpForm.get('otp')?.touched"
                             placeholder="000000">
                     </div>
                     @if (otpForm.get('otp')?.invalid && otpForm.get('otp')?.touched) {
-                    <p class="text-[10px] text-red-500 animate-in fade-in slide-in-from-top-1">Please enter a valid
+                    <p class="text-[10px] text-red-500 font-medium animate-in fade-in slide-in-from-top-1">Please enter a valid
                         6-digit OTP</p>
                     }
                 </div>
 
-                <div class="flex flex-col items-center gap-2 py-2">
+                <div class="flex flex-col items-center gap-2 py-1">
                     <button type="button" (click)="resendOtp()" [disabled]="timer() > 0 || isSubmitting"
-                        class="text-xs font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                        class="text-[10px] font-bold uppercase tracking-wider transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                         [class.text-primary]="timer() === 0" [class.text-muted-foreground]="timer() > 0"
-                        [class.hover:underline]="timer() === 0" [class.cursor-pointer]="timer() === 0">
+                        [class.hover:text-secondary]="timer() === 0" [class.cursor-pointer]="timer() === 0">
                         Resend OTP {{ timer() > 0 ? '(' + timerDisplay() + ')' : '' }}
                     </button>
                 </div>
 
                 <button type="submit" [disabled]="isSubmitting"
-                    class="relative w-full h-10 bg-primary text-primary-foreground rounded-lg font-bold uppercase tracking-widest hover:bg-primary/95 transition-all shadow-lg shadow-primary/20 hover:-translate-y-0.5 disabled:opacity-50 disabled:translate-y-0 active:scale-95 group overflow-hidden mt-1">
-                    <span class="relative z-10 flex items-center justify-center gap-2 text-sm">
+                    class="relative w-full h-12 bg-primary text-primary-foreground rounded-xl font-bold uppercase tracking-[0.2em] hover:bg-primary/95 transition-all shadow-lg shadow-primary/20 hover:-translate-y-0.5 disabled:opacity-50 disabled:translate-y-0 active:scale-95 group overflow-hidden">
+                    <span class="relative z-10 flex items-center justify-center gap-2 text-xs">
                         {{ isSubmitting ? 'Verifying...' : 'Verify & Login' }}
                         @if (!isSubmitting) {
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
-                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                            stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
                             class="transition-transform group-hover:translate-x-1">
                             <path d="M5 12h14" />
                             <path d="m12 5 7 7-7 7" />
@@ -133,24 +136,24 @@
                 </button>
 
                 <button type="button" (click)="backToEmail()" [disabled]="isSubmitting"
-                    class="w-full text-xs text-muted-foreground hover:text-primary transition-colors font-semibold">
+                    class="w-full text-[10px] text-muted-foreground hover:text-primary transition-colors font-bold uppercase tracking-wider">
                     ← Back to Email
                 </button>
             </form>
             }
 
-            <div class="pt-2 text-center text-xs">
-                <p class="text-muted-foreground">
+            <div class="pt-2 text-center">
+                <p class="text-muted-foreground text-[11px] font-medium">
                     Don't have an account?
-                    <a routerLink="/signup" class="text-primary font-bold hover:underline underline-offset-4 ml-1">
+                    <a routerLink="/signup" class="text-primary font-bold hover:text-secondary transition-colors underline-offset-4 ml-1">
                         Create Your Account
                     </a>
                 </p>
             </div>
 
-            <div class="pt-12 flex items-center gap-4 text-muted-foreground/30">
+            <div class="pt-8 flex items-center gap-4 text-muted-foreground/20">
                 <div class="flex-1 h-px bg-current"></div>
-                <div class="text-[10px] uppercase tracking-[0.2em] font-bold">SECURE ACCESS</div>
+                <div class="text-[8px] uppercase tracking-[0.3em] font-bold">SECURE ACCESS</div>
                 <div class="flex-1 h-px bg-current"></div>
             </div>
         </div>

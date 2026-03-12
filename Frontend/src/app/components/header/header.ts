@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, HostListener } from '@angular/core';
 import { RouterLink, RouterLinkActive, Router } from '@angular/router';
 import { CartService } from '../../services/cart.service';
 import { WishlistService } from '../../services/wishlist.service';
@@ -24,7 +24,13 @@ export class Header {
   router = inject(Router);
 
   isUserMenuOpen = false;
+  isScrolled = false;
   categories: string[] = [];
+
+  @HostListener('window:scroll', [])
+  onWindowScroll() {
+    this.isScrolled = window.scrollY > 20;
+  }
 
   ngOnInit() {
     this.productService.getFilterOptions().subscribe(options => {

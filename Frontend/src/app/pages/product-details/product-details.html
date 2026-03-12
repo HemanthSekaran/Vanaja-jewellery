@@ -5,16 +5,20 @@
 	</div>
 </div>
 
-<div *ngIf="!loading && product" class="container mx-auto px-4 py-6 max-w-5xl">
-	<div class="grid md:grid-cols-2 gap-6 lg:gap-8 pb-[80px] md:pb-0">
+<div *ngIf="!loading && product" class="container mx-auto px-4 py-4 max-w-5xl">
+	<div class="grid grid-cols-1 md:grid-cols-12 gap-6 lg:gap-8 pb-6 md:pb-8 h-full">
 		<!-- Image Gallery -->
-		<div class="space-y-4">
-			<div class="aspect-square bg-muted rounded-lg overflow-hidden">
+		<div class="md:col-span-4 flex flex-col">
+			<!-- Main Image -->
+			<div
+				class="aspect-[4/5] bg-muted rounded-2xl overflow-hidden shadow-sm border border-gray-100 w-full max-w-[400px]">
 				<img [src]="selectedImage" [alt]="product.name" class="w-full h-full object-cover">
 			</div>
-			<div class="grid grid-cols-4 gap-2 sm:gap-4 overflow-x-auto pb-2 scrollbar-hide">
+
+			<!-- Compact Thumbnails -->
+			<div *ngIf="product.images && product.images.length > 0" class="mt-4 flex flex-row gap-2.5 overflow-x-auto pb-1 scrollbar-hide">
 				<button *ngFor="let image of product.images" (click)="selectedImage = image"
-					class="aspect-square bg-muted rounded-md overflow-hidden border-2 transition-colors flex-shrink-0 w-20 sm:w-auto"
+					class="aspect-square bg-muted rounded-lg overflow-hidden border-2 transition-all duration-300 flex-shrink-0 w-14 hover:border-primary/50"
 					[class.border-primary]="selectedImage === image"
 					[class.border-transparent]="selectedImage !== image">
 					<img [src]="image" [alt]="product.name" class="w-full h-full object-cover">
@@ -23,143 +27,129 @@
 		</div>
 
 		<!-- Product Info -->
-		<div class="space-y-6">
-			<div>
-				<h1 class="text-xl sm:text-2xl font-bold font-serif text-primary">{{ product.name }}</h1>
-				<div class="flex items-center gap-2 mt-2">
-					<div class="flex text-secondary">
-						<svg *ngFor="let star of [1,2,3,4,5]" xmlns="http://www.w3.org/2000/svg" width="16" height="16"
-							viewBox="0 0 24 24" [attr.fill]="star <= product.rating ? 'currentColor' : 'none'"
-							stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-							class="lucide lucide-star">
-							<polygon
-								points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-						</svg>
-					</div>
-					<span class="text-sm text-muted-foreground">({{ product.reviewCount }} reviews)</span>
+		<div class="md:col-span-8 flex flex-col min-h-full">
+			<div class="space-y-4">
+				<div>
+					<h1 class="text-2xl sm:text-4xl font-bold font-serif text-primary tracking-tight">{{ product.name }}
+					</h1>
+					<p class="text-2xl font-bold mt-2 text-secondary tracking-tight">{{ selectedVariant?.price ||
+						product.price |
+						currency:'INR'
+						}}</p>
 				</div>
-				<p class="text-xl font-bold mt-3 text-secondary">{{ selectedVariant?.price || product.price |
-					currency:'INR'
-					}}</p>
-			</div>
 
-			<p class="text-muted-foreground leading-relaxed text-sm sm:text-base">
-				{{ product.description }}
-			</p>
+				<p class="text-muted-foreground leading-relaxed text-sm sm:text-base max-w-2xl">
+					{{ product.description }}
+				</p>
 
-			<!-- Price Breakdown -->
-			<div *ngIf="priceDetails" class="mt-4 border rounded-lg p-3 sm:p-4 bg-slate-50">
-				<h3 class="font-bold text-lg mb-3">Price Breakdown</h3>
-				<div class="space-y-2 text-sm">
-					<div class="flex justify-between">
-						<span>Metal Rate ({{product.metal}} {{product.metal_purity}})</span>
-						<span>{{priceDetails.metalRate | currency:'INR'}} / g</span>
-					</div>
-					<div class="flex justify-between">
-						<span>Metal Value ({{product.weight}}g)</span>
-						<span>{{priceDetails.metalValue | currency:'INR'}}</span>
-					</div>
-					<div class="flex justify-between">
-						<span>Wastage / VA ({{priceDetails.wastagePercentage}}%)</span>
-						<span>{{priceDetails.wastageAmount | currency:'INR'}}</span>
-					</div>
+				<!-- Price Breakdown -->
+				<div *ngIf="priceDetails"
+					class="border border-gray-100 rounded-3xl p-5 sm:p-6 bg-white shadow-sm max-w-2xl">
+					<h3 class="font-bold text-lg mb-4 text-gray-900">Price Details</h3>
+					<div class="space-y-2.5 text-sm">
+						<div class="flex justify-between text-gray-500">
+							<span>Metal Rate ({{product.metal}} {{product.metal_purity}})</span>
+							<span>{{priceDetails.metalRate | currency:'INR'}} / g</span>
+						</div>
+						<div class="flex justify-between text-gray-500">
+							<span>Metal Value ({{product.weight}}g)</span>
+							<span>{{priceDetails.metalValue | currency:'INR'}}</span>
+						</div>
+						<div class="flex justify-between text-gray-500">
+							<span>Wastage / VA ({{priceDetails.wastagePercentage}}%)</span>
+							<span>{{priceDetails.wastageAmount | currency:'INR'}}</span>
+						</div>
 
-					<div *ngIf="priceDetails.stoneCharges" class="flex justify-between">
-						<span>Stone Charges</span>
-						<span>{{priceDetails.stoneCharges | currency:'INR'}}</span>
-					</div>
-					<div class="flex justify-between font-medium border-t pt-2 mt-2">
-						<span>Taxable Amount</span>
-						<span>{{priceDetails.taxableValue | currency:'INR'}}</span>
-					</div>
-					<div class="flex justify-between">
-						<span>GST (3%)</span>
-						<span>{{priceDetails.gstAmount | currency:'INR'}}</span>
-					</div>
-					<div class="flex justify-between font-bold text-lg border-t pt-2 mt-2 text-primary">
-						<span>Grand Total</span>
-						<span>{{priceDetails.finalPrice | currency:'INR'}}</span>
-					</div>
-				</div>
-			</div>
-
-			<!-- Variants Selection -->
-			<div *ngIf="product.variants.length > 0" class="space-y-4">
-				<div *ngIf="hasSizes" class="space-y-2">
-					<label class="text-sm font-medium text-foreground">Size</label>
-					<div class="flex flex-wrap gap-2">
-						<button *ngFor="let variant of sizeVariants" (click)="selectVariant(variant)"
-							class="px-4 py-2 border rounded-md text-sm transition-colors"
-							[class.bg-primary]="selectedVariant?.id === variant.id"
-							[class.text-primary-foreground]="selectedVariant?.id === variant.id"
-							[class.hover:bg-muted]="selectedVariant?.id !== variant.id">
-							{{ variant.size }}
-						</button>
+						<div *ngIf="priceDetails.stoneCharges" class="flex justify-between text-gray-500">
+							<span>Stone Charges</span>
+							<span>{{priceDetails.stoneCharges | currency:'INR'}}</span>
+						</div>
+						<div class="flex justify-between font-medium border-t border-gray-50 pt-3 mt-3">
+							<span class="text-gray-900 font-bold">Taxable Amount</span>
+							<span class="text-gray-900 font-bold">{{priceDetails.taxableValue | currency:'INR'}}</span>
+						</div>
+						<div class="flex justify-between text-gray-400">
+							<span>GST (3%)</span>
+							<span>{{priceDetails.gstAmount | currency:'INR'}}</span>
+						</div>
+						<div
+							class="flex justify-between font-bold text-2xl border-t-2 border-primary/5 pt-3 mt-3 text-primary">
+							<span>Grand Total</span>
+							<span>{{priceDetails.finalPrice | currency:'INR'}}</span>
+						</div>
 					</div>
 				</div>
 
-				<div *ngIf="hasMaterials" class="space-y-2">
-					<label class="text-sm font-medium text-foreground">Material</label>
-					<div class="flex flex-wrap gap-2">
-						<div *ngFor="let material of product.materials"
-							class="px-3 py-1 bg-muted rounded-full text-xs capitalize text-muted-foreground">
-							{{ material }}
+				<!-- Variants Selection -->
+				<div *ngIf="product.variants.length > 0" class="space-y-3 pt-1">
+					<div *ngIf="hasSizes" class="space-y-3">
+						<label class="text-xs font-bold text-gray-400 uppercase tracking-[0.2em] block">Sizing
+							Options</label>
+						<div class="flex flex-wrap gap-2.5">
+							<button *ngFor="let variant of sizeVariants" (click)="selectVariant(variant)"
+								class="px-6 py-3 border-2 rounded-2xl text-sm font-bold transition-all duration-300"
+								[class.bg-primary]="selectedVariant?.id === variant.id"
+								[class.border-primary]="selectedVariant?.id === variant.id"
+								[class.text-white]="selectedVariant?.id === variant.id"
+								[class.hover:bg-muted]="selectedVariant?.id !== variant.id"
+								[class.border-gray-100]="selectedVariant?.id !== variant.id">
+								{{ variant.size }}
+							</button>
 						</div>
 					</div>
 				</div>
 			</div>
 
-			<!-- Actions (Desktop) -->
-			<div class="hidden md:flex gap-4 pt-6 border-t border-border mt-auto">
+			<!-- Actions (Desktop - Bottom Aligned with Thumbnails) -->
+			<div class="hidden md:flex gap-4 pt-6 mt-auto items-end">
 				<button (click)="toggleCart()"
-					class="flex-1 inline-flex items-center justify-center rounded-md text-sm font-bold h-12 px-8 uppercase tracking-wider transition-colors focus-visible:outline-none disabled:opacity-50 disabled:pointer-events-none text-white"
+					class="flex-1 inline-flex items-center justify-center rounded-2xl text-sm font-bold h-14 px-8 uppercase tracking-widest transition-all duration-300 shadow-lg active:scale-95 text-white"
 					[class.bg-[#8B0000]]="!isInCart" [class.hover:bg-[#600000]]="!isInCart"
 					[class.bg-green-600]="isInCart" [class.hover:bg-green-700]="isInCart">
-
 					{{ isInCart ? 'Added to Cart' : 'Add to Cart' }}
 				</button>
 				<button (click)="buyNow()"
-					class="flex-1 inline-flex items-center justify-center rounded-md text-sm font-bold h-12 px-8 uppercase tracking-wider transition-colors focus-visible:outline-none disabled:opacity-50 disabled:pointer-events-none text-white bg-secondary hover:bg-secondary/90">
+					class="flex-1 inline-flex items-center justify-center rounded-2xl text-sm font-bold h-14 px-8 uppercase tracking-widest transition-all duration-300 shadow-lg active:scale-95 text-white bg-secondary hover:bg-secondary/90">
 					Buy Now
 				</button>
 				<button (click)="toggleWishlist()"
-					class="inline-flex items-center justify-center rounded-md text-sm font-medium h-12 w-12 border border-input bg-white hover:bg-gray-100 transition-colors"
-					[class.text-red-500]="isInWishlist" [class.border-red-500]="isInWishlist"
+					class="inline-flex items-center justify-center rounded-2xl text-sm font-medium h-14 w-14 border-2 border-gray-100 bg-white hover:bg-red-50 hover:border-red-100 hover:text-red-500 transition-all duration-300 shadow-sm"
+					[class.text-red-500]="isInWishlist" [class.border-red-200]="isInWishlist"
 					[class.bg-red-50]="isInWishlist">
-					<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+					<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"
 						fill="currentColor" stroke="none">
 						<path
 							d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
 					</svg>
 				</button>
 			</div>
-
-			<!-- Mobile Sticky Bottom Bar -->
-			<div
-				class="fixed bottom-0 left-0 right-0 p-3 bg-white border-t border-border shadow-[0_-4px_10px_rgba(0,0,0,0.1)] z-50 md:hidden flex gap-3 h-[70px] items-center pb-[max(12px,env(safe-area-inset-bottom))] h-auto">
-				<button (click)="toggleWishlist()"
-					class="inline-flex items-center justify-center rounded-full h-12 w-12 transition-colors shrink-0 focus:outline-none bg-white border border-gray-100"
-					[class.text-red-600]="isInWishlist" [class.text-muted-foreground]="!isInWishlist"
-					[class.bg-red-50]="isInWishlist">
-					<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-						fill="currentColor" stroke="none" class="transition-transform active:scale-90">
-						<path
-							d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
-					</svg>
-				</button>
-
-				<button (click)="toggleCart()"
-					class="flex-1 inline-flex items-center justify-center rounded-md text-sm font-bold h-12 px-4 uppercase tracking-wider transition-colors focus-visible:outline-none disabled:opacity-50 disabled:pointer-events-none text-white shadow-sm"
-					[class.bg-[#8B0000]]="!isInCart" [class.hover:bg-[#600000]]="!isInCart"
-					[class.bg-green-600]="isInCart" [class.hover:bg-green-700]="isInCart">
-					{{ isInCart ? 'Added to Cart' : 'Add to Cart' }}
-				</button>
-				<button (click)="buyNow()"
-					class="flex-1 inline-flex items-center justify-center rounded-md text-sm font-bold h-12 px-4 uppercase tracking-wider transition-colors focus-visible:outline-none disabled:opacity-50 disabled:pointer-events-none text-white shadow-sm bg-secondary hover:bg-secondary/90">
-					Buy Now
-				</button>
-			</div>
 		</div>
+	</div>
+
+	<!-- Mobile Sticky Bottom Bar -->
+	<div
+		class="fixed bottom-0 left-0 right-0 p-3 bg-white border-t border-border shadow-[0_-4px_10px_rgba(0,0,0,0.1)] z-50 md:hidden flex gap-3 h-[70px] items-center pb-[max(12px,env(safe-area-inset-bottom))] h-auto">
+		<button (click)="toggleWishlist()"
+			class="inline-flex items-center justify-center rounded-full h-12 w-12 transition-colors shrink-0 focus:outline-none bg-white border border-gray-100"
+			[class.text-red-600]="isInWishlist" [class.text-muted-foreground]="!isInWishlist"
+			[class.bg-red-50]="isInWishlist">
+			<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"
+				stroke="none" class="transition-transform active:scale-90">
+				<path
+					d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+			</svg>
+		</button>
+
+		<button (click)="toggleCart()"
+			class="flex-1 inline-flex items-center justify-center rounded-md text-sm font-bold h-12 px-4 uppercase tracking-wider transition-colors focus-visible:outline-none disabled:opacity-50 disabled:pointer-events-none text-white shadow-sm"
+			[class.bg-[#8B0000]]="!isInCart" [class.hover:bg-[#600000]]="!isInCart" [class.bg-green-600]="isInCart"
+			[class.hover:bg-green-700]="isInCart">
+			{{ isInCart ? 'Added to Cart' : 'Add to Cart' }}
+		</button>
+		<button (click)="buyNow()"
+			class="flex-1 inline-flex items-center justify-center rounded-md text-sm font-bold h-12 px-4 uppercase tracking-wider transition-colors focus-visible:outline-none disabled:opacity-50 disabled:pointer-events-none text-white shadow-sm bg-secondary hover:bg-secondary/90">
+			Buy Now
+		</button>
 	</div>
 </div>
 
