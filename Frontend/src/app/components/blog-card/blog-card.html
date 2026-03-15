@@ -1,0 +1,35 @@
+<article class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300 border border-border group h-full flex flex-col">
+    <div class="relative aspect-[16/9] overflow-hidden">
+        <img [src]="post.image" [alt]="post.title" 
+             class="w-full h-full object-cover object-top transition-transform duration-500 group-hover:scale-105">
+        <div class="absolute top-4 left-4">
+            <span class="px-3 py-1 bg-white/90 backdrop-blur-sm text-primary text-xs font-semibold rounded-full uppercase tracking-wider">
+                {{ post.category }}
+            </span>
+        </div>
+    </div>
+    
+    <div class="p-6 flex flex-col flex-grow">
+        <div class="flex items-center gap-2 text-muted-foreground text-sm mb-3">
+            <span>{{ post.date | date:'longDate' }}</span>
+            <span class="w-1 h-1 rounded-full bg-muted-foreground/30"></span>
+            <span>By {{ post.author }}</span>
+        </div>
+        
+        <h3 class="text-xl font-bold mb-3 font-serif line-clamp-2 group-hover:text-primary transition-colors">
+            <a [routerLink]="['/blog', post.slug]">{{ post.title }}</a>
+        </h3>
+        
+        <p class="text-muted-foreground line-clamp-3 mb-6 flex-grow">
+            {{ post.excerpt }}
+        </p>
+        
+        <a [routerLink]="['/blog', post.slug]" 
+           class="inline-flex items-center text-primary font-semibold hover:gap-2 transition-all">
+            Read More
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+            </svg>
+        </a>
+    </div>
+</article>

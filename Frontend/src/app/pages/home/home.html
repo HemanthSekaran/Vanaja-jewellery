@@ -1,11 +1,11 @@
-<app-hero-section></app-hero-section>
+<app-hero-section class="block"></app-hero-section>
 
-<app-collection-carousel [collections]="featuredCollections"></app-collection-carousel>
+<app-collection-carousel [collections]="featuredCollections" appScrollReveal class="reveal-item animate-fade-in-up block"></app-collection-carousel>
 
 <section class="py-16 px-4 sm:px-12 lg:px-16 overflow-hidden">
     <div class="container mx-auto">
-        <div class="mb-12 text-center">
-            <h2 class="text-3xl sm:text-4xl font-bold mb-4">Best Selling Products</h2>
+        <div class="mb-12 text-center reveal-item animate-fade-in-up" appScrollReveal>
+            <h2 class="text-3xl sm:text-4xl font-bold mb-4 font-serif text-primary">Best Selling Products</h2>
             <p class="text-lg text-muted-foreground max-w-2xl mx-auto">
                 Discover our most loved pieces, cherished by customers worldwide
             </p>
@@ -18,7 +18,7 @@
         } @else {
         <div class="relative group/carousel px-4 sm:px-0">
             <button (click)="rotateBackward('best')"
-                class="absolute left-[-20px] sm:left-[-40px] top-1/2 -translate-y-1/2 z-10 p-2 rounded-full border border-border bg-white shadow-md active:scale-95 flex items-center justify-center shrink-0"
+                class="absolute left-[-20px] sm:left-[-40px] top-1/2 -translate-y-1/2 z-10 p-2 rounded-full border border-border bg-white shadow-md active:scale-95 flex items-center justify-center shrink-0 hover:bg-primary hover:text-white transition-colors duration-300"
                 aria-label="Previous best sellers">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -27,9 +27,9 @@
             </button>
 
             <div #bestSellersScroll class="flex overflow-x-auto gap-4 md:gap-6 pb-4 scrollbar-hide">
-                @for (product of bestSellers; track product.id) {
-                <div
-                    class="w-[240px] sm:w-[calc(50%-12px)] md:w-[calc(33.333%-16px)] lg:w-[calc(25%-18px)] snap-start flex-none">
+                @for (product of bestSellers; track product.id; let i = $index) {
+                <div [style.animation-delay]="(i * 100) + 'ms'" appScrollReveal
+                    class="w-[240px] sm:w-[calc(50%-12px)] md:w-[calc(33.333%-16px)] lg:w-[calc(25%-18px)] snap-start flex-none reveal-item animate-fade-in-up">
                     <app-product-card [product]="product"></app-product-card>
                 </div>
                 } @empty {
@@ -40,7 +40,7 @@
             </div>
 
             <button (click)="rotateForward('best')"
-                class="absolute right-[-20px] sm:right-[-40px] top-1/2 -translate-y-1/2 z-10 p-2 rounded-full border border-border bg-white shadow-md active:scale-95 flex items-center justify-center shrink-0"
+                class="absolute right-[-20px] sm:right-[-40px] top-1/2 -translate-y-1/2 z-10 p-2 rounded-full border border-border bg-white shadow-md active:scale-95 flex items-center justify-center shrink-0 hover:bg-primary hover:text-white transition-colors duration-300"
                 aria-label="Next best sellers">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -54,8 +54,8 @@
 
 <section class="py-16 px-4 sm:px-12 lg:px-16 overflow-hidden bg-gray-50">
     <div class="container mx-auto">
-        <div class="mb-12 text-center">
-            <h2 class="text-3xl sm:text-4xl font-bold mb-4">Featured Products</h2>
+        <div class="mb-12 text-center reveal-item animate-fade-in-up" appScrollReveal>
+            <h2 class="text-3xl sm:text-4xl font-bold mb-4 font-serif text-primary">Featured Products</h2>
             <p class="text-lg text-muted-foreground max-w-2xl mx-auto">
                 Handpicked selection of our most exclusive and stunning jewelry pieces
             </p>
@@ -68,7 +68,7 @@
         } @else {
         <div class="relative group/carousel px-4 sm:px-0">
             <button (click)="rotateBackward('featured')"
-                class="absolute left-[-20px] sm:left-[-40px] top-1/2 -translate-y-1/2 z-10 p-2 rounded-full border border-border bg-white shadow-md active:scale-95 flex items-center justify-center shrink-0"
+                class="absolute left-[-20px] sm:left-[-40px] top-1/2 -translate-y-1/2 z-10 p-2 rounded-full border border-border bg-white shadow-md active:scale-95 flex items-center justify-center shrink-0 hover:bg-primary hover:text-white transition-colors duration-300"
                 aria-label="Previous featured products">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -77,9 +77,9 @@
             </button>
 
             <div #featuredScroll class="flex overflow-x-auto gap-4 md:gap-6 pb-4 scrollbar-hide">
-                @for (product of featuredProducts; track product.id) {
-                <div
-                    class="w-[240px] sm:w-[calc(50%-12px)] md:w-[calc(33.333%-16px)] lg:w-[calc(25%-18px)] snap-start flex-none">
+                @for (product of featuredProducts; track product.id; let i = $index) {
+                <div [style.animation-delay]="(i * 100) + 'ms'" appScrollReveal
+                    class="w-[240px] sm:w-[calc(50%-12px)] md:w-[calc(33.333%-16px)] lg:w-[calc(25%-18px)] snap-start flex-none reveal-item animate-fade-in-up">
                     <app-product-card [product]="product"></app-product-card>
                 </div>
                 } @empty {
@@ -90,7 +90,7 @@
             </div>
 
             <button (click)="rotateForward('featured')"
-                class="absolute right-[-20px] sm:right-[-40px] top-1/2 -translate-y-1/2 z-10 p-2 rounded-full border border-border bg-white shadow-md active:scale-95 flex items-center justify-center shrink-0"
+                class="absolute right-[-20px] sm:right-[-40px] top-1/2 -translate-y-1/2 z-10 p-2 rounded-full border border-border bg-white shadow-md active:scale-95 flex items-center justify-center shrink-0 hover:bg-primary hover:text-white transition-colors duration-300"
                 aria-label="Next featured products">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -102,5 +102,8 @@
     </div>
 </section>
 
-<app-brand-story></app-brand-story>
-<app-instagram-feed></app-instagram-feed>
+<app-brand-story appScrollReveal class="reveal-item animate-fade-in-up block"></app-brand-story>
+    <!-- Moving Blog to a separate page as requested -->
+    <!-- <app-blog-section></app-blog-section> -->
+<app-instagram-feed appScrollReveal class="reveal-item animate-fade-in-up block"></app-instagram-feed>
+<!-- <app-newsletter-section appScrollReveal class="reveal-item animate-fade-in-up block"></app-newsletter-section> -->

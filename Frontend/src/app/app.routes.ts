@@ -16,6 +16,8 @@ export const routes: Routes = [
     { path: 'contact', component: Contact },
     { path: 'wishlist', component: Wishlist },
     { path: 'cart', component: Cart },
+    { path: 'blog', loadComponent: () => import('./pages/blog/blog').then(m => m.BlogList) },
+    { path: 'blog/:slug', loadComponent: () => import('./pages/blog-detail/blog-detail').then(m => m.BlogDetail) },
     { path: 'customization', loadComponent: () => import('./pages/customization/customization').then(m => m.CustomizationComponent) },
     { path: 'customization/list', loadComponent: () => import('./pages/customization/design-list').then(m => m.DesignListComponent) },
     { path: 'customization/edit/:id', loadComponent: () => import('./pages/customization/customization').then(m => m.CustomizationComponent) },

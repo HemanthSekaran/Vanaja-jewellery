@@ -1,0 +1,7 @@
+:host {
+    display: block;
+}
+
+.prose h2 {
+    color: var(--primary);
+}

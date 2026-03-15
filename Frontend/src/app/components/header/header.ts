@@ -24,13 +24,7 @@ export class Header {
   router = inject(Router);
 
   isUserMenuOpen = false;
-  isScrolled = false;
   categories: string[] = [];
-
-  @HostListener('window:scroll', [])
-  onWindowScroll() {
-    this.isScrolled = window.scrollY > 20;
-  }
 
   ngOnInit() {
     this.productService.getFilterOptions().subscribe(options => {

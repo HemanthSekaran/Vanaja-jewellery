@@ -3,7 +3,6 @@ import { HeroSection } from '../../components/hero-section/hero-section';
 import { ProductCard } from '../../components/product-card/product-card';
 import { CollectionCarousel } from '../../components/ui-custom/collection-carousel/collection-carousel';
 import { BrandStory } from '../../components/ui-custom/brand-story/brand-story';
-import { NewsletterSection } from '../../components/ui-custom/newsletter-section/newsletter-section';
 import { InstagramFeed } from '../../components/ui-custom/instagram-feed/instagram-feed';
 import { ProductService, PaginatedProductResponse } from '../../services/product.service';
 import { Product } from '../../models/product.model';
@@ -11,6 +10,7 @@ import { CommonModule } from '@angular/common';
 import { Observable, from, of } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 import { ApiService } from '../../services/api.service';
+import { BlogSectionComponent } from '../../components/blog-section/blog-section';
 
 @Component({
   selector: 'app-home',
@@ -20,8 +20,8 @@ import { ApiService } from '../../services/api.service';
     ProductCard,
     CollectionCarousel,
     BrandStory,
-    NewsletterSection,
-    InstagramFeed
+    InstagramFeed,
+    BlogSectionComponent
   ],
   templateUrl: './home.html',
   styleUrl: './home.css'

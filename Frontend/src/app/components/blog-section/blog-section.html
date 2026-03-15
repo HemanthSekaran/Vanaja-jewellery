@@ -1,0 +1,29 @@
+<section class="py-16 px-4 sm:px-12 lg:px-16 bg-gray-50/50">
+    <div class="container mx-auto">
+        <div class="flex flex-col md:flex-row justify-between items-end mb-12 reveal-item animate-fade-in-up">
+            <div class="max-w-2xl">
+                <h2 class="text-3xl sm:text-4xl font-bold mb-4 font-serif text-primary">Latest From Our Blog</h2>
+                <p class="text-lg text-muted-foreground">
+                    Stay updated with the latest trends, guides, and stories from the world of fine jewelry. Improve your jewelry knowledge with our expert insights.
+                </p>
+            </div>
+            <div class="mt-6 md:mt-0">
+                <a routerLink="/blog" class="inline-flex items-center text-primary font-semibold hover:gap-2 transition-all">
+                    View All Posts
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                    </svg>
+                </a>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            @for (post of recentPosts; track post.id; let i = $index) {
+                <div [style.animation-delay]="(i * 150) + 'ms'" 
+                     class="reveal-item animate-fade-in-up">
+                    <app-blog-card [post]="post"></app-blog-card>
+                </div>
+            }
+        </div>
+    </div>
+</section>

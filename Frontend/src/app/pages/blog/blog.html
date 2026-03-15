@@ -1,0 +1,29 @@
+<div class="min-h-screen bg-white">
+    <!-- Header -->
+    <section
+        class="bg-[#F5E6D3] py-16 sm:py-24 px-4 sm:px-12 lg:px-16 text-center relative border-b border-[#E6DCC8]">
+        <div class="container mx-auto">
+            <h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold font-serif mb-4 tracking-tight text-[#8B0000]">Our
+                Blog</h1>
+            <div class="w-20 h-1 bg-[#D4AF37] mx-auto mb-8 rounded-full opacity-90 shadow-sm"></div>
+            <p class="text-[#3D3D3D]/70 max-w-2xl mx-auto text-lg font-medium leading-relaxed italic">
+                Discover the stories, expertise, and inspiration behind our timeless jewelry collections.
+            </p>
+        </div>
+    </section>
+
+    <!-- Blog Posts Grid -->
+    <section class="py-16 px-4 sm:px-12 lg:px-16">
+        <div class="container mx-auto">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-12">
+                @for (post of blogPosts; track post.id) {
+                <app-blog-card [post]="post"></app-blog-card>
+                } @empty {
+                <div class="col-span-full text-center py-24">
+                    <p class="text-xl text-muted-foreground">No blog posts found. Check back soon!</p>
+                </div>
+                }
+            </div>
+        </div>
+    </section>
+</div>

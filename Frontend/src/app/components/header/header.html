@@ -1,6 +1,4 @@
-<header class="sticky top-0 z-50 w-full transition-all duration-500 border-b border-white/5"
-    [class.bg-[#8B0000]]="!isScrolled" [class.bg-[#8B0000]/80]="isScrolled" [class.backdrop-blur-xl]="isScrolled"
-    [class.shadow-xl]="isScrolled" [class.h-20]="isScrolled" [class.h-24]="!isScrolled"
+<header class="sticky top-0 z-50 w-full bg-[#8B0000] h-24 shadow-lg border-b border-white/5"
     style="color: #FFFFFF; padding-top: env(safe-area-inset-top); padding-top: constant(safe-area-inset-top);">
     <div class="container relative flex h-24 items-center px-4">
         <!-- Left Section: Mobile Menu & Logo -->
@@ -55,6 +53,8 @@
                 class="transition-colors hover:text-[#FFF8DC]">About</a>
             <a routerLink="/contact" routerLinkActive="text-[#FFF8DC]"
                 class="transition-colors hover:text-[#FFF8DC]">Contact</a>
+            <a routerLink="/blog" routerLinkActive="text-[#FFF8DC]"
+                class="transition-colors hover:text-[#FFF8DC]">Blog</a>
             <a [routerLink]="customizationLink" routerLinkActive="text-[#FFF8DC]"
                 class="transition-colors hover:text-[#FFF8DC]">customization</a>
             @if (authService.currentUser()) {
