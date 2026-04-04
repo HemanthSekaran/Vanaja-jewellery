@@ -17,5 +17,10 @@ export class BlogList {
   private authService = inject(AuthService);
   blogPosts = this.blogService.posts;
   isAdmin = computed(() => this.authService.currentUser()?.role === 'admin');
-}
 
+  deletePost(id: string) {
+    if (confirm('Are you sure you want to delete this blog post?')) {
+      this.blogService.deletePost(id);
+    }
+  }
+}
