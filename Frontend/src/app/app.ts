@@ -15,7 +15,7 @@ import { SessionMonitoringService } from './services/session-monitoring.service'
   styleUrl: './app.css'
 })
 export class App {
-  protected readonly title = signal('Sri Vanaja Jewellery');
+  protected readonly title = signal('Sri Anbu Jewellery');
   layoutService = inject(LayoutService);
   sessionMonitoringService = inject(SessionMonitoringService);
 }

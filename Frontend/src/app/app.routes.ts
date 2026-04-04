@@ -4,7 +4,6 @@ import { Home } from './pages/home/home';
 import { ProductList } from './pages/product-list/product-list';
 import { ProductDetails } from './pages/product-details/product-details';
 import { About } from './pages/about/about';
-import { Contact } from './pages/contact/contact';
 import { Wishlist } from './pages/wishlist/wishlist';
 import { Cart } from './pages/cart/cart';
 
@@ -13,7 +12,7 @@ export const routes: Routes = [
     { path: 'products', component: ProductList },
     { path: 'products/:id', component: ProductDetails },
     { path: 'about', component: About },
-    { path: 'contact', component: Contact },
+    { path: 'contact', redirectTo: 'about', pathMatch: 'full' },
     { path: 'wishlist', component: Wishlist },
     { path: 'cart', component: Cart },
     { path: 'blog', loadComponent: () => import('./pages/blog/blog').then(m => m.BlogList) },

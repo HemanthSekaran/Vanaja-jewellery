@@ -38,7 +38,7 @@ export class WastageComponent implements OnInit {
     wastageValue = signal<string>('');
 
     ngOnInit() {
-        this.titleService.setTitle('Wastage Management | Sri Vanaja Jewellery');
+        this.titleService.setTitle('Wastage Management | Sri Anbu Jewellery');
         this.loadWastages();
     }
 

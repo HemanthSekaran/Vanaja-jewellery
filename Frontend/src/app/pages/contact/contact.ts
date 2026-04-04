@@ -37,7 +37,7 @@ export class Contact implements AfterViewInit {
 
   messages = signal<ChatMessage[]>([
     {
-      text: "Hi! Welcome to Sri Vanaja Jewellery. How can I help you today?",
+      text: "Hi! Welcome to Sri Anbu Jewellery. How can I help you today?",
       sender: 'bot',
       timestamp: new Date()
     }
@@ -128,7 +128,7 @@ export class Contact implements AfterViewInit {
     });
 
     L.marker([lat, lng], { icon }).addTo(map)
-      .bindPopup('Sri Vanaja Jewellery')
+      .bindPopup('Sri Anbu Jewellery')
       .openPopup();
   }
 

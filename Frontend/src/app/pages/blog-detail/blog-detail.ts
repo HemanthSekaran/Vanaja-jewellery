@@ -37,7 +37,7 @@ export class BlogDetail implements OnInit {
   }
 
   updateMeta(post: BlogPost): void {
-    this.titleService.setTitle(`${post.title} | Sri Vanaja Jewellery`);
+    this.titleService.setTitle(`${post.title} | Sri Anbu Jewellery`);
     this.metaService.updateTag({ name: 'description', content: post.excerpt });
     this.metaService.updateTag({ name: 'author', content: post.author });
     this.metaService.updateTag({ property: 'og:title', content: post.title });

@@ -42,13 +42,15 @@
     </div>
 
     <!-- Signup Area (Right Side) -->
-    <div class="w-full lg:w-1/2 flex items-center justify-center p-4 sm:p-8 lg:p-10 bg-muted/30 overflow-y-auto min-h-screen">
-        <div class="w-full max-w-md bg-white p-8 sm:p-10 rounded-2xl border border-border shadow-2xl space-y-6 h-fit my-auto relative overflow-hidden">
+    <div
+        class="w-full lg:w-1/2 flex items-center justify-center p-4 sm:p-8 lg:p-10 bg-muted/30 overflow-y-auto min-h-screen">
+        <div
+            class="w-full max-w-md bg-white p-8 sm:p-10 rounded-2xl border border-border shadow-2xl space-y-6 h-fit my-auto relative overflow-hidden">
             <!-- Decorative accent -->
             <div class="absolute top-0 right-0 w-32 h-32 bg-secondary/5 rounded-full -mr-16 -mt-16 blur-2xl"></div>
 
             <div class="lg:hidden text-center mb-6">
-                <span class="text-3xl font-serif font-bold text-primary">Sri Vanaja Jewellery</span>
+                <span class="text-3xl font-serif font-bold text-primary">Sri Anbu Jewellery</span>
                 <div class="w-12 h-0.5 bg-secondary mx-auto mt-2 opacity-60"></div>
             </div>
 
@@ -131,7 +133,8 @@
             <form [formGroup]="otpForm" (ngSubmit)="onVerifyOtp()" class="space-y-4">
                 <!-- OTP Field -->
                 <div class="space-y-2">
-                    <label for="otp" class="text-[10px] font-bold text-secondary uppercase tracking-[0.2em]">Verification
+                    <label for="otp"
+                        class="text-[10px] font-bold text-secondary uppercase tracking-[0.2em]">Verification
                         Code</label>
                     <div class="relative group">
                         <input type="text" id="otp" formControlName="otp" maxlength="6"
@@ -140,7 +143,8 @@
                             placeholder="000000">
                     </div>
                     @if (otpForm.get('otp')?.invalid && otpForm.get('otp')?.touched) {
-                    <p class="text-[10px] text-red-500 animate-in fade-in slide-in-from-top-1 font-medium">Please enter a valid
+                    <p class="text-[10px] text-red-500 animate-in fade-in slide-in-from-top-1 font-medium">Please enter
+                        a valid
                         6-digit OTP</p>
                     }
                 </div>
@@ -179,12 +183,13 @@
             <div class="pt-2 text-center">
                 <p class="text-muted-foreground text-[11px] font-medium">
                     Already have an account?
-                    <a routerLink="/login" class="text-primary font-bold hover:text-secondary transition-colors underline-offset-4 ml-1">
+                    <a routerLink="/login"
+                        class="text-primary font-bold hover:text-secondary transition-colors underline-offset-4 ml-1">
                         Sign In Here
                     </a>
                 </p>
             </div>
-            
+
             <div class="pt-8 flex items-center gap-4 text-muted-foreground/20">
                 <div class="flex-1 h-px bg-current"></div>
                 <div class="text-[8px] uppercase tracking-[0.3em] font-bold">SECURE ACCESS</div>
