@@ -1,8 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import { BlogService, BlogPost } from '../../services/blog.service';
+import { BlogService } from '../../services/blog.service';
 import { BlogCardComponent } from '../../components/blog-card/blog-card';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-blog-list',
@@ -11,14 +12,10 @@ import { BlogCardComponent } from '../../components/blog-card/blog-card';
   templateUrl: './blog.html',
   styleUrl: './blog.css'
 })
-export class BlogList implements OnInit {
-  blogPosts: BlogPost[] = [];
-
-  constructor(private blogService: BlogService) {}
-
-  ngOnInit(): void {
-    this.blogService.getPosts().subscribe(posts => {
-      this.blogPosts = posts;
-    });
-  }
+export class BlogList {
+  private blogService = inject(BlogService);
+  private authService = inject(AuthService);
+  blogPosts = this.blogService.posts;
+  isAdmin = computed(() => this.authService.currentUser()?.role === 'admin');
 }
+

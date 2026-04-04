@@ -18,7 +18,7 @@
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            @for (post of recentPosts; track post.id; let i = $index) {
+            @for (post of recentPosts(); track post.id; let i = $index) {
                 <div [style.animation-delay]="(i * 150) + 'ms'" 
                      class="reveal-item animate-fade-in-up">
                     <app-blog-card [post]="post"></app-blog-card>

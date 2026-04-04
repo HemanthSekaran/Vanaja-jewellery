@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { BlogService, BlogPost } from '../../services/blog.service';
@@ -12,14 +12,13 @@ import { Meta, Title } from '@angular/platform-browser';
   styleUrl: './blog-detail.css'
 })
 export class BlogDetail implements OnInit {
-  post?: BlogPost;
+  private blogService = inject(BlogService);
+  private route = inject(ActivatedRoute);
+  private titleService = inject(Title);
+  private metaService = inject(Meta);
 
-  constructor(
-    private route: ActivatedRoute,
-    private blogService: BlogService,
-    private titleService: Title,
-    private metaService: Meta
-  ) {}
+  post?: BlogPost;
+  categoryCounts = computed(() => this.blogService.getCategoryCounts());
 
   ngOnInit(): void {
     const slug = this.route.snapshot.paramMap.get('slug');
@@ -33,6 +32,10 @@ export class BlogDetail implements OnInit {
     }
   }
 
+  get categoryEntries() {
+    return Object.entries(this.categoryCounts());
+  }
+
   updateMeta(post: BlogPost): void {
     this.titleService.setTitle(`${post.title} | Sri Vanaja Jewellery`);
     this.metaService.updateTag({ name: 'description', content: post.excerpt });
@@ -42,3 +45,4 @@ export class BlogDetail implements OnInit {
     this.metaService.updateTag({ property: 'og:image', content: post.image });
   }
 }
+

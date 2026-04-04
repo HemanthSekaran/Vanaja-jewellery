@@ -10,7 +10,6 @@ import { CommonModule } from '@angular/common';
 import { Observable, from, of } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 import { ApiService } from '../../services/api.service';
-import { BlogSectionComponent } from '../../components/blog-section/blog-section';
 
 @Component({
   selector: 'app-home',
@@ -20,8 +19,7 @@ import { BlogSectionComponent } from '../../components/blog-section/blog-section
     ProductCard,
     CollectionCarousel,
     BrandStory,
-    InstagramFeed,
-    BlogSectionComponent
+    InstagramFeed
   ],
   templateUrl: './home.html',
   styleUrl: './home.css'

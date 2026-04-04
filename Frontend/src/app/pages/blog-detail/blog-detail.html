@@ -39,28 +39,8 @@
                             {{ post.excerpt }}
                         </p>
 
-                        <div class="text-xl leading-relaxed space-y-6">
+                        <div class="text-xl leading-relaxed space-y-6" style="white-space: pre-line;">
                             {{ post.content }}
-                        </div>
-
-                        <!-- Placeholder for more content to make it look substantial for SEO -->
-                        <div class="mt-12 space-y-6 text-xl leading-relaxed">
-                            <p>
-                                When it comes to jewelry, quality and authenticity are paramount. At Sri Vanaja
-                                Jewellery, we pride ourselves on selecting only the finest materials and employing
-                                master craftsmen who have dedicated their lives to the art of jewelry making.
-                            </p>
-                            <h2 class="text-3xl font-bold text-primary mt-12 mb-6">The Importance of Craftsmanship</h2>
-                            <p>
-                                Every piece of jewelry tells a story. Whether it is a gift for a loved one or a treat
-                                for yourself, the craftsmanship involved determines not just the beauty of the piece,
-                                but its longevity as an heirloom. We use traditional techniques combined with modern
-                                technology to ensure every detail is perfect.
-                            </p>
-                            <p>
-                                We invite you to explore our latest collections and find the piece that speaks to your
-                                unique style and personality.
-                            </p>
                         </div>
                     </div>
 
@@ -114,15 +94,14 @@
                     <div class="p-8 border border-border rounded-2xl">
                         <h3 class="text-xl font-bold mb-6 font-serif">Categories</h3>
                         <ul class="space-y-4">
-                            <li><a href="#"
-                                    class="flex justify-between hover:text-primary transition-colors"><span>Education</span>
-                                    <span class="text-muted-foreground">(1)</span></a></li>
-                            <li><a href="#"
-                                    class="flex justify-between hover:text-primary transition-colors"><span>Guides</span>
-                                    <span class="text-muted-foreground">(1)</span></a></li>
-                            <li><a href="#"
-                                    class="flex justify-between hover:text-primary transition-colors"><span>Trends</span>
-                                    <span class="text-muted-foreground">(1)</span></a></li>
+                            @for (entry of categoryEntries; track entry[0]) {
+                            <li>
+                                <a href="#" class="flex justify-between hover:text-primary transition-colors">
+                                    <span>{{ entry[0] }}</span>
+                                    <span class="text-muted-foreground">({{ entry[1] }})</span>
+                                </a>
+                            </li>
+                            }
                         </ul>
                     </div>
                 </aside>

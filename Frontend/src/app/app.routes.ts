@@ -35,5 +35,8 @@ export const routes: Routes = [
     { path: 'admin/product/new', loadComponent: () => import('./pages/admin-product/admin-product').then(m => m.AdminProduct), canActivate: [adminGuard] },
     { path: 'admin/product/edit/:id', loadComponent: () => import('./pages/admin-product/admin-product').then(m => m.AdminProduct), canActivate: [adminGuard] },
     { path: 'admin/wastage', loadComponent: () => import('./pages/admin/wastage/wastage').then(m => m.WastageComponent), canActivate: [adminGuard] },
+    { path: 'admin/blog', loadComponent: () => import('./pages/admin-blog/admin-blog').then(m => m.AdminBlogList), canActivate: [adminGuard] },
+    { path: 'admin/blog/new', loadComponent: () => import('./pages/admin-blog-form/admin-blog-form').then(m => m.AdminBlogForm), canActivate: [adminGuard] },
+    { path: 'admin/blog/edit/:id', loadComponent: () => import('./pages/admin-blog-form/admin-blog-form').then(m => m.AdminBlogForm), canActivate: [adminGuard] },
     { path: '**', redirectTo: '' }
 ];

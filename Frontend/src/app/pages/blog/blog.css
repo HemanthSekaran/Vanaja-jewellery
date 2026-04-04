@@ -1,3 +1,62 @@
 :host {
     display: block;
 }
+
+/* Admin toolbar */
+.admin-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.6rem 1.5rem;
+    background: #1a1a1a;
+    color: #fff;
+    flex-wrap: wrap;
+}
+
+.admin-bar-label {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: #D4AF37;
+    letter-spacing: 0.03em;
+}
+
+.admin-bar-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+}
+
+.admin-bar-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.38rem 0.9rem;
+    border-radius: 6px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.15s;
+}
+
+.admin-bar-btn.secondary {
+    border: 1px solid rgba(255,255,255,0.2);
+    color: #ddd;
+    background: transparent;
+}
+
+.admin-bar-btn.secondary:hover {
+    background: rgba(255,255,255,0.08);
+    color: #fff;
+}
+
+.admin-bar-btn.primary {
+    background: #8B0000;
+    color: #fff;
+    border: none;
+}
+
+.admin-bar-btn.primary:hover { background: #6b0000; }
